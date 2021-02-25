@@ -146,7 +146,6 @@ class PaymentItemsTestCase: XCTestCase {
 
             XCTAssertTrue(items.hasAccountsOnFile, "Accounts on file are missing.")
 
-            self.paymentItems(paymentItems: items)
             self.allPaymentItems(basicItems: items.allPaymentItems)
 
             XCTAssertTrue(items.paymentItem(withIdentifier: "3") != nil, "Payment item was not found.")
@@ -187,38 +186,6 @@ class PaymentItemsTestCase: XCTestCase {
 
     }
 
-    func paymentItems(paymentItems: PaymentItems) {
-        guard let items = paymentItems.paymentItems as? [BasicPaymentProductGroup] else {
-            XCTFail("Basic items was not of type BasicPaymentProductGroup.")
-            return
-        }
-        for item in items {
-            XCTAssertTrue(item.identifier == "cards", "Group identifier was equel to Cards.")
-            XCTAssertTrue(item.displayHints.displayOrder != nil, "Display order was nil (\(String(describing: item.displayHints.displayOrder))).")
-            XCTAssertTrue(item.displayHints.logoPath == "/templates/master/global/css/img/ppimages/group-card.png", "Logo path was incorrect.")
-            XCTAssertTrue(item.displayHints.logoImage != nil, "Logo image was nil.")
-
-            let file = AccountOnFile(json: ["id": 222, "paymentProductId": 1])!
-            file.identifier = "222"
-            item.accountsOnFile.accountsOnFile.append(file)
-            XCTAssertTrue(item.accountOnFile(withIdentifier: "1") != nil, "Account on file was not found.")
-            XCTAssertTrue(item.accountOnFile(withIdentifier: "1")!.paymentProductIdentifier == "3", "Payment product identifier incorrect.")
-
-            XCTAssertTrue(item.accountOnFile(withIdentifier: "222") != nil, "Account on file was not found.")
-            XCTAssertTrue(item.accountOnFile(withIdentifier: "9999") == nil, "Account on file should not have been found, identifier: \(String(describing: item.accountOnFile(withIdentifier: "9999")?.identifier)).")
-
-            let formatter = StringFormatter()
-            formatter.decimalRegex = try! NSRegularExpression(pattern: "[4-5]")
-            item.stringFormatter = formatter
-            for file in item.accountsOnFile.accountsOnFile {
-                XCTAssertTrue(file.stringFormatter.decimalRegex.pattern == "[4-5]", "Decumal regex should have been: [4-5], but was: \(file.stringFormatter.decimalRegex.pattern)")
-                XCTAssertTrue(file.stringFormatter.decimalRegex.pattern != "[0-0]", "Decumal regex should have not been: \(file.stringFormatter.decimalRegex.pattern)")
-            }
-        }
-
-        XCTAssertTrue(paymentItems.accountsOnFile.first != nil, "Accounts on file should have been added in the for-loop above.")
-    }
-
     func allPaymentItems(basicItems: [BasicPaymentItem]) {
         var index = 1
         for item in basicItems {
@@ -240,7 +207,6 @@ class PaymentItemsTestCase: XCTestCase {
                 XCTAssertTrue(product.allowsTokenization, "Tokenization was false.")
                 XCTAssertTrue(product.allowsRecurring, "Recurring was false.")
                 XCTAssertTrue(product.paymentMethod == "card", "Payment method was not card.")
-                XCTAssertTrue(product.paymentProductGroup == "cards", "Payment group was not cards.")
             }
             index += 1
         }

@@ -176,48 +176,6 @@ class C2SCommunicatorTestCase: XCTestCase {
         }
     }
 
-
-    func testPaymentProductGroupsForContext() {
-        stub(condition: isHost("ams1.sandbox.api-ingenico.com")) { _ in
-            let response = [
-                "paymentProductGroups": [
-                    [
-                            "displayHints": [
-                                "displayOrder": 20,
-                                "label": "Cards",
-                                "logo": "/templates/master/global/css/img/ppimages/group-card.png"
-                            ],
-                            "id": "cards"
-                    ]
-                ]
-             ]
-            return OHHTTPStubsResponse(jsonObject: response, statusCode: 200, headers: ["Content-Type":"application/json"])
-        }
-
-        let expectation = self.expectation(description: "Response provided")
-
-        communicator.paymentProductGroups(forContext: context, success: { (groups) in
-            expectation.fulfill()
-
-            if let group = groups.paymentProductGroups.first {
-                XCTAssertEqual(group.identifier, "cards", "Received group id not as expected")
-                XCTAssertEqual(group.displayHints.displayOrder, 20, "Received group displayOrder not as expected")
-                XCTAssertEqual(group.displayHints.logoPath, "/templates/master/global/css/img/ppimages/group-card.png", "Received group logoPath not as expected")
-            } else {
-                XCTFail("Received group not as expected")
-            }
-
-        }) { (error) in
-            XCTFail("Unexpected failure while testing paymentProductGroupsForContext: \(error.localizedDescription)")
-        }
-
-        waitForExpectations(timeout: 3) { error in
-            if let error = error {
-                print("Timeout error: \(error.localizedDescription)")
-            }
-        }
-    }
-
     func testPaymentProductWithId() {
         // TODO: Merges two response stubs, need to find a way to make stubs specific for a url. (Does not work with get variables)
         stub(condition: isHost("ams1.sandbox.api-ingenico.com")) { _ in
@@ -335,10 +293,6 @@ class C2SCommunicatorTestCase: XCTestCase {
                 print("Timeout error: \(error.localizedDescription)")
             }
         }
-    }
-
-    func testPaymentProductGroupWithId(){
-        XCTFail("TODO: still needs to be written")
     }
 
     func testPaymentProductIdByPartialCreditCardNumber() {
