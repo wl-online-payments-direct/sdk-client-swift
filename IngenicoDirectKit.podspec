@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
 
   s.name          = "IngenicoDirectKit"
-  s.version       = "1.0.1"
+  s.version       = "1.0.2"
   s.summary       = "Ingenico Direct Swift SDK"
   s.description   = <<-DESC
                     This native iOS SDK facilitates handling payments in your apps
