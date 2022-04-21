@@ -54,11 +54,10 @@ public class BasicPaymentProducts: Equatable, ResponseObjectSerializable {
 
     public func logoPath(forPaymentProduct identifier: String) -> String? {
         let product = paymentProduct(withIdentifier: identifier)
-        if (product?.displayHintsList.isEmpty == false) {
-            return product?.displayHintsList[0].logoPath
-        }else{
+        guard let displayHints = product?.displayHintsList.first else {
             return nil
         }
+        return displayHints.logoPath
     }
 
     public func paymentProduct(withIdentifier identifier: String) -> BasicPaymentProduct? {

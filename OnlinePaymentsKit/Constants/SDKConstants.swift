@@ -9,12 +9,13 @@ import UIKit
 
 public class SDKConstants {
 
-    public static let kSDKLocalizable = "IDSDKLocalizable"
+    public static let kSDKLocalizable = "OPSDKLocalizable"
     public static let kImageMapping = "kImageMapping"
     public static let kImageMappingInitialized = "kImageMappingInitialized"
     public static let kIINMapping = "kIINMapping"
 
     public static let kApplePayIdentifier = "302"
+    public static let kGooglePayIdentifier = "320"
 
     public static let kApiVersion = "client/v1"
     public static let kSDKBundleIdentifier = "org.cocoapods.OnlinePaymentsKit"

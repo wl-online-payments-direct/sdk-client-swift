@@ -5,6 +5,7 @@
 //
 
 import Foundation
+import UIKit
 
 public class Session {
     public var communicator: C2SCommunicator
@@ -95,6 +96,7 @@ public class Session {
             communicator.paymentProduct(withIdentifier: paymentProductId, context: context, success: { paymentProduct in
                 self.paymentProductMapping[key] = paymentProduct
                 self.assetManager.initializeImages(for: paymentProduct)
+                self.setLogoForDisplayHints(for: paymentProduct.displayHints) {}
                 self.setLogoForDisplayHintsList(for: paymentProduct.displayHintsList){
                     success(paymentProduct)
                 }
@@ -209,19 +211,46 @@ public class Session {
     
     
     private func setLogoForPaymentItems(for paymentItems: [BasicPaymentItem], completion: @escaping() -> Void){
+        var counter = 0;
         for paymentItem in paymentItems {
-            setLogoForDisplayHintsList(for: paymentItem.displayHintsList, completion: {})
+            setLogoForDisplayHints(for: paymentItem.displayHints, completion: {})
+            if (paymentItem.displayHintsList.isEmpty == false) {
+                setLogoForDisplayHintsList(for: paymentItem.displayHintsList, completion: {
+                    counter += 1
+                    if (counter == paymentItems.count) {
+                        completion()
+                    }
+                })
+            } else {
+                counter += 1
+                if (counter == paymentItems.count) {
+                    completion()
+                }
+            }
         }
-        completion()
+    }
+    
+    private func setLogoForDisplayHints(for displayHints: PaymentItemDisplayHints, completion: @escaping() -> Void) {
+        assetManager.getLogoByStringURL(from: displayHints.logoPath) { data, response, error in
+            if let imageData = data, error == nil {
+                displayHints.logoImage = UIImage(data: imageData)
+            }
+            completion()
+        }
     }
     
     private func setLogoForDisplayHintsList(for displayHints: [PaymentItemDisplayHints], completion: @escaping() -> Void){
+        var counter = 0;
         for displayHint in displayHints {
             assetManager.getLogoByStringURL(from: displayHint.logoPath) { data, response, error in
-                guard let imageData = data, error == nil else { return }
-                displayHint.logoImage = UIImage(data: imageData)
+                counter += 1
+                if let imageData = data, error == nil {
+                    displayHint.logoImage = UIImage(data: imageData)
+                }
+                if(counter == displayHints.count) {
+                    completion()
+                }
             }
         }
-        completion()
     }
 }

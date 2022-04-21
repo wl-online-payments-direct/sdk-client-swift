@@ -52,7 +52,7 @@ public class AssetManager {
     }
 
     public func logoIdentifier(with paymentItem: BasicPaymentItem) -> String {
-        guard let url = URL(string: paymentItem.displayHints.logoPath) else {
+        guard let displayHints = paymentItem.displayHintsList.first, let url = URL(string: displayHints.logoPath) else {
             Macros.DLog(message: "Logo path not found.")
             return "Logo path not found."
         }
@@ -68,12 +68,16 @@ public class AssetManager {
 
     public func initializeImages(for paymentItems: [BasicPaymentItem]) {
         for paymentItem in paymentItems {
-            paymentItem.displayHints.logoImage = logoImage(forItem: paymentItem.identifier)
+            for displayHints in paymentItem.displayHintsList {
+                displayHints.logoImage = logoImage(forItem: paymentItem.identifier)
+            }
         }
     }
 
     public func initializeImages(for paymentItem: BasicPaymentItem) {
-        paymentItem.displayHints.logoImage = logoImage(forItem: paymentItem.identifier)
+        for displayHints in paymentItem.displayHintsList {
+            displayHints.logoImage = logoImage(forItem: paymentItem.identifier)
+        }
         if let item = paymentItem as? PaymentItem {
             for field in item.fields.paymentProductFields where field.displayHints.tooltip?.imagePath != nil {
                 field.displayHints.tooltip?.image = tooltipImage(forItem: item.identifier, field: field.identifier)
@@ -116,7 +120,10 @@ public class AssetManager {
     public func updateImages(for paymentItems: [BasicPaymentItem], baseURL: String) {
         for object in paymentItems {
             let paymentItem = object
-            let logoPath = paymentItem.displayHints.logoPath
+            guard let displayHints = paymentItem.displayHintsList.first else {
+                return
+            }
+            let logoPath = displayHints.logoPath
             let identifier = String(format: self.logoFormat, paymentItem.identifier)
             updateImage(withIdentifier: identifier, newPath: logoPath, baseURL: baseURL)
         }
@@ -203,6 +210,11 @@ public class AssetManager {
     }
     
     public func getLogoByStringURL(from url: String, completion: @escaping (Data?, URLResponse?, Error?) -> ()) {
-        URLSession.shared.dataTask(with: URL(string: url)!, completionHandler: completion).resume()
+        let urlString = url.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)
+        URLSession.shared.dataTask(with: URL(string: urlString ?? url)!, completionHandler: {data, response, error in
+            DispatchQueue.main.async {
+                completion(data, response, error)
+            }
+        }).resume()
     }
 }

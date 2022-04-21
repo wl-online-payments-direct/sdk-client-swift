@@ -59,6 +59,7 @@ public class C2SCommunicator {
             }, failure: { error in
                 failure(error)
             })
+            paymentProducts = self.removeGooglePayProduct(with: paymentProducts)
         }) { error in
             failure(error)
         }
@@ -91,6 +92,16 @@ public class C2SCommunicator {
             success()
         }
 
+        return paymentProducts
+    }
+    
+    private func removeGooglePayProduct(with paymentProducts: BasicPaymentProducts) -> BasicPaymentProducts {
+        if let googlePayPaymentProduct = paymentProducts.paymentProduct(withIdentifier: SDKConstants.kGooglePayIdentifier) {
+            if let product = paymentProducts.paymentProducts.firstIndex(of: googlePayPaymentProduct) {
+                paymentProducts.paymentProducts.remove(at: product)
+            }
+        }
+        
         return paymentProducts
     }
 

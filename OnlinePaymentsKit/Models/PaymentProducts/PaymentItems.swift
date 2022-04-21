@@ -42,12 +42,11 @@ public class PaymentItems {
         guard let item = paymentItem(withIdentifier: identifier) else {
             return nil
         }
-
-        if (item.displayHintsList.isEmpty == false) {
-            return item.displayHintsList[0].logoPath
-        }else{
+        
+        guard let displayHints = item.displayHintsList.first else {
             return nil
         }
+        return displayHints.logoPath
     }
 
     public func paymentItem(withIdentifier identifier: String) -> BasicPaymentItem? {

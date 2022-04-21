@@ -55,11 +55,10 @@ public class BasicPaymentProductGroups: ResponseObjectSerializable {
 
     public func logoPath(forProductGroup identifier: String) -> String? {
         let productGroup = paymentProductGroup(withIdentifier: identifier)
-        if (productGroup?.displayHintsList.isEmpty == false) {
-            return productGroup?.displayHintsList[0].logoPath
-        }else{
+        guard let displayHints = productGroup?.displayHintsList.first else {
             return nil
         }
+        return displayHints.logoPath
     }
 
     public func paymentProductGroup(withIdentifier identifier: String) -> BasicPaymentProductGroup? {

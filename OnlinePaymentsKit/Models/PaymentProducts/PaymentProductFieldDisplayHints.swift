@@ -15,6 +15,7 @@ public class PaymentProductFieldDisplayHints: ResponseObjectSerializable {
     public var obfuscate = false
     public var tooltip: ToolTip?
     public var label: String?
+    public var placeholderLabel: String?
     public var link: URL?
     public var preferredInputType: PreferredInputType = .noKeyboard
 
@@ -42,6 +43,9 @@ public class PaymentProductFieldDisplayHints: ResponseObjectSerializable {
         }
         if let input = json["label"] as? String {
             label = input
+        }
+        if let input = json["placeholderLabel"] as? String {
+            placeholderLabel = input
         }
         if let input = json["link"]  as? String {
             link = URL(string: input)
