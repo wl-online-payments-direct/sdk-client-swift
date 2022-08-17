@@ -81,12 +81,11 @@ class PaymentProductFieldsTestCase: XCTestCase {
 
         var displayOrder = -1
         for field in fields.paymentProductFields {
-            if let fieldOrder = field.displayHints.displayOrder, displayOrder > fieldOrder {
+            let fieldOrder = field.displayHints.displayOrder
+            if displayOrder > fieldOrder {
                 XCTFail("Fields not sorted according to display order")
             }
-            if let order = field.displayHints.displayOrder {
-                displayOrder = order
-            }
+            displayOrder = field.displayHints.displayOrder
         }
     }
 

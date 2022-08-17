@@ -41,6 +41,7 @@ class PaymentProductGroupTestCase: XCTestCase {
     func testPaymentField() {
         let field = PaymentProductField(json: [
             "displayHints": [
+                "displayOrder": 1,
                 "formElement": [
                     "type": "text"
                 ]
@@ -52,6 +53,7 @@ class PaymentProductGroupTestCase: XCTestCase {
 
         let field1 = PaymentProductField(json: [
             "displayHints": [
+                "displayOrder": 2,
                 "formElement": [
                     "type": "text"
                 ]

@@ -37,12 +37,12 @@ class EncryptorTestCase: XCTestCase {
             }
         }
     }
-
+    
     func testDeleteRSAKeyWithtag() {
         encryptor.deleteRSAKey(withTag: publicTag)
         encryptor.deleteRSAKey(withTag: privateTag)
 
-        _ = encryptor.generateRSAKeyPair(withPublicTag: publicTag, privateTag: privateTag)
+        encryptor.generateRSAKeyPair(withPublicTag: publicTag, privateTag: privateTag)
 
         encryptor.deleteRSAKey(withTag: publicTag)
         encryptor.deleteRSAKey(withTag: privateTag)
@@ -79,7 +79,7 @@ class EncryptorTestCase: XCTestCase {
 
     func testGenerateHMACContent() {
         let hmacKey = encryptor.generateRandomBytes(length: 16)
-        let input = Data(bytes: [0, 255, 43, 1])
+        let input = Data([0, 255, 43, 1])
         let hmac1 = encryptor.generateHMAC(data: input, key: hmacKey!)
         let hmac2 = encryptor.generateHMAC(data: input, key: hmacKey!)
         XCTAssertEqual(hmac1, hmac2, "HMACs generated from the same input do not match")

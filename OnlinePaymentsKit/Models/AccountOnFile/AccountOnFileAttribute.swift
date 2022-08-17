@@ -6,14 +6,15 @@
 
 import Foundation
 
-public class AccountOnFileAttribute {
+@objc(OPAccountOnFileAttribute)
+public class AccountOnFileAttribute: NSObject {
 
-    public var key: String
-    public var value: String?
-    public var status: AccountOnFileAttributeStatus
-    public var mustWriteReason: String?
+    @objc public var key: String
+    @objc public var value: String?
+    @objc public var status: AccountOnFileAttributeStatus
+    @objc public var mustWriteReason: String?
 
-    required public init?(json: [String: Any]) {
+    @objc required public init?(json: [String: Any]) {
         guard let key = json["key"] as? String else {
             return nil
         }

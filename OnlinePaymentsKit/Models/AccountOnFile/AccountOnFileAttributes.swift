@@ -6,11 +6,12 @@
 
 import Foundation
 
-public class AccountOnFileAttributes {
+@objc(OPAccountOnFileAttributes)
+public class AccountOnFileAttributes: NSObject {
 
-    public var attributes = [AccountOnFileAttribute]()
+    @objc  public var attributes = [AccountOnFileAttribute]()
 
-    public func value(forField paymentProductFieldId: String) -> String {
+    @objc public func value(forField paymentProductFieldId: String) -> String {
         for attribute in attributes {
             if attribute.key == paymentProductFieldId, let val = attribute.value {
                 return val
@@ -20,7 +21,7 @@ public class AccountOnFileAttributes {
         return ""
     }
 
-    public func hasValue(forField paymentProductFieldId: String) -> Bool {
+    @objc public func hasValue(forField paymentProductFieldId: String) -> Bool {
         for attribute in attributes
             where attribute.key == paymentProductFieldId {
                 return true
@@ -29,7 +30,7 @@ public class AccountOnFileAttributes {
         return false
     }
 
-    public func isReadOnly(field paymentProductFieldId: String?) -> Bool {
+    @objc public func isReadOnly(field paymentProductFieldId: String?) -> Bool {
         guard let field = paymentProductFieldId else {
             return false
         }

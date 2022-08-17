@@ -26,13 +26,19 @@ class AssetManagerTestCase: XCTestCase {
                 "displayOrder": 20,
                 "label": "Visa",
                 "logo": "/this/is_a_test.png"
-            ]
+            ],
+            "displayHintsList": [[
+                "displayOrder": 20,
+                "label": "Visa",
+                "logo": "/this/is_a_test.png"
+            ]]
         ])!
         
         paymentItem.fields = PaymentProductFields()
         for i in 0..<5 {
             let field = PaymentProductField(json: [
                 "displayHints": [
+                    "displayOrder": 0,
                     "formElement": [
                         "type": "text"
                     ],
@@ -56,33 +62,33 @@ class AssetManagerTestCase: XCTestCase {
         var logoIdentifier = assetManager.logoIdentifier(with: paymentItem)
         XCTAssertEqual(logoIdentifier, "is_a", "Did not properly identify logo identifier with multiple underscores")
         
-        paymentItem.displayHints.logoPath = "/this/is/a_test.png"
+        paymentItem.displayHintsList.first?.logoPath = "/this/is/a_test.png"
         logoIdentifier = assetManager.logoIdentifier(with: paymentItem)
         XCTAssertEqual(logoIdentifier, "a", "Did not properly identify logo identifier with single underscore")
         
-        paymentItem.displayHints.logoPath = "/this/is/a/test.png"
+        paymentItem.displayHintsList.first?.logoPath = "/this/is/a/test.png"
         logoIdentifier = assetManager.logoIdentifier(with: paymentItem)
         XCTAssertEqual(logoIdentifier, "test", "Did not properly identify logo identifier without underscores")
         
-        paymentItem.displayHints.logoPath = "/this/is/a/_.png"
+        paymentItem.displayHintsList.first?.logoPath = "/this/is/a/_.png"
         logoIdentifier = assetManager.logoIdentifier(with: paymentItem)
         XCTAssertEqual(logoIdentifier, "", "Did not properly identify logo identifier for edge case")
     }
     
     func testInitializeImagesForPaymentItems() {
-        XCTAssertNotEqual(paymentItem.displayHints.logoImage?.accessibilityLabel, "logoStubResponse")
+        XCTAssertNotEqual(paymentItem.displayHintsList.first?.logoImage?.accessibilityLabel, "logoStubResponse")
         
         assetManager.initializeImages(for: [paymentItem])
         
-        XCTAssertEqual(paymentItem.displayHints.logoImage?.accessibilityLabel, "logoStubResponse")
+        XCTAssertEqual(paymentItem.displayHintsList.first?.logoImage?.accessibilityLabel, "logoStubResponse")
     }
     
     func testInitializeImagesForPaymentItem() {
-        XCTAssertNotEqual(paymentItem.displayHints.logoImage?.accessibilityLabel, "logoStubResponse")
+        XCTAssertNotEqual(paymentItem.displayHintsList.first?.logoImage?.accessibilityLabel, "logoStubResponse")
         
         assetManager.initializeImages(for: paymentItem)
         
-        XCTAssertEqual(paymentItem.displayHints.logoImage?.accessibilityLabel, "logoStubResponse")
+        XCTAssertEqual(paymentItem.displayHintsList.first?.logoImage?.accessibilityLabel, "logoStubResponse")
         
         for i in 0..<paymentItem.fields.paymentProductFields.count {
             let field = paymentItem.fields.paymentProductFields[i]

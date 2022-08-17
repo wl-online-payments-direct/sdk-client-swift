@@ -8,6 +8,13 @@
             "label" : "Cards",
             "logo" : "templates/master/global/css/img/ppimages/group-card.png"
         },
+        "displayHintsList" : [
+            {
+                "displayOrder" : 2147483647,
+                "label" : "Cards",
+                "logo" : "templates/master/global/css/img/ppimages/group-card.png"
+            }
+        ],
         "fields" : [ {
             "dataRestrictions" : {
                 "isRequired" : true,

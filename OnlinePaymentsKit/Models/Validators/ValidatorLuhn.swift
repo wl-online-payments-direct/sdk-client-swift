@@ -6,9 +6,10 @@
 
 import Foundation
 
+@objc(OPValidatorLuhn)
 public class ValidatorLuhn: Validator {
 
-    public override func validate (value: String, for request: PaymentRequest) {
+    @objc public override func validate (value: String, for request: PaymentRequest) {
         super.validate(value: value, for: request)
 
         var evenSum = 0

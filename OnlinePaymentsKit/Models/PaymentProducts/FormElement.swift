@@ -6,11 +6,12 @@
 
 import Foundation
 
-public class FormElement: ResponseObjectSerializable {
-    public var type: FormElementType
-    public var valueMapping = [ValueMappingItem]()
+@objc(OPFormElement)
+public class FormElement: NSObject, ResponseObjectSerializable {
+    @objc public var type: FormElementType
+    @objc public var valueMapping = [ValueMappingItem]()
 
-    required public init?(json: [String: Any]) {
+    @objc required public init?(json: [String: Any]) {
         switch json["type"] as? String {
         case "text"?:
             type = .textType

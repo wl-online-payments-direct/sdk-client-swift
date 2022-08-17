@@ -6,23 +6,25 @@
 
 import Foundation
 
-public class StringFormatter {
-    public var decimalRegex: NSRegularExpression
-    public var lowerAlphaRegex: NSRegularExpression
-    public var upperAlphaRegex: NSRegularExpression
+@objc(OPStringFormatter)
+public class StringFormatter: NSObject {
+    @objc public var decimalRegex: NSRegularExpression
+    @objc public var lowerAlphaRegex: NSRegularExpression
+    @objc public var upperAlphaRegex: NSRegularExpression
 
-    public init() {
+    @objc public override init() {
         decimalRegex = try! NSRegularExpression(pattern: "[0-9]")
         lowerAlphaRegex = try! NSRegularExpression(pattern: "[a-z]")
         upperAlphaRegex = try! NSRegularExpression(pattern: "[A-Z]")
     }
 
-    public func formatString(string: String, mask: String) -> String {
+    @objc public func formatString(string: String, mask: String) -> String {
         var cursorPosition = 0
         return formatString(string: string, mask: mask, cursorPosition: &cursorPosition)
     }
 
-    public func formatString(string: String, mask: String, cursorPosition: inout NSInteger) -> String {
+    @objc(formatString:withMask:cursorPosition:)
+    public func formatString(string: String, mask: String, cursorPosition: UnsafeMutablePointer<NSInteger>) -> String {
         let matches = parts(ofMask: mask)
         var copyFromMask = true
         var appendRestOfMask = true
@@ -30,13 +32,14 @@ public class StringFormatter {
         var result = ""
 
         for match in matches {
-            let matchString = processMatch(match: match, string: string, stringIndex: &stringIndex, mask: mask, copyFromMask: &copyFromMask, appendRestOfMask: &appendRestOfMask, cursorPosition: &cursorPosition)
+            let matchString = processMatch(match: match, string: string, stringIndex: &stringIndex, mask: mask, copyFromMask: &copyFromMask, appendRestOfMask: &appendRestOfMask, cursorPosition: &cursorPosition.pointee)
             result = result.appending(matchString)
         }
 
         return result
     }
 
+    @objc(unformatString:withMask:)
     public func unformatString(string: String, mask: String) -> String {
         let maskedString = formatString(string: string, mask: mask)
         let matches = parts(ofMask: mask)
@@ -64,26 +67,26 @@ public class StringFormatter {
         return result
     }
 
-    public func processMatch(match: String, string: String, stringIndex: inout Int, mask: String, copyFromMask: inout Bool, appendRestOfMask: inout Bool, cursorPosition: inout Int) -> String {
+    @objc public func processMatch(match: String, string: String, stringIndex: UnsafeMutablePointer<Int>, mask: String, copyFromMask: UnsafeMutablePointer<Bool>, appendRestOfMask: UnsafeMutablePointer<Bool>, cursorPosition: UnsafeMutablePointer<Int>) -> String {
         var result = ""
 
         if match.isEqual("{{") {
-            copyFromMask = false
+            copyFromMask.pointee = false
         } else if match.isEqual("}}") {
-            copyFromMask = true
+            copyFromMask.pointee = true
         } else {
             var maskIndex = 0
 
-            while stringIndex < string.count && maskIndex < match.count {
-                let stringChar = string[stringIndex..<(stringIndex + 1)]
+            while stringIndex.pointee < string.count && maskIndex < match.count {
+                let stringChar = string[stringIndex.pointee..<(stringIndex.pointee + 1)]
                 let maskChar = match[maskIndex..<(maskIndex + 1)]
-                if copyFromMask {
+                if copyFromMask.pointee {
                     result = result.appending(maskChar)
                     if stringChar.isEqual(maskChar) {
-                        stringIndex += 1
+                        stringIndex.pointee += 1
                     } else {
-                        if cursorPosition >= stringIndex {
-                            cursorPosition += 1
+                        if cursorPosition.pointee >= stringIndex.pointee {
+                            cursorPosition.pointee += 1
                         }
                     }
                     maskIndex += 1
@@ -103,23 +106,23 @@ public class StringFormatter {
                         maskIndex += 1
                     }
 
-                    stringIndex += 1
+                    stringIndex.pointee += 1
                 }
             }
 
-            if appendRestOfMask {
+            if appendRestOfMask.pointee {
                 if maskIndex < match.count {
-                    if copyFromMask {
+                    if copyFromMask.pointee {
                         let remainingLength = match.count - maskIndex
                         let endIndex = maskIndex+remainingLength
                         result = result.appending(match[maskIndex..<endIndex])
 
-                        if cursorPosition >= stringIndex {
-                            cursorPosition += remainingLength
+                        if cursorPosition.pointee >= stringIndex.pointee {
+                            cursorPosition.pointee += remainingLength
                         }
                     }
 
-                    appendRestOfMask = false
+                    appendRestOfMask.pointee = false
                 }
             }
         }
@@ -134,7 +137,7 @@ public class StringFormatter {
         return results.map { (mask as NSString).substring(with: $0.range) }
     }
 
-    public func relaxMask(mask: String) -> String {
+    @objc public func relaxMask(mask: String) -> String {
         let matches = parts(ofMask: mask)
         var relaxedMask = mask
         var replaceCharacters = false

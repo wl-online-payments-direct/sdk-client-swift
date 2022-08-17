@@ -6,6 +6,7 @@
 
 import Foundation
 
+@objc(OPPaymentItem)
 public protocol PaymentItem: BasicPaymentItem {
     var fields: PaymentProductFields { get set }
 

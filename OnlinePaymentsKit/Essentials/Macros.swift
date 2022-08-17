@@ -6,8 +6,8 @@
 
 import Foundation
 
-public class Macros {
-    public static func DLog(message: String, functionName: String = #function, fileName: String = #file) {
+@objc public class Macros: NSObject {
+    @objc public static func DLog(message: String, functionName: String = #function, fileName: String = #file) {
         #if DEBUG
         print("DLog: Original_Message = \(message)\n Method_Name = \(functionName)\n Line_Number = \(#line)")
         #else

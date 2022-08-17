@@ -4,7 +4,8 @@
 // Copyright © 2020 Global Collect Services. All rights reserved.
 //
 
-public enum AccountOnFileAttributeStatus {
+@objc(OPAccountOnFileAttributeStatus)
+public enum AccountOnFileAttributeStatus: Int {
     case readOnly
     case canWrite
     case mustWrite

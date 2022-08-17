@@ -6,7 +6,8 @@
 
 import Foundation
 
-public class AccountOnFileDisplayHints {
+@objc(OPAccountOnFileDisplayHints)
+public class AccountOnFileDisplayHints: NSObject {
 
-    public var labelTemplate: LabelTemplate = LabelTemplate()
+    @objc public var labelTemplate: LabelTemplate = LabelTemplate()
 }

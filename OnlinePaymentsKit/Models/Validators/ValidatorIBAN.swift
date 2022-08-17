@@ -6,6 +6,7 @@
 
 import Foundation
 
+@objc(OPValidatorIBAN)
 public class ValidatorIBAN: Validator {
     private func charToIndex(mychar: Character) -> Int? {
         let alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -29,7 +30,7 @@ public class ValidatorIBAN: Validator {
         } while remainder.count > 2
         return (Int(remainder)!) % modulo
     }
-    public override func validate(value: String, for request: PaymentRequest) {
+    @objc public override func validate(value: String, for request: PaymentRequest) {
         super.validate(value: value, for: request)
         let strippedText = value.components(separatedBy: .whitespacesAndNewlines).joined().uppercased()
         do {

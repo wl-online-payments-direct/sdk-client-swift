@@ -6,10 +6,11 @@
 
 import Foundation
 
-public class PaymentProduct302SpecificData {
-    public var networks: [String] = []
+@objc(OPPaymentProduct302SpecificData)
+public class PaymentProduct302SpecificData: NSObject {
+    @objc public var networks: [String] = []
 
-    public required init?(json: [String: Any]) {
+    @objc public required init?(json: [String: Any]) {
         if let networks = json["networks"] as? [String] {
             self.networks = networks
         }

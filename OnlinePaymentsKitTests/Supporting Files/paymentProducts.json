@@ -41,6 +41,13 @@
                 "label": "Visa",
                 "logo": "/templates/master/global/css/img/ppimages/pp_logo_1_v1.png"
             },
+            "displayHintsList" : [
+                {
+                    "displayOrder" : 20,
+                    "label" : "Visa",
+                    "logo":"/templates/master/global/css/img/ppimages/pp_logo_1_v1.png"
+                }
+            ],
             "id": 1,
             "mobileIntegrationLevel": "OPTIMISED_SUPPORT"
         },
@@ -52,6 +59,13 @@
                 "label": "American Express",
                 "logo": "/templates/master/global/css/img/ppimages/pp_logo_2_v1.png"
             },
+            "displayHintsList" : [
+                {
+                    "displayOrder": 19,
+                    "label": "American Express",
+                    "logo": "/templates/master/global/css/img/ppimages/pp_logo_2_v1.png"
+                }
+            ],
             "id": 2,
             "mobileIntegrationLevel": "OPTIMISED_SUPPORT"
         },
@@ -63,6 +77,13 @@
                 "label": "MasterCard",
                 "logo": "/templates/master/global/css/img/ppimages/pp_logo_3_v1.png"
             },
+            "displayHintsList" : [
+                {
+                    "displayOrder": 18,
+                    "label": "MasterCard",
+                    "logo": "/templates/master/global/css/img/ppimages/pp_logo_3_v1.png"
+                }
+            ],
             "id": 3,
             "mobileIntegrationLevel": "OPTIMISED_SUPPORT"
         },
@@ -74,6 +95,13 @@
                 "label": "Invoice",
                 "logo": "/templates/master/global/css/img/ppimages/pp_logo_201_v1.png"
             },
+            "displayHintsList" : [
+                {
+                    "displayOrder": 17,
+                    "label": "Invoice",
+                    "logo": "/templates/master/global/css/img/ppimages/pp_logo_201_v1.png"
+                }
+            ],
             "id": 201,
             "mobileIntegrationLevel": "OPTIMISED_SUPPORT"
         },
@@ -85,6 +113,13 @@
                 "label": "Discover",
                 "logo": "/templates/master/global/css/img/ppimages/pp_logo_128_v1.png"
             },
+            "displayHintsList" : [
+                {
+                    "displayOrder": 73,
+                    "label": "Discover",
+                    "logo": "/templates/master/global/css/img/ppimages/pp_logo_128_v1.png"
+                }
+            ],
             "id": 128,
             "mobileIntegrationLevel": "OPTIMISED_SUPPORT"
         },
@@ -96,6 +131,13 @@
                 "label": "Western Union",
                 "logo": "/templates/master/global/css/img/ppimages/pp_logo_1501_v1.png"
             },
+            "displayHintsList" : [
+                {
+                    "displayOrder": 29,
+                    "label": "Western Union",
+                    "logo": "/templates/master/global/css/img/ppimages/pp_logo_1501_v1.png"
+                }
+            ],
             "id": 1501,
             "mobileIntegrationLevel": "OPTIMISED_SUPPORT"
         },
@@ -107,6 +149,13 @@
                 "label": "PaySafeCard",
                 "logo": "/templates/master/global/css/img/ppimages/pp_logo_830_v1.png"
             },
+            "displayHintsList" : [
+                {
+                    "displayOrder": 69,
+                    "label": "PaySafeCard",
+                    "logo": "/templates/master/global/css/img/ppimages/pp_logo_830_v1.png"
+                }
+            ],
             "id": 830,
             "mobileIntegrationLevel": "OPTIMISED_SUPPORT"
         },
@@ -118,6 +167,13 @@
                 "label": "Carte Bancaire",
                 "logo": "/templates/master/global/css/img/ppimages/pp_logo_130_v1.png"
             },
+            "displayHintsList" : [
+                {
+                    "displayOrder": 92,
+                    "label": "Carte Bancaire",
+                    "logo": "/templates/master/global/css/img/ppimages/pp_logo_130_v1.png"
+                }
+            ],
             "id": 130,
             "mobileIntegrationLevel": "OPTIMISED_SUPPORT"
         },
@@ -129,6 +185,13 @@
                 "label": "Bank Transfer",
                 "logo": "/templates/master/global/css/img/ppimages/pp_logo_11_v1.png"
             },
+            "displayHintsList" : [
+                {
+                    "displayOrder": 27,
+                    "label": "Bank Transfer",
+                    "logo": "/templates/master/global/css/img/ppimages/pp_logo_11_v1.png"
+                }
+            ],
             "id": 11,
             "mobileIntegrationLevel": "OPTIMISED_SUPPORT"
         },
@@ -140,6 +203,13 @@
                 "label": "Check",
                 "logo": "/templates/master/global/css/img/ppimages/pp_logo_12_v1.png"
             },
+            "displayHintsList" : [
+                {
+                    "displayOrder": 28,
+                    "label": "Check",
+                    "logo": "/templates/master/global/css/img/ppimages/pp_logo_12_v1.png"
+                }
+            ],
             "id": 12,
             "mobileIntegrationLevel": "OPTIMISED_SUPPORT"
         },
@@ -151,6 +221,13 @@
                 "label": "Diners Club",
                 "logo": "/templates/master/global/css/img/ppimages/pp_logo_132_v1.png"
             },
+            "displayHintsList" : [
+                {
+                    "displayOrder": 84,
+                    "label": "Diners Club",
+                    "logo": "/templates/master/global/css/img/ppimages/pp_logo_132_v1.png"
+                }
+            ],
             "id": 132,
             "mobileIntegrationLevel": "OPTIMISED_SUPPORT"
         },
@@ -162,6 +239,13 @@
                 "label": "iDEAL",
                 "logo": "/templates/master/global/css/img/ppimages/pp_logo_809_v1.png"
             },
+            "displayHintsList" : [
+                {
+                    "displayOrder": 47,
+                    "label": "iDEAL",
+                    "logo": "/templates/master/global/css/img/ppimages/pp_logo_809_v1.png"
+                }
+            ],
             "id": 809,
             "mobileIntegrationLevel": "OPTIMISED_SUPPORT"
         },
@@ -173,6 +257,13 @@
                 "label": "Ukash",
                 "logo": "/templates/master/global/css/img/ppimages/pp_logo_1400_v1.png"
             },
+            "displayHintsList" : [
+                {
+                    "displayOrder": 103,
+                    "label": "Ukash",
+                    "logo": "/templates/master/global/css/img/ppimages/pp_logo_1400_v1.png"
+                }
+            ],
             "id": 1400,
             "mobileIntegrationLevel": "OPTIMISED_SUPPORT"
         },
@@ -184,6 +275,13 @@
                 "label": "Alipay",
                 "logo": "/templates/master/global/css/img/ppimages/pp_logo_861_v2.png"
             },
+            "displayHintsList" : [
+                {
+                    "displayOrder": 83,
+                    "label": "Alipay",
+                    "logo": "/templates/master/global/css/img/ppimages/pp_logo_861_v2.png"
+                }
+            ],
             "id": 861,
             "mobileIntegrationLevel": "BASIC_SUPPORT"
         },
@@ -195,6 +293,13 @@
                 "label": "Maestro",
                 "logo": "/templates/master/global/css/img/ppimages/pp_logo_117_v1.png"
             },
+            "displayHintsList" : [
+                {
+                    "displayOrder": 54,
+                    "label": "Maestro",
+                    "logo": "/templates/master/global/css/img/ppimages/pp_logo_117_v1.png"
+                }
+            ],
             "id": 117,
             "mobileIntegrationLevel": "OPTIMISED_SUPPORT"
         },
@@ -206,6 +311,13 @@
                 "label": "SEPA direct debit",
                 "logo": "/templates/master/global/css/img/ppimages/pp_logo_770_v1.png"
             },
+            "displayHintsList" : [
+                {
+                    "displayOrder": 72,
+                    "label": "SEPA direct debit",
+                    "logo": "/templates/master/global/css/img/ppimages/pp_logo_770_v1.png"
+                }
+            ],
             "id": 770,
             "mobileIntegrationLevel": "OPTIMISED_SUPPORT"
         },
@@ -217,6 +329,13 @@
                 "label": "Sofortüberweisung",
                 "logo": "/templates/master/global/css/img/ppimages/pp_logo_836_v1.png"
             },
+            "displayHintsList" : [
+                {
+                    "displayOrder": 80,
+                    "label": "Sofortüberweisung",
+                    "logo": "/templates/master/global/css/img/ppimages/pp_logo_836_v1.png"
+                }
+            ],
             "id": 836,
             "mobileIntegrationLevel": "OPTIMISED_SUPPORT"
         },
@@ -228,6 +347,13 @@
                 "label": "UnionPay",
                 "logo": "/templates/master/global/css/img/ppimages/pp_logo_430_v1.png"
             },
+            "displayHintsList" : [
+                {
+                    "displayOrder": 61,
+                    "label": "UnionPay",
+                    "logo": "/templates/master/global/css/img/ppimages/pp_logo_430_v1.png"
+                }
+            ],
             "id": 430
         },
         {
@@ -238,6 +364,13 @@
                 "label": "Moneybookers",
                 "logo": "/templates/master/global/css/img/ppimages/pp_logo_843_v1.png"
             },
+            "displayHintsList" : [
+                {
+                    "displayOrder": 52,
+                    "label": "Moneybookers",
+                    "logo": "/templates/master/global/css/img/ppimages/pp_logo_843_v1.png"
+                }
+            ],
             "id": 843,
             "mobileIntegrationLevel": "OPTIMISED_SUPPORT"
         },
@@ -249,6 +382,13 @@
                 "label": "PayPal",
                 "logo": "/templates/master/global/css/img/ppimages/pp_logo_840_v1.png"
             },
+            "displayHintsList" : [
+                {
+                    "displayOrder": 56,
+                    "label": "PayPal",
+                    "logo": "/templates/master/global/css/img/ppimages/pp_logo_840_v1.png"
+                }
+            ],
             "id": 840,
             "mobileIntegrationLevel": "OPTIMISED_SUPPORT"
         },
@@ -260,6 +400,13 @@
                 "label": "JCB",
                 "logo": "/templates/master/global/css/img/ppimages/pp_logo_125_v1.png"
             },
+            "displayHintsList" : [
+                {
+                    "displayOrder": 70,
+                    "label": "JCB",
+                    "logo": "/templates/master/global/css/img/ppimages/pp_logo_125_v1.png"
+                }
+            ],
             "id": 125,
             "mobileIntegrationLevel": "OPTIMISED_SUPPORT"
         },
@@ -271,6 +418,13 @@
                 "label": "WebMoney",
                 "logo": "/templates/master/global/css/img/ppimages/pp_logo_841_v1.png"
             },
+            "displayHintsList" : [
+                {
+                    "displayOrder": 55,
+                    "label": "WebMoney",
+                    "logo": "/templates/master/global/css/img/ppimages/pp_logo_841_v1.png"
+                }
+            ],
             "id": 841,
             "mobileIntegrationLevel": "OPTIMISED_SUPPORT"
         },
@@ -282,6 +436,13 @@
                 "label": "Dankort",
                 "logo": "/templates/master/global/css/img/ppimages/pp_logo_123_v1.png"
             },
+            "displayHintsList" : [
+                {
+                    "displayOrder": 77,
+                    "label": "Dankort",
+                    "logo": "/templates/master/global/css/img/ppimages/pp_logo_123_v1.png"
+                }
+            ],
             "id": 123,
             "mobileIntegrationLevel": "OPTIMISED_SUPPORT"
         },
@@ -293,6 +454,13 @@
                 "label": "Visa Electron",
                 "logo": "/templates/master/global/css/img/ppimages/pp_logo_122_v1.png"
             },
+            "displayHintsList" : [
+                {
+                    "displayOrder": 76,
+                    "label": "Visa Electron",
+                    "logo": "/templates/master/global/css/img/ppimages/pp_logo_122_v1.png"
+                }
+            ],
             "id": 122,
             "mobileIntegrationLevel": "OPTIMISED_SUPPORT"
         }

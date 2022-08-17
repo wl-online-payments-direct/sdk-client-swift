@@ -6,13 +6,14 @@
 
 import Foundation
 
-public class ValueMappingItem: ResponseObjectSerializable {
+@objc(OPValueMappingItem)
+public class ValueMappingItem: NSObject, ResponseObjectSerializable {
 
-    public var displayName: String?
-    public var displayElements: [DisplayElement]
-    public var value: String
+    @objc public var displayName: String?
+    @objc public var displayElements: [DisplayElement]
+    @objc public var value: String
 
-    required public init?(json: [String: Any]) {
+    @objc required public init?(json: [String: Any]) {
         guard let value = json["value"] as? String else {
             return nil
         }

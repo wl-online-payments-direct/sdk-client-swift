@@ -6,11 +6,16 @@
 
 import Foundation
 
+@objc(OPPaymentProduct)
 public class PaymentProduct: BasicPaymentProduct, PaymentItem {
 
-    public var fields: PaymentProductFields = PaymentProductFields()
+    @objc public var fields: PaymentProductFields = PaymentProductFields()
 
-    public required init?(json: [String: Any]) {
+    @objc public override init() {
+        super.init()
+    }
+    
+    @objc public required init?(json: [String: Any]) {
         super.init(json: json)
 
         guard let input = json["fields"] as? [[String: Any]] else {
@@ -24,7 +29,7 @@ public class PaymentProduct: BasicPaymentProduct, PaymentItem {
         }
     }
 
-    public func paymentProductField(withId: String) -> PaymentProductField? {
+    @objc public func paymentProductField(withId: String) -> PaymentProductField? {
         for field in fields.paymentProductFields where field.identifier.isEqual(withId) {
             return field
         }

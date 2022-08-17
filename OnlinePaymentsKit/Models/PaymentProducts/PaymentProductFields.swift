@@ -5,15 +5,16 @@
 //
 import Foundation
 
-public class PaymentProductFields {
+@objc(OPPaymentProductFields)
+public class PaymentProductFields: NSObject {
 
-    public var paymentProductFields = [PaymentProductField]()
+    @objc public var paymentProductFields = [PaymentProductField]()
 
-    public func sort() {
+    @objc public func sort() {
         paymentProductFields = paymentProductFields.sorted {
-            guard let displayOrder0 = $0.displayHints.displayOrder, let displayOrder1 = $1.displayHints.displayOrder else {
-                return false
-            }
+            let displayOrder0 = $0.displayHints.displayOrder
+            let displayOrder1 = $1.displayHints.displayOrder
+            
             return displayOrder0 < displayOrder1
         }
     }

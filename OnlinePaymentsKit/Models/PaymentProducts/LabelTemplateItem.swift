@@ -6,12 +6,13 @@
 
 import Foundation
 
-public class LabelTemplateItem: ResponseObjectSerializable {
+@objc(OPLabelTemplateItem)
+public class LabelTemplateItem: NSObject, ResponseObjectSerializable {
 
-    public var attributeKey: String
-    public var mask: String?
+    @objc public var attributeKey: String
+    @objc public var mask: String?
 
-    required public init?(json: [String: Any]) {
+    @objc required public init?(json: [String: Any]) {
         guard let attributeKey = json["attributeKey"] as? String else {
             return nil
         }

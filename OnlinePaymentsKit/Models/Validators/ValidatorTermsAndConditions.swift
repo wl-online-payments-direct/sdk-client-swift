@@ -6,12 +6,13 @@
 
 import Foundation
 
+@objc(OPValidatorTermsAndConditions)
 public class ValidatorTermsAndConditions: Validator {
-    public override init() {
+    @objc public override init() {
         super.init()
     }
 
-    public override func validate(value: String, for request: PaymentRequest) {
+    @objc public override func validate(value: String, for request: PaymentRequest) {
         super.validate(value: value, for: request)
         if (!(Bool(value) ?? false)) {
             let error = ValidationErrorTermsAndConditions()

@@ -6,8 +6,10 @@
 
 import XCTest
 import OHHTTPStubs
+import OHHTTPStubsSwift
 
 @testable import OnlinePaymentsKit
+
 
 class PaymentItemsTestCase: XCTestCase {
 
@@ -46,6 +48,11 @@ class PaymentItemsTestCase: XCTestCase {
                             "label": "Visa",
                             "logo": "/templates/master/global/css/img/ppimages/pp_logo_1_v1.png"
                         ],
+                        "displayHintsList": [[
+                            "displayOrder": 20,
+                            "label": "Visa",
+                            "logo": "/templates/master/global/css/img/ppimages/pp_logo_1_v1.png"
+                        ]],
                         "id": 1,
                         "maxAmount": 1000000,
                         "mobileIntegrationLevel": "OPTIMISED_SUPPORT",
@@ -60,6 +67,11 @@ class PaymentItemsTestCase: XCTestCase {
                             "label": "American Express",
                             "logo": "/templates/master/global/css/img/ppimages/pp_logo_2_v1.png"
                         ],
+                        "displayHintsList": [[
+                            "displayOrder": 19,
+                            "label": "American Express",
+                            "logo": "/templates/master/global/css/img/ppimages/pp_logo_2_v1.png"
+                        ]],
                         "id": 2,
                         "maxAmount": 1000000,
                         "mobileIntegrationLevel": "OPTIMISED_SUPPORT",
@@ -74,6 +86,11 @@ class PaymentItemsTestCase: XCTestCase {
                             "label": "MasterCard",
                             "logo": "/templates/master/global/css/img/ppimages/pp_logo_3_v1.png"
                         ],
+                        "displayHintsList": [[
+                            "displayOrder": 18,
+                            "label": "MasterCard",
+                            "logo": "/templates/master/global/css/img/ppimages/pp_logo_3_v1.png"
+                        ]],
                         "id": 3,
                         "maxAmount": 1000000,
                         "mobileIntegrationLevel": "OPTIMISED_SUPPORT",
@@ -110,7 +127,7 @@ class PaymentItemsTestCase: XCTestCase {
                     ]
                 ]
             ]
-            return OHHTTPStubsResponse(jsonObject: response, statusCode: 200, headers: ["Content-Type": "application/json"])
+            return HTTPStubsResponse(jsonObject: response, statusCode: 200, headers: ["Content-Type": "application/json"])
         }
 
         stub(condition: isHost("\(host)") && isPath("/client/v1/customer-id/productgroups") && isMethodGET()) { _ in
@@ -136,7 +153,7 @@ class PaymentItemsTestCase: XCTestCase {
                     ]
                 ]
             ]
-            return OHHTTPStubsResponse(jsonObject: response, statusCode: 200, headers: ["Content-Type": "application/json"])
+            return HTTPStubsResponse(jsonObject: response, statusCode: 200, headers: ["Content-Type": "application/json"])
         }
 
         let expectation = self.expectation(description: "Response provided")
@@ -155,7 +172,7 @@ class PaymentItemsTestCase: XCTestCase {
             XCTAssertTrue(items.logoPath(forItem: "0000") == nil, "Logo path should been nil: \(String(describing: items.logoPath(forItem: "0000"))).")
 
             let sortedItems = items.paymentItems.sorted {
-                guard let displayOrder0 = $0.displayHints.displayOrder, let displayOrder1 = $1.displayHints.displayOrder else {
+                guard let displayOrder0 = $0.displayHintsList.first?.displayOrder, let displayOrder1 = $1.displayHintsList.first?.displayOrder else {
                     return false
                 }
                 return displayOrder0 < displayOrder1
@@ -203,7 +220,7 @@ class PaymentItemsTestCase: XCTestCase {
             }
             if let product = item as? BasicPaymentProduct {
                 XCTAssertTrue(product.identifier == "\(index)", "Identifier was incorrect.")
-                XCTAssertTrue(product.displayHints.displayOrder != nil, "Display order was nil (\(String(describing: product.displayHints.displayOrder))).")
+                XCTAssertTrue(product.displayHintsList.first?.displayOrder != nil, "Display order was nil (\(String(describing: product.displayHintsList.first?.displayOrder))).")
                 XCTAssertTrue(product.allowsTokenization, "Tokenization was false.")
                 XCTAssertTrue(product.allowsRecurring, "Recurring was false.")
                 XCTAssertTrue(product.paymentMethod == "card", "Payment method was not card.")

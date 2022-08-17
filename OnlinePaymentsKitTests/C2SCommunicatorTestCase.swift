@@ -6,6 +6,7 @@
 
 import XCTest
 import OHHTTPStubs
+import OHHTTPStubsSwift
 
 @testable import OnlinePaymentsKit
 
@@ -58,7 +59,7 @@ class C2SCommunicatorTestCase: XCTestCase {
              let response = [
                 "networks" : [ "amex", "discover", "masterCard", "visa" ]
              ]
-            return OHHTTPStubsResponse(jsonObject: response, statusCode: 200, headers: ["Content-Type":"application/json"])
+            return HTTPStubsResponse(jsonObject: response, statusCode: 200, headers: ["Content-Type":"application/json"])
         }
 
         let paymentProducts = BasicPaymentProducts()
@@ -128,7 +129,7 @@ class C2SCommunicatorTestCase: XCTestCase {
                     ]
                 ]
             ]
-            return OHHTTPStubsResponse(jsonObject: response, statusCode: 200, headers: ["Content-Type":"application/json"])
+            return HTTPStubsResponse(jsonObject: response, statusCode: 200, headers: ["Content-Type":"application/json"])
         }
 
         let context = PaymentContext(amountOfMoney: PaymentAmountOfMoney(totalAmount: 3, currencyCode: .EUR), isRecurring: true, countryCode: .NL)
@@ -155,7 +156,7 @@ class C2SCommunicatorTestCase: XCTestCase {
                 "publicKey": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAkiJlGL1QjUnGDLpMNBtZPYVtOU121jfFcV4WrZayfw9Ib/1AtPBHP/0ZPocdA23zDh6aB+QiOQEkHZlfnelBNnEzEu4ibda3nDdjSrKveSiQPyB5X+u/IS3CR48B/g4QJ+mcMV9hoFt6Hx3R99A0HWMs4um8elQsgB11MsLmGb1SuLo0S1pgL3EcckXfBDNMUBMQ9EtLC9zQW6Y0kx6GFXHgyjNb4yixXfjo194jfhei80sVQ49Y/SHBt/igATGN1l18IBDtO0eWmWeBckwbNkpkPLAvJfsfa3JpaxbXwg3rTvVXLrIRhvMYqTsQmrBIJDl7F6igPD98Y1FydbKe5QIDAQAB"
 
                 ]
-            return OHHTTPStubsResponse(jsonObject: response, statusCode: 200, headers: ["Content-Type":"application/json"])
+            return HTTPStubsResponse(jsonObject: response, statusCode: 200, headers: ["Content-Type":"application/json"])
         }
 
         let expectation = self.expectation(description: "Response provided")
@@ -180,16 +181,6 @@ class C2SCommunicatorTestCase: XCTestCase {
         // TODO: Merges two response stubs, need to find a way to make stubs specific for a url. (Does not work with get variables)
         stub(condition: isHost("example.com")) { _ in
             let response = [
-                "paymentProductGroups": [
-                    [
-                        "displayHints": [
-                            "displayOrder": 20,
-                            "label": "Cards",
-                            "logo": "/templates/master/global/css/img/ppimages/group-card.png"
-                        ],
-                        "id": "cards"
-                    ]
-                ],
                 "allowsRecurring": true,
                 "allowsTokenization": true,
                 "displayHints": [
@@ -197,6 +188,11 @@ class C2SCommunicatorTestCase: XCTestCase {
                     "label": "Visa",
                     "logo": "/templates/master/global/css/img/ppimages/pp_logo_1_v1.png"
                 ],
+                "displayHintsList": [[
+                    "displayOrder": 20,
+                    "label": "Visa",
+                    "logo": "/templates/master/global/css/img/ppimages/pp_logo_1_v1.png"
+                ]],
                 "fields": [
                     [
                         "dataRestrictions": [
@@ -247,7 +243,7 @@ class C2SCommunicatorTestCase: XCTestCase {
                 "paymentMethod": "card",
                 "paymentProductGroup": "cards"
                 ] as [String : Any]
-            return OHHTTPStubsResponse(jsonObject: response, statusCode: 200, headers: ["Content-Type":"application/json"])
+            return HTTPStubsResponse(jsonObject: response, statusCode: 200, headers: ["Content-Type":"application/json"])
         }
 
         let expectation = self.expectation(description: "Response provided")
@@ -257,8 +253,8 @@ class C2SCommunicatorTestCase: XCTestCase {
 
             let product = paymentProduct
             XCTAssertEqual(product.identifier, "1", "Received product id not as expected")
-            XCTAssertEqual(product.displayHints.displayOrder, 20, "Received product displayOrder not as expected")
-            XCTAssertEqual(product.displayHints.logoPath, "/templates/master/global/css/img/ppimages/pp_logo_1_v1.png", "Received product logoPath not as expected")
+            XCTAssertEqual(product.displayHintsList.first?.displayOrder, 20, "Received product displayOrder not as expected")
+            XCTAssertEqual(product.displayHintsList.first?.logoPath, "/templates/master/global/css/img/ppimages/pp_logo_1_v1.png", "Received product logoPath not as expected")
 
             guard let field = product.fields.paymentProductFields.first else {
                 XCTFail("Received product field not as expected")
@@ -301,7 +297,7 @@ class C2SCommunicatorTestCase: XCTestCase {
                 "countryCode": "RU",
                 "paymentProductId": 3
                 ] as [String : Any]
-            return OHHTTPStubsResponse(jsonObject: response, statusCode: 200, headers: ["Content-Type":"application/json"])
+            return HTTPStubsResponse(jsonObject: response, statusCode: 200, headers: ["Content-Type":"application/json"])
         }
 
         let expectation = self.expectation(description: "Response provided")

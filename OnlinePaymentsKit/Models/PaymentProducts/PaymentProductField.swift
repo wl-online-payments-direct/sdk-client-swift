@@ -6,20 +6,21 @@
 
 import Foundation
 
-public class PaymentProductField: ResponseObjectSerializable {
+@objc(OPPaymentProductField)
+public class PaymentProductField: NSObject, ResponseObjectSerializable {
 
-    public var identifier: String
-    public var usedForLookup: Bool
-    public var dataRestrictions = DataRestrictions()
-    public var displayHints: PaymentProductFieldDisplayHints
-    public var type: FieldType
+    @objc public var identifier: String
+    @objc public var usedForLookup: Bool
+    @objc public var dataRestrictions = DataRestrictions()
+    @objc public var displayHints: PaymentProductFieldDisplayHints
+    @objc public var type: FieldType
 
-    public var numberFormatter = NumberFormatter()
-    public var numericStringCheck: NSRegularExpression
+    @objc public var numberFormatter = NumberFormatter()
+    @objc public var numericStringCheck: NSRegularExpression
 
-    public var errors: [ValidationError] = []
+    @objc public var errors: [ValidationError] = []
 
-    public required init?(json: [String: Any]) {
+    @objc public required init?(json: [String: Any]) {
         guard let identifier = json["id"] as? String,
             let hints = json["displayHints"] as? [String: Any],
             let displayHints = PaymentProductFieldDisplayHints(json: hints) else {
@@ -61,6 +62,7 @@ public class PaymentProductField: ResponseObjectSerializable {
         }
     }
 
+    @objc(validateValue:forPaymentRequest:)
     public func validateValue(value: String, for request: PaymentRequest) {
         errors.removeAll()
 

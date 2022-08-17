@@ -25,7 +25,12 @@ class PaymentProductsTestCase: XCTestCase {
                 "displayOrder": 100,
                 "label": "Visa",
                 "logo": "/templates/master/global/css/img/ppimages/pp_logo_1_v1.png"
-            ]
+            ],
+            "displayHintsList": [[
+                "displayOrder": 100,
+                "label": "Visa",
+                "logo": "/templates/master/global/css/img/ppimages/pp_logo_1_v1.png"
+            ]],
         ])
 
         account = AccountOnFile(json: ["id": 1, "paymentProductId": 1])
@@ -39,7 +44,12 @@ class PaymentProductsTestCase: XCTestCase {
                 "displayOrder": 10,
                 "label": "Visa",
                 "logo": "/templates/master/global/css/img/ppimages/pp_logo_1_v1.png"
-            ]
+            ],
+            "displayHintsList": [[
+                "displayOrder": 10,
+                "label": "Visa",
+                "logo": "/templates/master/global/css/img/ppimages/pp_logo_1_v1.png"
+            ]],
         ])
 
         let product3 = BasicPaymentProduct(json: [
@@ -50,7 +60,12 @@ class PaymentProductsTestCase: XCTestCase {
                 "displayOrder": 99,
                 "label": "Visa",
                 "logo": "/templates/master/global/css/img/ppimages/pp_logo_1_v1.png"
-            ]
+            ],
+            "displayHintsList": [[
+                "displayOrder": 99,
+                "label": "Visa",
+                "logo": "/templates/master/global/css/img/ppimages/pp_logo_1_v1.png"
+            ]],
         ])
 
         if let product1 = product1, let product2 = product2, let product3 = product3 {
@@ -93,10 +108,10 @@ class PaymentProductsTestCase: XCTestCase {
         var displayOrder = 0
         for i in 0..<3 {
             let product = products.paymentProducts[i]
-            if let prodDisplayOrder = product.displayHints.displayOrder, displayOrder > prodDisplayOrder {
+            if let prodDisplayOrder = product.displayHintsList.first?.displayOrder, displayOrder > prodDisplayOrder {
                 XCTFail("Products are not sorted")
             }
-            if let prodDisplayOrder = product.displayHints.displayOrder {
+            if let prodDisplayOrder = product.displayHintsList.first?.displayOrder {
                 displayOrder = prodDisplayOrder
             }
         }

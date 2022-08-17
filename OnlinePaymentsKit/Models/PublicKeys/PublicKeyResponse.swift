@@ -6,11 +6,12 @@
 
 import Foundation
 
-public class PublicKeyResponse {
-    public var keyId: String
-    public var encodedPublicKey: String
+@objc(OPPublicKeyResponse)
+public class PublicKeyResponse: NSObject {
+    @objc public var keyId: String
+    @objc public var encodedPublicKey: String
 
-    public init(keyId: String, encodedPublicKey: String) {
+    @objc public init(keyId: String, encodedPublicKey: String) {
         self.keyId = keyId
         self.encodedPublicKey = encodedPublicKey
     }

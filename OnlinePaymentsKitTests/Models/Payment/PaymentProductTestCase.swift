@@ -21,6 +21,7 @@ class PaymentProductTestCase: XCTestCase {
     ])!
     let field = PaymentProductField(json: [
         "displayHints": [
+            "displayOrder": 1,
             "formElement": [
                 "type": "text"
             ]

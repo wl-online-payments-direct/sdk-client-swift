@@ -6,13 +6,14 @@
 
 import XCTest
 import OHHTTPStubs
+import OHHTTPStubsSwift
 
 @testable import OnlinePaymentsKit
 
 class SessionTestCase: XCTestCase {
     let host = "example.com"
     
-    var session = Session(clientSessionId: "client-session-id", customerId: "customer-id",baseURL: "https://example.com/client/v1", assetBaseURL: "https://example.com/client/v1", appIdentifier: "")
+    var session = StubSession(clientSessionId: "client-session-id", customerId: "customer-id",baseURL: "https://example.com/client/v1", assetBaseURL: "https://example.com/client/v1", appIdentifier: "")
     let context = PaymentContext(amountOfMoney: PaymentAmountOfMoney(totalAmount: 3, currencyCode: .EUR), isRecurring: true, countryCode: .NL)
     
     override func setUp() {
@@ -70,7 +71,7 @@ class SessionTestCase: XCTestCase {
                     ]
                 ]
             ]
-            return OHHTTPStubsResponse(jsonObject: response, statusCode: 200, headers: ["Content-Type":"application/json"])
+            return HTTPStubsResponse(jsonObject: response, statusCode: 200, headers: ["Content-Type":"application/json"])
         }
         
         let expectation = self.expectation(description: "Response provided")
@@ -89,23 +90,119 @@ class SessionTestCase: XCTestCase {
     }
 
     func testPaymentProductNetworksForProductId(){
-        // TODO: Test needs to be made
+        stub(condition: isHost(host) && isPath("/client/v1/customer-id/products/302") && isMethodGET()) { _ in
+            let response = [
+                "allowsRecurring": false,
+                "allowsTokenization": false,
+                "displayHints": [
+                    "displayOrder": 0,
+                    "label": "APPLEPAY",
+                    "logo": "/templates/master/global/css/img/ppimages/pp_logo_1_v1.png"
+                ],
+                "displayHintsList": [[
+                    "displayOrder": 0,
+                    "label": "APPLEPAY",
+                    "logo": "/templates/master/global/css/img/ppimages/pp_logo_1_v1.png"
+                ]],
+                "fields": [
+                    [
+                        "dataRestrictions": [
+                            "isRequired": true,
+                            "validators": []
+                        ],
+                        "displayHints": [
+                            "alwaysShow": false,
+                            "displayOrder": 0,
+                            "formElement": [
+                                "type": "text"
+                            ],
+                            "label": "",
+                            "obfuscate": false,
+                            "placeholderLabel": "",
+                            "preferredInputType": "StringKeyboard",
+                            "tooltip": [
+                                "label": ""
+                            ]
+                        ],
+                        "id": "encryptedPaymentData",
+                        "type": "string"
+                    ]
+                ],
+                "id": 302,
+                "paymentMethod": "mobile",
+                "usesRedirectionTo3rdParty": false,
+                "paymentProduct302SpecificData": [
+                    "networks": [
+                        "Visa",
+                        "MasterCard"
+                    ]
+                ]
+                ] as [String : Any]
+            return HTTPStubsResponse(jsonObject: response, statusCode: 200, headers: ["Content-Type":"application/json"])
+        }
+        
+        stub(condition: isHost(host) && isPath("/client/v1/customer-id/products/302/networks") && isMethodGET()) { _ in
+            let response = [
+                "networks": [
+                    "Visa",
+                    "MasterCard"
+                ]
+            ] as [String : Any]
+            return HTTPStubsResponse(jsonObject: response, statusCode: 200, headers: ["Content-Type":"application/json"])
+        }
+        
+        let expectation = self.expectation(description: "Response provided")
+        
+        session.paymentProduct(withId: "302", context: context, success: { product in
+            self.check(paymentProductWithNetworks: product)
+            expectation.fulfill()
+        }) { (error) in
+            XCTFail("Unexpected failure while testing paymentProductWithId: \(error.localizedDescription)")
+            expectation.fulfill()
+        }
+        
+        waitForExpectations(timeout: 3) { error in
+            if let error = error {
+                print("Timeout error: \(error.localizedDescription)")
+            }
+        }
+    }
+    
+    fileprivate func check(paymentProductWithNetworks product: PaymentProduct){
+        XCTAssertEqual(product.identifier, "302", "Received product id not as expected")
+        XCTAssertEqual(product.displayHintsList.first?.displayOrder, 0, "Received product displayOrder not as expected")
+        XCTAssertEqual(product.displayHintsList.first?.logoPath, "/templates/master/global/css/img/ppimages/pp_logo_1_v1.png", "Received product logoPath not as expected")
+        
+        guard let field = product.fields.paymentProductFields.first else {
+            XCTFail("Received product field not as expected")
+            return
+        }
+        
+        // Data Restrictions
+        XCTAssertEqual(field.dataRestrictions.isRequired, true, "Received product field isRequired not as expected")
+        XCTAssertEqual(field.dataRestrictions.validators.validators.isEmpty, true, "Received product validators not as expected")
+    
+        // Field Display Hints
+        XCTAssertEqual(field.displayHints.displayOrder, 0, "Received product field displayHints displayOrder not as expected")
+        XCTAssertEqual(field.displayHints.obfuscate, false, "Received product field displayHints obfuscate not as expected")
+        XCTAssertEqual(field.displayHints.preferredInputType, PreferredInputType.stringKeyboard, "Received product field displayHints preferredInputType not as expected")
+        XCTAssertEqual(field.displayHints.formElement.type, FormElementType.textType, "Received product field displayHints formElement type not as expected")
+        
+        // Payment Method
+        XCTAssertEqual(product.paymentMethod, "mobile", "Received product paymentMethod not as expected")
+        
+        // Networks
+        guard let product302SpecificData = product.paymentProduct302SpecificData else {
+            XCTFail("Received product 302SpecificData not as expected")
+            return
+        }
+        
+        XCTAssertEqual(product302SpecificData.networks.count, 2, "Received 302SpecificData networks not as expected")
     }
     
     func testPaymentProductWithId(){
-        // TODO: Merges two response stubs, need to find a way to make stubs specific for a url. (Does not work with get variables)
-        stub(condition: isHost(host)) { _ in
+        stub(condition: isHost(host) && isPath("/client/v1/customer-id/products/1") && isMethodGET()) { _ in
             let response = [
-                "paymentProductGroups": [
-                    [
-                        "displayHints": [
-                            "displayOrder": 20,
-                            "label": "Cards",
-                            "logo": "/templates/master/global/css/img/ppimages/group-card.png"
-                        ],
-                        "id": "cards"
-                    ]
-                ],
                 "allowsRecurring": true,
                 "allowsTokenization": true,
                 "displayHints": [
@@ -113,6 +210,11 @@ class SessionTestCase: XCTestCase {
                     "label": "Visa",
                     "logo": "/templates/master/global/css/img/ppimages/pp_logo_1_v1.png"
                 ],
+                "displayHintsList": [[
+                    "displayOrder": 20,
+                    "label": "Visa",
+                    "logo": "/templates/master/global/css/img/ppimages/pp_logo_1_v1.png"
+                ]],
                 "fields": [
                     [
                         "dataRestrictions": [
@@ -141,7 +243,11 @@ class SessionTestCase: XCTestCase {
                             "mask": "{{9999}} {{9999}} {{9999}} {{9999}} {{999}}",
                             "obfuscate": false,
                             "placeholderLabel": "**** **** **** ****",
-                            "preferredInputType": "IntegerKeyboard"
+                            "preferredInputType": "IntegerKeyboard",
+                            "tooltip": [
+                                "label": "Last 3 digits on the back of the card",
+                                "image": "/templates/master/global/css/img/ppimages/ppf_cvv_v1.png"
+                            ]
                         ],
                         "id": "cardNumber",
                         "type": "numericstring"
@@ -153,7 +259,7 @@ class SessionTestCase: XCTestCase {
                 "paymentMethod": "card",
                 "paymentProductGroup": "cards"
                 ] as [String : Any]
-            return OHHTTPStubsResponse(jsonObject: response, statusCode: 200, headers: ["Content-Type":"application/json"])
+            return HTTPStubsResponse(jsonObject: response, statusCode: 200, headers: ["Content-Type":"application/json"])
         }
         
         let expectation = self.expectation(description: "Response provided")
@@ -170,13 +276,12 @@ class SessionTestCase: XCTestCase {
             self.check(paymentProduct: cachedProduct)
             
             // Check initializeImages
-            XCTAssertEqual(product.displayHints.logoImage?.accessibilityLabel, "logoStubResponse")
+            XCTAssertEqual(product.displayHintsList.first?.logoImage?.accessibilityLabel, "logoStubResponse")
             for i in 0..<product.fields.paymentProductFields.count {
                 let field = product.fields.paymentProductFields[i]
                 
-                // TODO: This is never true. Should analyse why imagePath is never set in JSON conversion. And make test that tests the behavior when it is set.
                 if field.displayHints.tooltip?.imagePath != nil {
-                    XCTAssertEqual(field.displayHints.tooltip?.image?.accessibilityLabel, "tooltipStubResponse-field\(i)")
+                    XCTAssertEqual(field.displayHints.tooltip?.image?.accessibilityLabel, "tooltipStubResponse-\(field.identifier)")
                 }
             }
             expectation.fulfill()
@@ -194,8 +299,8 @@ class SessionTestCase: XCTestCase {
     
     fileprivate func check(paymentProduct product: PaymentProduct){
         XCTAssertEqual(product.identifier, "1", "Received product id not as expected")
-        XCTAssertEqual(product.displayHints.displayOrder, 20, "Received product displayOrder not as expected")
-        XCTAssertEqual(product.displayHints.logoPath, "/templates/master/global/css/img/ppimages/pp_logo_1_v1.png", "Received product logoPath not as expected")
+        XCTAssertEqual(product.displayHintsList.first?.displayOrder, 20, "Received product displayOrder not as expected")
+        XCTAssertEqual(product.displayHintsList.first?.logoPath, "/templates/master/global/css/img/ppimages/pp_logo_1_v1.png", "Received product logoPath not as expected")
         
         guard let field = product.fields.paymentProductFields.first else {
             XCTFail("Received product field not as expected")
@@ -226,7 +331,7 @@ class SessionTestCase: XCTestCase {
             let response = [
                 "networks" : [ "amex", "discover", "masterCard", "visa" ]
             ]
-            return OHHTTPStubsResponse(jsonObject: response, statusCode: 200, headers: ["Content-Type":"application/json"])
+            return HTTPStubsResponse(jsonObject: response, statusCode: 200, headers: ["Content-Type":"application/json"])
         }
         let expectation = self.expectation(description: "Response provided")
         session.paymentProductNetworks(forProductId: productID, context: context, success: { (networks) in
@@ -247,7 +352,7 @@ class SessionTestCase: XCTestCase {
     func testPaymentProductFailNetworks(){
         let productID = "1"
         stub(condition: isHost("\(host)") && isPath("/client/v1/customer-id/products/\(productID)/networks") && isMethodGET()) { _ in
-            return OHHTTPStubsResponse(jsonObject: [], statusCode: 200, headers: ["Content-Type":"application/json"])
+            return HTTPStubsResponse(jsonObject: [], statusCode: 200, headers: ["Content-Type":"application/json"])
         }
         let expectation = self.expectation(description: "Response provided")
         session.paymentProductNetworks(forProductId: productID, context: context, success: { (networks) in
@@ -267,13 +372,14 @@ class SessionTestCase: XCTestCase {
     func testIinDetailsForPartialCreditCardNumber(){
         _ = PaymentAmountOfMoney(totalAmount: 0, currencyCode: .EUR)
         
+        // Stub for IIN details "supported" status response
         stub(condition: isHost(host)) { _ in
             let response = [
                 "countryCode": "RU",
                 "paymentProductId": 3,
                 "isAllowedInContext": true
                 ] as [String : Any]
-            return OHHTTPStubsResponse(jsonObject: response, statusCode: 200, headers: ["Content-Type":"application/json"])
+            return HTTPStubsResponse(jsonObject: response, statusCode: 200, headers: ["Content-Type":"application/json"])
         }
         
         // Test too short partial credit card number
@@ -291,7 +397,7 @@ class SessionTestCase: XCTestCase {
             }
         }
         
-        // Test a successful response
+        // Test a successful response with "supported" status
         expectation = self.expectation(description: "Response provided")
         session.iinDetails(forPartialCreditCardNumber: "012345", context: context, success: { iinDetailsResponse in
             XCTAssertEqual(iinDetailsResponse.status.hashValue, IINStatus.supported.hashValue)
@@ -308,11 +414,22 @@ class SessionTestCase: XCTestCase {
             }
         }
         
-        // Test a pending request
+        // Stub for IIN details "existing but not allowed" status response
+        stub(condition: isHost(host)) { _ in
+            let response = [
+                "countryCode": "RU",
+                "paymentProductId": 3,
+                ] as [String : Any]
+            return HTTPStubsResponse(jsonObject: response, statusCode: 200, headers: ["Content-Type":"application/json"])
+        }
+        
+        // Test a successful response with "existing but not allowed" status
         expectation = self.expectation(description: "Response provided")
         session.iinLookupPending = true
-        session.iinDetails(forPartialCreditCardNumber: "012345", context: context, success: { iinDetailsResponse in
-            XCTAssertEqual(iinDetailsResponse.status.hashValue, IINStatus.pending.hashValue)
+        session.iinDetails(forPartialCreditCardNumber: "426398", context: context, success: { iinDetailsResponse in
+            XCTAssertEqual(iinDetailsResponse.status.hashValue, IINStatus.existingButNotAllowed.hashValue)
+            XCTAssertEqual(iinDetailsResponse.countryCode, .RU)
+            XCTAssertEqual(iinDetailsResponse.paymentProductId, "3")
             expectation.fulfill()
         }, failure: { error in
             XCTFail("Bad response")

@@ -6,6 +6,7 @@
 
 import XCTest
 import OHHTTPStubs
+import OHHTTPStubsSwift
 
 @testable import OnlinePaymentsKit
 
@@ -38,7 +39,7 @@ class IINDetailsResponseTestCase: XCTestCase {
                     ]
                 ]
                 ] as [String: Any]
-            return OHHTTPStubsResponse(jsonObject: response, statusCode: 200, headers: ["Content-Type": "application/json"])
+            return HTTPStubsResponse(jsonObject: response, statusCode: 200, headers: ["Content-Type": "application/json"])
         }
     }
 

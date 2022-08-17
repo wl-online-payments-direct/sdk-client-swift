@@ -6,21 +6,22 @@
 
 import Foundation
 
-public class JOSEEncryptor {
-    public var encryptor = Encryptor()
+@objc(OPJOSEEncryptor)
+public class JOSEEncryptor: NSObject {
+    @objc public var encryptor = Encryptor()
 
-    public convenience init(encryptor: Encryptor) {
+    @objc public convenience init(encryptor: Encryptor) {
         self.init()
 
         self.encryptor = encryptor
     }
 
-    public func generateProtectedHeader(withKey keyId: String) -> String {
+    @objc public func generateProtectedHeader(withKey keyId: String) -> String {
         let header = "{\"alg\":\"RSA-OAEP\", \"enc\":\"A256CBC-HS512\", \"kid\":\"\(keyId)\"}"
         return header
     }
 
-    public func encryptToCompactSerialization(JSON: String, withPublicKey publicKey: SecKey, keyId: String) -> String {
+    @objc public func encryptToCompactSerialization(JSON: String, withPublicKey publicKey: SecKey, keyId: String) -> String {
         guard let protectedheader = generateProtectedHeader(withKey: keyId).data(using: String.Encoding.utf8),
             let AESKey = encryptor.generateRandomBytes(length: 32),
             let HMACKey = encryptor.generateRandomBytes(length: 32)
@@ -65,7 +66,7 @@ public class JOSEEncryptor {
         return concatenatedComponents
     }
 
-    public func decryptFromCompactSerialization(JOSE: String, withPrivateKey privateKey: SecKey) -> String {
+    @objc public func decryptFromCompactSerialization(JOSE: String, withPrivateKey privateKey: SecKey) -> String {
         let components = JOSE.components(separatedBy: ".")
         let decodedProtectedHeader = String(data: components[0].base64URLDecode(),
                                             encoding: String.Encoding.utf8)
@@ -109,7 +110,7 @@ public class JOSEEncryptor {
         return decrypted
     }
 
-    public func computeAL(forData data: Data) -> Data {
+    @objc public func computeAL(forData data: Data) -> Data {
         var lengthInBits = data.count * 8
         var AL = Data(bytes: &lengthInBits, count: MemoryLayout<Int>.size)
         AL.reverse()

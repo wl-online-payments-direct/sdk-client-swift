@@ -6,6 +6,7 @@
 
 import XCTest
 import OHHTTPStubs
+import OHHTTPStubsSwift
 
 @testable import OnlinePaymentsKit
 
@@ -26,26 +27,26 @@ class AlamofireWrapperTestCase: XCTestCase {
           "message": "MISSING_OR_INVALID_AUTHORIZATION"
         ]]
       ]
-      return OHHTTPStubsResponse(jsonObject: response, statusCode: 200, headers: ["Content-Type": "application/json"])
+      return HTTPStubsResponse(jsonObject: response, statusCode: 200, headers: ["Content-Type": "application/json"])
     }
 
     // Stub POST request
-    stub(condition: isHost("\(host)") && isPath(" \(merchantId)/sessions") && isMethodPOST()) { _ in
+    stub(condition: isHost("\(host)") && isPath("/client/v1/\(merchantId)/sessions") && isMethodPOST()) { _ in
       let response = [
         "errors": [[
           "code": 9002,
           "message": "MISSING_OR_INVALID_AUTHORIZATION"
           ]]
         ]
-      return OHHTTPStubsResponse(jsonObject: response, statusCode: 200, headers: ["Content-Type": "application/json"])
+      return HTTPStubsResponse(jsonObject: response, statusCode: 200, headers: ["Content-Type": "application/json"])
     }
 
     stub(condition: isHost("\(host)") && isPath("/client/v1/noerror") && isMethodGET()) { _ in
-      return OHHTTPStubsResponse(jsonObject: [], statusCode: 401, headers: ["Content-Type": "application/json"])
+      return HTTPStubsResponse(jsonObject: [], statusCode: 401, headers: ["Content-Type": "application/json"])
     }
 
     stub(condition: isHost("\(host)") && isPath("/client/v1/error") && isMethodGET()) { _ in
-      return OHHTTPStubsResponse(jsonObject: [], statusCode: 500, headers: ["Content-Type": "application/json"])
+      return HTTPStubsResponse(jsonObject: [], statusCode: 500, headers: ["Content-Type": "application/json"])
     }
   }
 
@@ -102,8 +103,7 @@ class AlamofireWrapperTestCase: XCTestCase {
   }
 
   func testRequestFailure() {
-    let customerId = "1234"
-    let publicKeyURL = "\(baseURL)/\(customerId)/error"
+    let publicKeyURL = "\(baseURL)/error"
     let expectation = self.expectation(description: "Response provided")
 
     AlamofireWrapper.shared.getResponse(forURL: publicKeyURL, headers: nil, additionalAcceptableStatusCodes: nil, success: { _ in

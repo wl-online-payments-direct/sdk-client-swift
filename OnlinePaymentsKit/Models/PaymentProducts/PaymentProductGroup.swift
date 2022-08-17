@@ -6,18 +6,19 @@
 
 import Foundation
 
-public class PaymentProductGroup: PaymentItem, ResponseObjectSerializable {
+@objc(OPPaymentProductGroup)
+public class PaymentProductGroup: NSObject, PaymentItem, ResponseObjectSerializable {
 
-    public var identifier: String
+    @objc public var identifier: String
     @available(*, deprecated, message: "In the next major release, the type of displayHints will change to List.")
-    public var displayHints: PaymentItemDisplayHints
-    public var displayHintsList = [PaymentItemDisplayHints]()
-    public var accountsOnFile = AccountsOnFile()
-    public var allowsTokenization = false
-    public var allowsRecurring = false
-    public var fields = PaymentProductFields()
+    @objc public var displayHints: PaymentItemDisplayHints
+    @objc public var displayHintsList = [PaymentItemDisplayHints]()
+    @objc public var accountsOnFile = AccountsOnFile()
+    @objc public var allowsTokenization = false
+    @objc public var allowsRecurring = false
+    @objc public var fields = PaymentProductFields()
 
-    public var stringFormatter: StringFormatter? {
+    @objc public var stringFormatter: StringFormatter? {
         get { return accountsOnFile.accountsOnFile.first?.stringFormatter }
         set {
             if let stringFormatter = newValue {
@@ -28,7 +29,7 @@ public class PaymentProductGroup: PaymentItem, ResponseObjectSerializable {
         }
     }
 
-    public required init?(json: [String: Any]) {
+    @objc public required init?(json: [String: Any]) {
 
         guard let identifier = json["id"] as? String,
             let hints = json["displayHints"] as? [String: Any],
@@ -62,11 +63,11 @@ public class PaymentProductGroup: PaymentItem, ResponseObjectSerializable {
         }
     }
 
-    public func accountOnFile(withIdentifier identifier: String) -> AccountOnFile? {
+    @objc public func accountOnFile(withIdentifier identifier: String) -> AccountOnFile? {
         return accountsOnFile.accountOnFile(withIdentifier: identifier)
     }
 
-    public func paymentProductField(withId paymentProductFieldId: String) -> PaymentProductField? {
+    @objc public func paymentProductField(withId paymentProductFieldId: String) -> PaymentProductField? {
         for field in fields.paymentProductFields where field.identifier.isEqual(paymentProductFieldId) {
             return field
         }

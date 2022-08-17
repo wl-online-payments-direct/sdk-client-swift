@@ -6,8 +6,9 @@
 
 import Foundation
 
-public class Validators {
-    var variableRequiredness = false
+@objc(OPValidators)
+public class Validators: NSObject {
+    @objc var variableRequiredness = false
 
-    public var validators = [Validator]()
+    @objc public var validators = [Validator]()
 }

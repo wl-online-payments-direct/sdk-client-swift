@@ -6,15 +6,16 @@
 
 import Foundation
 
-public class BasicPaymentProductGroup: ResponseObjectSerializable, BasicPaymentItem {
+@objc(OPBasicPaymentProductGroup)
+public class BasicPaymentProductGroup: NSObject, ResponseObjectSerializable, BasicPaymentItem {
 
-    public var identifier: String
+    @objc public var identifier: String
     @available(*, deprecated, message: "In the next major release, the type of displayHints will change to List.")
-    public var displayHints: PaymentItemDisplayHints
-    public var displayHintsList = [PaymentItemDisplayHints]()
-    public var accountsOnFile = AccountsOnFile()
+    @objc public var displayHints: PaymentItemDisplayHints
+    @objc public var displayHintsList = [PaymentItemDisplayHints]()
+    @objc public var accountsOnFile = AccountsOnFile()
 
-    public var stringFormatter: StringFormatter? {
+    @objc public var stringFormatter: StringFormatter? {
         get { return accountsOnFile.accountsOnFile.first?.stringFormatter }
         set {
             if let stringFormatter = newValue {
@@ -25,7 +26,7 @@ public class BasicPaymentProductGroup: ResponseObjectSerializable, BasicPaymentI
         }
     }
 
-    public required init?(json: [String: Any]) {
+    @objc public required init?(json: [String: Any]) {
         guard let identifier = json["id"] as? String,
             let hints = json["displayHints"] as? [String: Any],
             let displayHints = PaymentItemDisplayHints(json: hints) else {
@@ -52,7 +53,7 @@ public class BasicPaymentProductGroup: ResponseObjectSerializable, BasicPaymentI
         }
     }
 
-    public func accountOnFile(withIdentifier identifier: String) -> AccountOnFile? {
+    @objc public func accountOnFile(withIdentifier identifier: String) -> AccountOnFile? {
         return accountsOnFile.accountOnFile(withIdentifier: identifier)
     }
 }

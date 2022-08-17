@@ -7,28 +7,29 @@
 import Foundation
 import UIKit
 
-public class Session {
-    public var communicator: C2SCommunicator
-    public var assetManager: AssetManager
-    public var encryptor: Encryptor
-    public var joseEncryptor: JOSEEncryptor
-    public var stringFormatter: StringFormatter
+@objc(OPSession)
+public class Session: NSObject {
+    @objc public var communicator: C2SCommunicator
+    @objc public var assetManager: AssetManager
+    @objc public var encryptor: Encryptor
+    @objc public var joseEncryptor: JOSEEncryptor
+    @objc public var stringFormatter: StringFormatter
     
-    public var paymentProducts = BasicPaymentProducts()
+    @objc public var paymentProducts = BasicPaymentProducts()
     
-    public var paymentProductMapping = [AnyHashable: Any]()
+    @objc public var paymentProductMapping = [AnyHashable: Any]()
     
-    public var baseURL: String {
+    @objc public var baseURL: String {
         return communicator.baseURL
     }
     
-    public var assetsBaseURL: String{
+    @objc public var assetsBaseURL: String{
         return communicator.assetsBaseURL
     }
     
-    public var iinLookupPending = false
+    @objc public var iinLookupPending = false
     
-    public init(communicator: C2SCommunicator, assetManager: AssetManager, encryptor: Encryptor, JOSEEncryptor: JOSEEncryptor, stringFormatter: StringFormatter) {
+    @objc public init(communicator: C2SCommunicator, assetManager: AssetManager, encryptor: Encryptor, JOSEEncryptor: JOSEEncryptor, stringFormatter: StringFormatter) {
         self.communicator = communicator
         self.assetManager = assetManager
         self.encryptor = encryptor
@@ -36,7 +37,7 @@ public class Session {
         self.stringFormatter = stringFormatter
     }
     
-    public init(clientSessionId: String, customerId: String, baseURL: String, assetBaseURL: String, appIdentifier: String) {
+    @objc public init(clientSessionId: String, customerId: String, baseURL: String, assetBaseURL: String, appIdentifier: String) {
         let assetManager = AssetManager()
         let stringFormatter = StringFormatter()
         let encryptor = Encryptor()
@@ -53,10 +54,13 @@ public class Session {
         self.encryptor = encryptor
         self.joseEncryptor = jsonEncryptor
         self.stringFormatter = stringFormatter
-        
     }
     
-    public func paymentProducts(for context: PaymentContext, success: @escaping (_ paymentProducts: BasicPaymentProducts) -> Void, failure: @escaping (_ error: Error) -> Void) {
+    @objc public static func session(clientSessionId: String, customerId: String, baseURL: String, assetBaseURL: String, appIdentifier: String) -> Session {
+        return Session.init(clientSessionId: clientSessionId, customerId: customerId, baseURL: baseURL, assetBaseURL: assetBaseURL, appIdentifier: appIdentifier)
+    }
+    
+    @objc public func paymentProducts(for context: PaymentContext, success: @escaping (_ paymentProducts: BasicPaymentProducts) -> Void, failure: @escaping (_ error: Error) -> Void) {
         communicator.paymentProducts(forContext: context, success: { paymentProducts in
             self.paymentProducts = paymentProducts
             self.paymentProducts.stringFormatter = self.stringFormatter
@@ -67,7 +71,7 @@ public class Session {
         }, failure: failure)
     }
     
-    public func paymentProductNetworks(forProductId paymentProductId: String, context: PaymentContext, success: @escaping (_ paymentProductNetworks: PaymentProductNetworks) -> Void, failure: @escaping (_ error: Error) -> Void) {
+    @objc public func paymentProductNetworks(forProductId paymentProductId: String, context: PaymentContext, success: @escaping (_ paymentProductNetworks: PaymentProductNetworks) -> Void, failure: @escaping (_ error: Error) -> Void) {
         communicator.paymentProductNetworks(forProduct: paymentProductId, context: context, success: { paymentProductNetworks in
             success(paymentProductNetworks)
         }, failure: { error in
@@ -75,8 +79,13 @@ public class Session {
         })
     }
     
+    @objc(paymentItemsForContext:groupPaymentProducts:success:failure:)
     public func paymentItems(for context: PaymentContext, groupPaymentProducts: Bool, success: @escaping (_ paymentItems: PaymentItems) -> Void, failure: @escaping (_ error: Error) -> Void) {
         communicator.paymentProducts(forContext: context, success: { paymentProducts in
+            if paymentProducts.paymentProducts.isEmpty {
+                let items = PaymentItems(products: paymentProducts, groups: nil)
+                success(items)
+            }
             self.paymentProducts = paymentProducts
             self.paymentProducts.stringFormatter = self.stringFormatter
             self.assetManager.initializeImages(for: paymentProducts.paymentProducts)
@@ -87,7 +96,7 @@ public class Session {
         }, failure: failure)
     }
     
-    public func paymentProduct(withId paymentProductId: String, context: PaymentContext, success: @escaping (_ paymentProduct: PaymentProduct) -> Void, failure: @escaping (_ error: Error) -> Void) {
+    @objc public func paymentProduct(withId paymentProductId: String, context: PaymentContext, success: @escaping (_ paymentProduct: PaymentProduct) -> Void, failure: @escaping (_ error: Error) -> Void) {
         let key = "\(paymentProductId)-\(context.description)"
         
         if let paymentProduct = paymentProductMapping[key] as? PaymentProduct {
@@ -104,15 +113,13 @@ public class Session {
         }
     }
     
+    @objc(IINDetailsForPartialCreditCardNumber:context:success:failure:)
     public func iinDetails(forPartialCreditCardNumber partialCreditCardNumber: String,
                            context: PaymentContext?,
                            success: @escaping (_ iinDetailsResponse: IINDetailsResponse) -> Void,
                            failure: @escaping (_ error: Error) -> Void) {
         if partialCreditCardNumber.count < 6 {
             let response = IINDetailsResponse(status: .notEnoughDigits)
-            success(response)
-        } else if self.iinLookupPending == true {
-            let response = IINDetailsResponse(status: .pending)
             success(response)
         } else {
             iinLookupPending = true
@@ -127,6 +134,7 @@ public class Session {
         
     }
     
+    @objc(preparePaymentRequest:success:failure:)
     public func prepare(_ paymentRequest: PaymentRequest, success: @escaping (_ preparedPaymentRequest: PreparedPaymentRequest) -> Void, failure: @escaping (_ error: Error) -> Void) {
         communicator.publicKey(success: { publicKeyResponse in
             let publicKeyAsData = publicKeyResponse.encodedPublicKey.decode()
@@ -186,11 +194,11 @@ public class Session {
         return paymentRequestJSON
     }
     
-    public var clientSessionId: String {
+    @objc public var clientSessionId: String {
         return communicator.clientSessionId
     }
     
-    public func keyValuePairs(from dictionary: [String: String]) -> [[String: String]] {
+    @objc public func keyValuePairs(from dictionary: [String: String]) -> [[String: String]] {
         var keyValuePairs = [[String: String]]()
         for (key, value) in  dictionary {
             let pair = ["key": key, "value": value]
@@ -199,7 +207,7 @@ public class Session {
         return keyValuePairs
     }
     
-    public func keyValueJSONFromDictionary(dictionary: [String: String]) -> String? {
+    @objc public func keyValueJSONFromDictionary(dictionary: [String: String]) -> String? {
         let keyValuePairs = self.keyValuePairs(from: dictionary)
         guard let JSONAsData = try? JSONSerialization.data(withJSONObject: keyValuePairs) else {
             Macros.DLog(message: "Unable to create JSON data from dictionary")
@@ -230,7 +238,7 @@ public class Session {
         }
     }
     
-    private func setLogoForDisplayHints(for displayHints: PaymentItemDisplayHints, completion: @escaping() -> Void) {
+    internal func setLogoForDisplayHints(for displayHints: PaymentItemDisplayHints, completion: @escaping() -> Void) {
         assetManager.getLogoByStringURL(from: displayHints.logoPath) { data, response, error in
             if let imageData = data, error == nil {
                 displayHints.logoImage = UIImage(data: imageData)
@@ -239,7 +247,7 @@ public class Session {
         }
     }
     
-    private func setLogoForDisplayHintsList(for displayHints: [PaymentItemDisplayHints], completion: @escaping() -> Void){
+    internal func setLogoForDisplayHintsList(for displayHints: [PaymentItemDisplayHints], completion: @escaping() -> Void){
         var counter = 0;
         for displayHint in displayHints {
             assetManager.getLogoByStringURL(from: displayHint.logoPath) { data, response, error in

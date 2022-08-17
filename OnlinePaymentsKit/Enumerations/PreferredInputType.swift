@@ -3,12 +3,14 @@
 // This software code is created for Online Payments on 16/07/2020
 // Copyright © 2020 Global Collect Services. All rights reserved.
 // 
+import Foundation
 
-public enum PreferredInputType {
-    case stringKeyboard
-    case integerKeyboard
-    case emailAddressKeyboard
-    case phoneNumberKeyboard
-    case dateKeyboard
-    case noKeyboard
+@objc(OPPreferredInputType)
+public enum PreferredInputType: Int {
+    @objc(OPStringKeyboard) case stringKeyboard
+    @objc(OPIntegerKeyboard) case integerKeyboard
+    @objc(OPEmailAddressKeyboard) case emailAddressKeyboard
+    @objc(OPPhoneNumberKeyboard) case phoneNumberKeyboard
+    @objc(OPDateKeyboard) case dateKeyboard
+    @objc(OPNoKeyboard) case noKeyboard
 }

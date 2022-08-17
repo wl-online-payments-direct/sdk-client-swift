@@ -6,11 +6,12 @@
 
 import Foundation
 
-public class LabelTemplate {
+@objc(OPLabelTemplate)
+public class LabelTemplate: NSObject  {
 
-    public var labelTemplateItems = [LabelTemplateItem]()
+    @objc public var labelTemplateItems = [LabelTemplateItem]()
 
-    public func mask(forAttributeKey key: String) -> String? {
+    @objc public func mask(forAttributeKey key: String) -> String? {
         for labelTemplateItem in labelTemplateItems where labelTemplateItem.attributeKey.isEqual(key) {
             return labelTemplateItem.mask
         }

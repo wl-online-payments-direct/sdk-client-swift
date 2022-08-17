@@ -6,28 +6,32 @@
 
 import Foundation
 
-public class PaymentRequest {
+@objc(OPPaymentRequest)
+public class PaymentRequest: NSObject {
 
-    public var paymentProduct: PaymentProduct?
-    public var errors: [ValidationError] = []
-    public var tokenize = false
+    @objc public var paymentProduct: PaymentProduct?
+    @objc public var errors: [ValidationError] = []
+    @objc public var tokenize = false
 
-    public var fieldValues = [String: String]()
-    public var formatter = StringFormatter()
+    @objc public var fieldValues = [String: String]()
+    @objc public var formatter = StringFormatter()
 
-    public var accountOnFile: AccountOnFile?
+    @objc public var accountOnFile: AccountOnFile?
+    
+    @objc public override init() {}
 
-    public init(paymentProduct: PaymentProduct, accountOnFile: AccountOnFile? = nil, tokenize: Bool? = false) {
+    @objc public init(paymentProduct: PaymentProduct, accountOnFile: AccountOnFile? = nil, tokenize: Bool = false) {
         self.paymentProduct = paymentProduct
         self.accountOnFile = accountOnFile
-        self.tokenize = tokenize ?? false
+        self.tokenize = tokenize
     }
 
+    @objc(setValue:forField:)
     public func setValue(forField paymentProductFieldId: String, value: String) {
         fieldValues[paymentProductFieldId] = value
     }
 
-    public func getValue(forField paymentProductFieldId: String) -> String? {
+    @objc public func getValue(forField paymentProductFieldId: String) -> String? {
         if let value = fieldValues[paymentProductFieldId] {
             return value
         }
@@ -43,24 +47,18 @@ public class PaymentRequest {
         return value
     }
 
-    public func maskedValue(forField paymentProductFieldId: String) -> String? {
-        var cursorPosition = 0
-
-        return maskedValue(forField: paymentProductFieldId, cursorPosition: &cursorPosition)
-    }
-
-    public func maskedValue(forField paymentProductFieldId: String, cursorPosition: inout Int) -> String? {
+    @objc public func maskedValue(forField paymentProductFieldId: String) -> String? {
         guard let value = getValue(forField: paymentProductFieldId) else {
             return nil
         }
         if let mask = mask(forField: paymentProductFieldId) {
-            return formatter.formatString(string: value, mask: mask, cursorPosition: &cursorPosition)
+            return formatter.formatString(string: value, mask: mask)
         }
 
         return value
     }
 
-    public func unmaskedValue(forField paymentProductFieldId: String) -> String? {
+    @objc public func unmaskedValue(forField paymentProductFieldId: String) -> String? {
         guard  let value = getValue(forField: paymentProductFieldId) else {
             return nil
         }
@@ -71,11 +69,11 @@ public class PaymentRequest {
         return value
     }
 
-    public func isPartOfAccountOnFile(field paymentProductFieldId: String) -> Bool {
+    @objc public func isPartOfAccountOnFile(field paymentProductFieldId: String) -> Bool {
         return accountOnFile?.hasValue(forField: paymentProductFieldId) ?? false
     }
 
-    public func isReadOnly(field paymentProductFieldId: String) -> Bool {
+    @objc public func isReadOnly(field paymentProductFieldId: String) -> Bool {
         if !isPartOfAccountOnFile(field: paymentProductFieldId) {
             return false
         } else if let accountOnFile = accountOnFile {
@@ -84,7 +82,7 @@ public class PaymentRequest {
         return false
     }
 
-    public func mask(forField paymentProductFieldId: String) -> String? {
+    @objc public func mask(forField paymentProductFieldId: String) -> String? {
         guard let paymentProduct = paymentProduct else {
             return nil
         }
@@ -94,7 +92,7 @@ public class PaymentRequest {
         return mask
     }
 
-    public func validate() {
+    @objc public func validate() {
         guard let paymentProduct = paymentProduct else {
             NSException(name: NSExceptionName(rawValue: "Invalid payment product"), reason: "Payment product is invalid").raise()
             return
@@ -111,7 +109,7 @@ public class PaymentRequest {
         }
     }
 
-    public var unmaskedFieldValues: [String: String]? {
+    @objc public var unmaskedFieldValues: [String: String]? {
         guard let paymentProduct = paymentProduct else {
             NSException(name: NSExceptionName(rawValue: "Invalid payment product"), reason: "Payment product is invalid").raise()
             return nil

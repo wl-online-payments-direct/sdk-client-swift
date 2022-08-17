@@ -6,20 +6,21 @@
 
 import Foundation
 
-public class PaymentItems {
+@objc(OPPaymentItems)
+public class PaymentItems: NSObject {
 
-    public var paymentItems = [BasicPaymentItem]()
-    public var stringFormatter: StringFormatter?
-    public var allPaymentItems = [BasicPaymentItem]()
+    @objc public var paymentItems = [BasicPaymentItem]()
+    @objc public var stringFormatter: StringFormatter?
+    @objc public var allPaymentItems = [BasicPaymentItem]()
 
-    public var hasAccountsOnFile: Bool {
+    @objc public var hasAccountsOnFile: Bool {
         for paymentItem in paymentItems where paymentItem.accountsOnFile.accountsOnFile.count > 0 {
             return true
         }
         return false
     }
 
-    public var accountsOnFile: [AccountOnFile] {
+    @objc public var accountsOnFile: [AccountOnFile] {
         var accountsOnFile = [AccountOnFile]()
 
         for paymentItem in paymentItems {
@@ -29,16 +30,17 @@ public class PaymentItems {
         return accountsOnFile
     }
 
-    public init(products: BasicPaymentProducts, groups: BasicPaymentProductGroups?) {
+    @objc public init(products: BasicPaymentProducts, groups: BasicPaymentProductGroups?) {
+        super.init()
         paymentItems = createPaymentItemsFromProducts(products: products, groups: groups)
         allPaymentItems = products.paymentProducts
     }
 
-    public func createPaymentItemsFromProducts(products: BasicPaymentProducts, groups: BasicPaymentProductGroups?) -> [BasicPaymentItem] {
+    @objc public func createPaymentItemsFromProducts(products: BasicPaymentProducts, groups: BasicPaymentProductGroups?) -> [BasicPaymentItem] {
         return products.paymentProducts
     }
 
-    public func logoPath(forItem identifier: String) -> String? {
+    @objc public func logoPath(forItem identifier: String) -> String? {
         guard let item = paymentItem(withIdentifier: identifier) else {
             return nil
         }
@@ -49,7 +51,7 @@ public class PaymentItems {
         return displayHints.logoPath
     }
 
-    public func paymentItem(withIdentifier identifier: String) -> BasicPaymentItem? {
+    @objc public func paymentItem(withIdentifier identifier: String) -> BasicPaymentItem? {
         for paymentItem in allPaymentItems where paymentItem.identifier.isEqual(identifier) {
             return paymentItem
         }
@@ -57,11 +59,11 @@ public class PaymentItems {
         return nil
     }
 
-    public func sort() {
+    @objc public func sort() {
         paymentItems = paymentItems.sorted {
-            guard let displayOrder0 = $0.displayHintsList[0].displayOrder, let displayOrder1 = $1.displayHintsList[0].displayOrder else {
-                return false
-            }
+            let displayOrder0 = $0.displayHintsList[0].displayOrder
+            let displayOrder1 = $1.displayHintsList[0].displayOrder
+            
             return displayOrder0 < displayOrder1
         }
     }

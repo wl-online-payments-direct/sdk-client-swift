@@ -6,9 +6,10 @@
 
 import Foundation
 
-public class DisplayElement: ResponseObjectSerializable {
+@objc(OPDisplayElement)
+public class DisplayElement: NSObject, ResponseObjectSerializable {
 
-    public required init?(json: [String: Any]) {
+    @objc public required init?(json: [String: Any]) {
 
         guard let id = json["id"]  as? String else {
             return nil
@@ -17,21 +18,19 @@ public class DisplayElement: ResponseObjectSerializable {
         guard let value = json["value"] as? String else {
             return nil
         }
-
-        guard let type = DisplayElementType(rawValue: json["type"] as? String ?? "") else {
-            return nil
-        }
+        
+        let type = DisplayElementTypeEnumHandler().displayElementTypeFor(type: json["type"] as? String ?? "")
 
         self.id = id
         self.value = value
         self.type = type
     }
 
-    public var id: String
-    public var type: DisplayElementType
-    public var value: String
+    @objc(identifier) public var id: String
+    @objc public var type: DisplayElementType
+    @objc public var value: String
 
-    init(id: String, type: DisplayElementType, value: String) {
+    @objc init(id: String, type: DisplayElementType, value: String) {
         self.id = id
         self.type = type
         self.value = value

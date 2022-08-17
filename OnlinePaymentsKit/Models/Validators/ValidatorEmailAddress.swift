@@ -5,16 +5,17 @@
 //
 import Foundation
 
+@objc(OPValidatorEmailAddress)
 public class ValidatorEmailAddress: Validator {
-    public var expression: NSRegularExpression
+    @objc public var expression: NSRegularExpression
 
-    public override init() {
+    @objc public override init() {
         let regex = "^[^@\\.]+(\\.[^@\\.]+)*@([^@\\.]+\\.)*[^@\\.]+\\.[^@\\.][^@\\.]+$"
 
         expression = try! NSRegularExpression(pattern: regex)
     }
 
-    public override func validate(value: String, for request: PaymentRequest) {
+    @objc public override func validate(value: String, for request: PaymentRequest) {
         super.validate(value: value, for: request)
 
         let numberOfMatches = expression.numberOfMatches(in: value, range: NSRange(location: 0, length: value.count))

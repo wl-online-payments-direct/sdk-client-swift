@@ -6,20 +6,21 @@
 
 import Foundation
 
-public class PaymentProductFieldDisplayHints: ResponseObjectSerializable {
+@objc(OPPaymentProductFieldDisplayHints)
+public class PaymentProductFieldDisplayHints: NSObject, ResponseObjectSerializable {
 
-    public var alwaysShow = false
-    public var displayOrder: Int?
-    public var formElement: FormElement
-    public var mask: String?
-    public var obfuscate = false
-    public var tooltip: ToolTip?
-    public var label: String?
-    public var placeholderLabel: String?
-    public var link: URL?
-    public var preferredInputType: PreferredInputType = .noKeyboard
+    @objc public var alwaysShow = false
+    @objc public var displayOrder: Int
+    @objc public var formElement: FormElement
+    @objc public var mask: String?
+    @objc public var obfuscate = false
+    @objc public var tooltip: ToolTip?
+    @objc public var label: String?
+    @objc public var placeholderLabel: String?
+    @objc public var link: URL?
+    @objc public var preferredInputType: PreferredInputType = .noKeyboard
 
-    required public init?(json: [String: Any]) {
+    @objc required public init?(json: [String: Any]) {
         guard let input = json["formElement"] as? [String: Any],
             let formElement = FormElement(json: input) else {
             return nil
@@ -30,9 +31,10 @@ public class PaymentProductFieldDisplayHints: ResponseObjectSerializable {
             alwaysShow = input
         }
 
-        if let input = json["displayOrder"] as? Int {
-            displayOrder = input
+        guard let input = json["displayOrder"] as? Int else {
+            return nil
         }
+        self.displayOrder = input
 
         if let input = json["mask"] as? String {
             mask = input

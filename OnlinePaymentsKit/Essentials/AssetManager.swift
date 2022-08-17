@@ -18,20 +18,22 @@ extension UserDefaults {
     }
 }
 
-public class AssetManager {
-    public let logoFormat = "pp_logo_%@"
-    public let tooltipFormat = "pp_%@_tooltip_%@"
+@objc(OPAssetManager)
+public class AssetManager: NSObject {
+    @objc public let logoFormat = "pp_logo_%@"
+    @objc public let tooltipFormat = "pp_%@_tooltip_%@"
 
-    public var documentsFolderPath = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0]
-    public var fileManager = FileManager() // var for testing
-    public var sdkBundle = Bundle(path: SDKConstants.kSDKBundlePath ?? "") { // var for testing
+    @objc public var documentsFolderPath = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0]
+    @objc public var fileManager = FileManager() // var for testing
+    @objc public var sdkBundle = Bundle(path: SDKConstants.kSDKBundlePath ?? "") { // var for testing
         didSet {
             initImageMapping()
         }
     }
-    public var imageMapping: [AnyHashable: Any]?
+    @objc public var imageMapping: [AnyHashable: Any]?
 
-    public init() {
+    @objc public override init() {
+        super.init()
         initImageMapping()
     }
 
@@ -39,7 +41,7 @@ public class AssetManager {
      An initial mapping from image identifiers to paths is stored in the bundle.
      This mapping is transferred to the device and kept up to date.
      */
-    public func initImageMapping() {
+    @objc public func initImageMapping() {
         guard let sdk = sdkBundle, let imageMappingPath = sdk.path(forResource: "imageMapping", ofType: "plist"),
             let mapping = fileManager.dict(atPath: imageMappingPath) as? [AnyHashable: Any] else {
             return
@@ -51,7 +53,7 @@ public class AssetManager {
         UserDefaults.standard.synchronize()
     }
 
-    public func logoIdentifier(with paymentItem: BasicPaymentItem) -> String {
+    @objc public func logoIdentifier(with paymentItem: BasicPaymentItem) -> String {
         guard let displayHints = paymentItem.displayHintsList.first, let url = URL(string: displayHints.logoPath) else {
             Macros.DLog(message: "Logo path not found.")
             return "Logo path not found."
@@ -66,6 +68,7 @@ public class AssetManager {
         return fileName
     }
 
+    @objc(initializeImagesForPaymentItems:)
     public func initializeImages(for paymentItems: [BasicPaymentItem]) {
         for paymentItem in paymentItems {
             for displayHints in paymentItem.displayHintsList {
@@ -74,6 +77,7 @@ public class AssetManager {
         }
     }
 
+    @objc(initializeImagesForPaymentItem:)
     public func initializeImages(for paymentItem: BasicPaymentItem) {
         for displayHints in paymentItem.displayHintsList {
             displayHints.logoImage = logoImage(forItem: paymentItem.identifier)
@@ -85,14 +89,17 @@ public class AssetManager {
         }
     }
 
+    @objc(updateImagesAsyncForPaymentItems:baseUrl:)
     public func updateImagesAsync(for paymentItems: [BasicPaymentItem], baseURL: String) {
         updateImagesAsync(for: paymentItems, baseURL: baseURL, nil)
     }
 
+    @objc(updateImagesAsyncForPaymentItem:baseUrl:)
     public func updateImagesAsync(for paymentItem: BasicPaymentItem, baseURL: String) {
         updateImagesAsync(for: paymentItem, baseURL: baseURL, nil)
     }
 
+    @objc(updateImagesAsyncForPaymentItems:baseUrl:callback:)
     public func updateImagesAsync(for paymentItems: [BasicPaymentItem], baseURL: String, _ callback: (() -> Void)?) {
         DispatchQueue.global().async {
             self.updateImages(for: paymentItems, baseURL: baseURL)
@@ -105,6 +112,7 @@ public class AssetManager {
         }
     }
 
+    @objc(updateImagesAsyncForPaymentItem:baseUrl:callback:)
     public func updateImagesAsync(for paymentItem: BasicPaymentItem, baseURL: String, _ callback: (() -> Void)?) {
         DispatchQueue.global().async {
             self.updateImages(for: paymentItem, baseURL: baseURL)
@@ -117,6 +125,7 @@ public class AssetManager {
         }
     }
 
+    @objc(updateImagesForPaymentItems:baseUrl:)
     public func updateImages(for paymentItems: [BasicPaymentItem], baseURL: String) {
         for object in paymentItems {
             let paymentItem = object
@@ -132,6 +141,7 @@ public class AssetManager {
         UserDefaults.standard.synchronize()
     }
 
+    @objc(updateImagesForPaymentItem:baseUrl:)
     public func updateImages(for paymentItem: BasicPaymentItem, baseURL: String) {
         if let item = paymentItem as? PaymentItem {
             let fields = item.fields
@@ -146,7 +156,7 @@ public class AssetManager {
         UserDefaults.standard.synchronize()
     }
 
-    public func updateImage(withIdentifier identifier: String, newPath: String, baseURL: String) {
+    @objc public func updateImage(withIdentifier identifier: String, newPath: String, baseURL: String) {
         var currentPath = ""
 
         if let img = imageMapping, let path = img[identifier] as? String {
@@ -161,7 +171,10 @@ public class AssetManager {
          from image identifiers to paths on the device, and store the new
          image in the documents folder.
          */
-        let newURL = URL(string: "\(baseURL)/\(newPath)")!
+        guard let newURL = URL(string: "\(baseURL)/\(newPath)") else {
+            Macros.DLog(message: "Unable to create URL for baseURL: \(baseURL) & newPath: \(newPath)")
+            return
+        }
         let imagePath = URL(fileURLWithPath: "\(documentsFolderPath)/\(identifier)")
 
         do {
@@ -175,17 +188,18 @@ public class AssetManager {
         }
     }
 
+    @objc(logoImageForPaymentItem:)
     public func logoImage(forItem paymentItemId: String) -> UIImage {
         let identifier = String(format: logoFormat, paymentItemId)
         return image(forIdentifier: identifier)
     }
 
-    public func tooltipImage(forItem paymentItemId: String, field paymentProductFieldId: String) -> UIImage {
+    @objc public func tooltipImage(forItem paymentItemId: String, field paymentProductFieldId: String) -> UIImage {
         let identifier = String(format: self.tooltipFormat, paymentItemId, paymentProductFieldId)
         return image(forIdentifier: identifier)
     }
 
-    public func image(forIdentifier identifier: String) -> UIImage {
+    @objc public func image(forIdentifier identifier: String) -> UIImage {
         /*
          If an image for this identifier is available in the documents folder,
          this image is newer than the one in the bundle and should be used.
@@ -209,9 +223,20 @@ public class AssetManager {
         return UIImage()
     }
     
-    public func getLogoByStringURL(from url: String, completion: @escaping (Data?, URLResponse?, Error?) -> ()) {
-        let urlString = url.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)
-        URLSession.shared.dataTask(with: URL(string: urlString ?? url)!, completionHandler: {data, response, error in
+    @objc public func getLogoByStringURL(from url: String, completion: @escaping (Data?, URLResponse?, Error?) -> ()) {
+        guard let encodedUrlString = url.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) else {
+            Macros.DLog(message: "Unable to decode URL for url string: \(url)")
+            completion(nil, nil, nil)
+            return
+        }
+        
+        guard let encodedUrl = URL(string: encodedUrlString) else {
+            Macros.DLog(message: "Unable to create URL for url string: \(encodedUrlString)")
+            completion(nil, nil, nil)
+            return
+        }
+        
+        URLSession.shared.dataTask(with: encodedUrl, completionHandler: {data, response, error in
             DispatchQueue.main.async {
                 completion(data, response, error)
             }

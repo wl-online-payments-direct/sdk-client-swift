@@ -6,14 +6,15 @@
 
 import Foundation
 
-public class DataRestrictions: ResponseObjectSerializable {
+@objc(OPDataRestrictions)
+public class DataRestrictions: NSObject, ResponseObjectSerializable {
 
-    public var isRequired = false
-    public var validators = Validators()
+    @objc public var isRequired = false
+    @objc public var validators = Validators()
 
-    public init() {}
+    @objc public override init() {}
 
-    required public init(json: [String: Any]) {
+    @objc required public init(json: [String: Any]) {
         if let input = json["isRequired"] as? Bool {
             isRequired = input
         }

@@ -6,14 +6,15 @@
 
 import UIKit
 
-public class PaymentItemDisplayHints {
+@objc(OPPaymentItemDisplayHints)
+public class PaymentItemDisplayHints: NSObject {
 
-    public var displayOrder: Int?
-    public var label: String?
-    public var logoPath: String
-    public var logoImage: UIImage?
+    @objc public var displayOrder: Int
+    @objc public var label: String?
+    @objc public var logoPath: String
+    @objc public var logoImage: UIImage?
 
-    required public init?(json: [String: Any]) {
+    @objc required public init?(json: [String: Any]) {
         if let input = json["label"] as? String {
             label = input
         }
@@ -23,7 +24,16 @@ public class PaymentItemDisplayHints {
         }
         self.logoPath = logoPath
 
-        displayOrder = json["displayOrder"] as? Int
+        guard let displayOrder = json["displayOrder"] as? Int else {
+            return nil
+        }
+        self.displayOrder = displayOrder
+    }
+    
+    internal override init() {
+        self.displayOrder = 0
+        self.logoPath = ""
+        super.init()
     }
 
 }

@@ -6,8 +6,9 @@
 
 import PassKit
 
-public class PaymentProductNetworks {
+@objc(OPPaymentProductNetworks)
+public class PaymentProductNetworks: NSObject {
 
-    public var paymentProductNetworks = [PKPaymentNetwork]()
+    @objc public var paymentProductNetworks = [PKPaymentNetwork]()
 
 }

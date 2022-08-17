@@ -6,12 +6,13 @@
 
 import Foundation
 
-public class PreparedPaymentRequest {
+@objc(OPPreparedPaymentRequest)
+public class PreparedPaymentRequest: NSObject {
 
-    public var encryptedFields: String
-    public var encodedClientMetaInfo: String
+    @objc public var encryptedFields: String
+    @objc public var encodedClientMetaInfo: String
 
-    init(encryptedFields: String, encodedClientMetaInfo mediaInfo: String) {
+    @objc init(encryptedFields: String, encodedClientMetaInfo mediaInfo: String) {
         self.encryptedFields = encryptedFields
         self.encodedClientMetaInfo = mediaInfo
     }

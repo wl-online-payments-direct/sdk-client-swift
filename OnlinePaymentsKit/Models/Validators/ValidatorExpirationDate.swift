@@ -6,18 +6,19 @@
 
 import Foundation
 
+@objc(OPValidatorExpirationDate)
 public class ValidatorExpirationDate: Validator {
-    public var dateFormatter = DateFormatter()
+    @objc public var dateFormatter = DateFormatter()
     private var fullYearDateFormatter = DateFormatter()
     private var monthAndFullYearDateFormatter = DateFormatter()
 
-    public override init() {
+    @objc public override init() {
         dateFormatter.dateFormat = "MMyy"
         fullYearDateFormatter.dateFormat = "yyyy"
         monthAndFullYearDateFormatter.dateFormat = "MMyyyy"
     }
 
-    public override func validate(value: String, for request: PaymentRequest) {
+    @objc public override func validate(value: String, for request: PaymentRequest) {
         super.validate(value: value, for: request)
 
         // Test whether the date can be parsed normally
@@ -33,7 +34,11 @@ public class ValidatorExpirationDate: Validator {
 
         var componentsForFutureDate = DateComponents()
         componentsForFutureDate.year = gregorianCalendar.component(.year, from: Date()) + 25
-        let futureDate = gregorianCalendar.date(from: componentsForFutureDate)!
+        guard let futureDate = gregorianCalendar.date(from: componentsForFutureDate) else {
+            let error = ValidationErrorExpirationDate()
+            errors.append(error)
+            return
+        }
 
         if !validateDateIsBetween(now: Date(), futureDate: futureDate, dateToValidate: enteredDate) {
             let error = ValidationErrorExpirationDate()
@@ -44,8 +49,13 @@ public class ValidatorExpirationDate: Validator {
     internal func obtainEnteredDateFromValue(value: String) -> Date {
         let year = fullYearDateFormatter.string(from: Date())
         let valueWithCentury = value.substring(to: 2) + year.substring(to: 2) + value.substring(from: 2)
-
-        return monthAndFullYearDateFormatter.date(from: valueWithCentury)!
+        guard let dateMonthAndFullYear = monthAndFullYearDateFormatter.date(from: valueWithCentury) else {
+            let error = ValidationErrorExpirationDate()
+            errors.append(error)
+            return Date()
+        }
+        
+        return dateMonthAndFullYear
     }
 
     internal func validateDateIsBetween(now: Date, futureDate: Date, dateToValidate: Date) -> Bool {

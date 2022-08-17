@@ -6,11 +6,12 @@
 
 import Foundation
 
-public class BasicPaymentProductGroups: ResponseObjectSerializable {
+@objc(OPBasicPaymentProductGroups)
+public class BasicPaymentProductGroups: NSObject, ResponseObjectSerializable {
 
-    public var paymentProductGroups = [BasicPaymentProductGroup]()
+    @objc public var paymentProductGroups = [BasicPaymentProductGroup]()
 
-    public var hasAccountsOnFile: Bool {
+    @objc public var hasAccountsOnFile: Bool {
         for productGroup in paymentProductGroups where productGroup.accountsOnFile.accountsOnFile.count > 0 {
             return true
         }
@@ -18,7 +19,7 @@ public class BasicPaymentProductGroups: ResponseObjectSerializable {
         return false
     }
 
-    public var accountsOnFile: [AccountOnFile] {
+    @objc public var accountsOnFile: [AccountOnFile] {
         var accountsOnFile = [AccountOnFile]()
 
         for productGroup in paymentProductGroups {
@@ -28,7 +29,7 @@ public class BasicPaymentProductGroups: ResponseObjectSerializable {
         return accountsOnFile
     }
 
-    public var stringFormatter: StringFormatter? {
+    @objc public var stringFormatter: StringFormatter? {
         get { return paymentProductGroups.first?.stringFormatter }
         set {
             if let stringFormatter = newValue {
@@ -39,9 +40,10 @@ public class BasicPaymentProductGroups: ResponseObjectSerializable {
         }
     }
 
-    public init() {}
+    @objc public override init() {}
 
-    required public init(json: [String: Any]) {
+    @objc required public init(json: [String: Any]) {
+        super.init()
         if let input = json["paymentProductGroups"] as? [[String: Any]] {
             for groupInput in input {
                 if let group = BasicPaymentProductGroup(json: groupInput) {
@@ -53,7 +55,7 @@ public class BasicPaymentProductGroups: ResponseObjectSerializable {
         }
     }
 
-    public func logoPath(forProductGroup identifier: String) -> String? {
+    @objc public func logoPath(forProductGroup identifier: String) -> String? {
         let productGroup = paymentProductGroup(withIdentifier: identifier)
         guard let displayHints = productGroup?.displayHintsList.first else {
             return nil
@@ -61,18 +63,18 @@ public class BasicPaymentProductGroups: ResponseObjectSerializable {
         return displayHints.logoPath
     }
 
-    public func paymentProductGroup(withIdentifier identifier: String) -> BasicPaymentProductGroup? {
+    @objc public func paymentProductGroup(withIdentifier identifier: String) -> BasicPaymentProductGroup? {
         for productGroup in paymentProductGroups where productGroup.identifier.isEqual(identifier) {
             return productGroup
         }
         return nil
     }
 
-    public func sort() {
+    @objc public func sort() {
         paymentProductGroups = paymentProductGroups.sorted {
-            guard let displayOrder0 = $0.displayHintsList[0].displayOrder, let displayOrder1 = $1.displayHintsList[0].displayOrder else {
-                return false
-            }
+            let displayOrder0 = $0.displayHintsList[0].displayOrder
+            let displayOrder1 = $1.displayHintsList[0].displayOrder
+            
             return displayOrder0 < displayOrder1
         }
     }

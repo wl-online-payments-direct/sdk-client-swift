@@ -21,6 +21,11 @@ class BasicPaymentProductGroupsTestCase: XCTestCase {
                     "label": "Visa",
                     "logo": "/templates/master/global/css/img/ppimages/pp_logo_1_v1.png"
                 ],
+                "displayHintsList": [[
+                    "displayOrder": 20,
+                    "label": "Visa",
+                    "logo": "/templates/master/global/css/img/ppimages/pp_logo_1_v1.png"
+                ]],
                 "accountsOnFile": [[
                     "id": index,
                     "paymentProductId": index
@@ -68,7 +73,7 @@ class BasicPaymentProductGroupsTestCase: XCTestCase {
             XCTFail("Did not find group.")
             return
         }
-        group.displayHints = PaymentItemDisplayHints(json: ["logo": "logoPath"])!
+        group.displayHintsList = [PaymentItemDisplayHints(json: ["logo": "logoPath", "displayOrder": 0])!]
 
         XCTAssertTrue(basicPaymentProductGroups.logoPath(forProductGroup: "1") != nil, "Logo path was nil.")
         XCTAssertTrue(basicPaymentProductGroups.logoPath(forProductGroup: "999") == nil, "Logo path was not nil.")

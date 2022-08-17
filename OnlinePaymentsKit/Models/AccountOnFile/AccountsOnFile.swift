@@ -6,15 +6,18 @@
 
 import Foundation
 
-public class AccountsOnFile {
+@objc(OPAccountsOnFile)
+public class AccountsOnFile: NSObject {
 
-    public var accountsOnFile = [AccountOnFile]()
+    @objc public var accountsOnFile = [AccountOnFile]()
 
-    public func accountOnFile(withIdentifier identifier: String) -> AccountOnFile? {
+    @objc public func accountOnFile(withIdentifier identifier: String) -> AccountOnFile? {
         for accountOnFile in accountsOnFile
             where accountOnFile.identifier.isEqual(identifier) {
                 return accountOnFile
         }
         return nil
     }
+    
+    internal override init() {}
 }

@@ -7,22 +7,23 @@
 import Foundation
 import UIKit
 
-public class BasicPaymentProduct: Equatable, BasicPaymentItem, ResponseObjectSerializable {
+@objc(OPBasicPaymentProduct)
+public class BasicPaymentProduct: NSObject, BasicPaymentItem, ResponseObjectSerializable {
 
-    public var identifier: String
+    @objc public var identifier: String
     @available(*, deprecated, message: "In the next major release, the type of displayHints will change to List.")
-    public var displayHints: PaymentItemDisplayHints
-    public var displayHintsList = [PaymentItemDisplayHints]()
-    public var accountsOnFile = AccountsOnFile()
+    @objc public var displayHints: PaymentItemDisplayHints
+    @objc public var displayHintsList = [PaymentItemDisplayHints]()
+    @objc public var accountsOnFile = AccountsOnFile()
 
-    public var allowsTokenization = false
-    public var allowsRecurring = false
+    @objc public var allowsTokenization = false
+    @objc public var allowsRecurring = false
 
-    public var paymentMethod: String
+    @objc public var paymentMethod: String
 
-    public var paymentProduct302SpecificData: PaymentProduct302SpecificData?
+    @objc public var paymentProduct302SpecificData: PaymentProduct302SpecificData?
 
-    public var stringFormatter: StringFormatter? {
+    @objc public var stringFormatter: StringFormatter? {
         get { return accountsOnFile.accountsOnFile.first?.stringFormatter }
         set {
             if let stringFormatter = newValue {
@@ -33,7 +34,16 @@ public class BasicPaymentProduct: Equatable, BasicPaymentItem, ResponseObjectSer
         }
     }
 
-    public required init?(json: [String: Any]) {
+    @objc public override init() {
+        self.identifier = ""
+        self.displayHints = PaymentItemDisplayHints()
+        self.displayHintsList = []
+        self.accountsOnFile = AccountsOnFile()
+        self.paymentMethod = ""
+        super.init()
+    }
+    
+    @objc public required init?(json: [String: Any]) {
         guard let identifier = json["id"] as? Int,
             let paymentMethod = json["paymentMethod"] as? String,
             let hints = json["displayHints"] as? [String: Any],
@@ -72,7 +82,7 @@ public class BasicPaymentProduct: Equatable, BasicPaymentItem, ResponseObjectSer
         allowsTokenization = json["allowsTokenization"] as? Bool ?? false
     }
 
-    public func accountOnFile(withIdentifier identifier: String) -> AccountOnFile? {
+    @objc public func accountOnFile(withIdentifier identifier: String) -> AccountOnFile? {
         return accountsOnFile.accountOnFile(withIdentifier: identifier)
     }
 

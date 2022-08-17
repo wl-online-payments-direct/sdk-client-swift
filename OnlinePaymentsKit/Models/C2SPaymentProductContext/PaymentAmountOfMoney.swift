@@ -5,16 +5,25 @@
 //
 import Foundation
 
-public class PaymentAmountOfMoney {
-    public var totalAmount = 0
+@objc(OPPaymentAmountOfMoney)
+public class PaymentAmountOfMoney: NSObject {
+    @objc public var totalAmount = 0
     public var currencyCode: CurrencyCode
+    @objc public var currencyCodeString: String
 
+    @objc public init(totalAmount: Int, currencyCode: String) {
+        self.totalAmount = totalAmount
+        self.currencyCode = CurrencyCode.init(rawValue: currencyCode) ?? .USD
+        self.currencyCodeString = currencyCode
+    }
+    
     public init(totalAmount: Int, currencyCode: CurrencyCode) {
         self.totalAmount = totalAmount
         self.currencyCode = currencyCode
+        self.currencyCodeString = currencyCode.rawValue
     }
 
-    public var description: String {
+    @objc public override var description: String {
         return "\(totalAmount)-\(currencyCode)"
     }
 

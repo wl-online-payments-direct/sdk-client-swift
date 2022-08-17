@@ -7,44 +7,45 @@
 import Alamofire
 import PassKit
 
-public class C2SCommunicator {
-    public var configuration: C2SCommunicatorConfiguration
-    public var networkingWrapper = AlamofireWrapper.shared
+@objc(OPC2SCommunicator)
+public class C2SCommunicator: NSObject {
+    @objc public var configuration: C2SCommunicatorConfiguration
+    @objc public var networkingWrapper = AlamofireWrapper.shared
 
-    public var baseURL: String {
+    @objc public var baseURL: String {
         return configuration.baseURL
     }
 
-    public var assetsBaseURL: String {
+    @objc public var assetsBaseURL: String {
         return configuration.assetsBaseURL
     }
 
-    public var clientSessionId: String {
+    @objc public var clientSessionId: String {
         return configuration.clientSessionId
     }
 
-    public var base64EncodedClientMetaInfo: String {
+    @objc public var base64EncodedClientMetaInfo: String {
         return configuration.base64EncodedClientMetaInfo ?? ""
     }
 
-    public var headers: NSDictionary {
+    public var headers: HTTPHeaders {
         return [
             "Authorization": "GCS v1Client:\(clientSessionId)",
             "X-GCS-ClientMetaInfo": base64EncodedClientMetaInfo
         ]
     }
 
-    public init(configuration: C2SCommunicatorConfiguration) {
+    @objc public init(configuration: C2SCommunicatorConfiguration) {
         self.configuration = configuration
     }
 
-    public func paymentProducts(forContext context: PaymentContext, success: @escaping (_ paymentProducts: BasicPaymentProducts) -> Void, failure: @escaping (_ error: Error) -> Void) {
+    @objc public func paymentProducts(forContext context: PaymentContext, success: @escaping (_ paymentProducts: BasicPaymentProducts) -> Void, failure: @escaping (_ error: Error) -> Void) {
         let isRecurring = context.isRecurring ? "true" : "false"
         let URL = "\(baseURL)/\(configuration.customerId)/products"
         var params: [String: Any] = ["countryCode": context.countryCode.rawValue, "currencyCode": context.amountOfMoney.currencyCode.rawValue, "amount": context.amountOfMoney.totalAmount, "hide": "fields", "isRecurring": isRecurring]
 
-        if let locale = context.locale {
-            params["locale"] = locale
+        if !context.locale.isEmpty {
+            params["locale"] = context.locale
         }
 
         getResponse(forURL: URL, withParameters: params, success: { (responseObject) in
@@ -65,7 +66,7 @@ public class C2SCommunicator {
         }
     }
 
-    public func checkApplePayAvailability(with paymentProducts: BasicPaymentProducts,
+    @objc public func checkApplePayAvailability(with paymentProducts: BasicPaymentProducts,
                                           for context: PaymentContext,
                                           success: @escaping () -> Void,
                                           failure: @escaping (_ error: Error) -> Void) -> BasicPaymentProducts {
@@ -105,17 +106,17 @@ public class C2SCommunicator {
         return paymentProducts
     }
 
-    public func paymentProductNetworks(forProduct paymentProductId: String,
+    @objc public func paymentProductNetworks(forProduct paymentProductId: String,
                                        context: PaymentContext,
                                        success: @escaping (_ paymentProductNetworks: PaymentProductNetworks) -> Void,
                                        failure: @escaping (_ error: Error) -> Void) {
         let isRecurring = context.isRecurring ? "true" : "false"
-        guard let locale = context.locale else {
+        if context.locale.isEmpty {
             failure(SessionError.RuntimeError("Locale was nil."))
             return
         }
         let URL = "\(self.baseURL)/\(self.configuration.customerId)/products/\(paymentProductId)/networks"
-        let params: [String: Any] = ["countryCode": context.countryCode.rawValue, "locale": locale, "currencyCode": context.amountOfMoney.currencyCode.rawValue, "amount": context.amountOfMoney.totalAmount, "hide": "fields", "isRecurring": isRecurring]
+        let params: [String: Any] = ["countryCode": context.countryCode.rawValue, "locale": context.locale, "currencyCode": context.amountOfMoney.currencyCode.rawValue, "amount": context.amountOfMoney.totalAmount, "hide": "fields", "isRecurring": isRecurring]
 
         getResponse(forURL: URL, withParameters: params, success: { (responseObject) in
             guard let response = responseObject as? [String: Any] else {
@@ -133,7 +134,7 @@ public class C2SCommunicator {
         }
     }
 
-    public func paymentProduct(withIdentifier paymentProductId: String,
+    @objc public func paymentProduct(withIdentifier paymentProductId: String,
                                context: PaymentContext,
                                success: @escaping (_ paymentProduct: PaymentProduct) -> Void,
                                failure: @escaping (_ error: Error) -> Void) {
@@ -143,11 +144,9 @@ public class C2SCommunicator {
 
             let URL = "\(self.baseURL)/\(self.configuration.customerId)/products/\(paymentProductId)/"
             var params: [String: Any] = ["countryCode": context.countryCode.rawValue, "currencyCode": context.amountOfMoney.currencyCode.rawValue, "amount": context.amountOfMoney.totalAmount, "isRecurring": isRecurring]
-            if let forceBasicFlow = context.forceBasicFlow {
-                params["forceBasicFlow"] = forceBasicFlow ? "true" : "false"
-            }
-            if let locale = context.locale {
-                params["locale"] = locale
+            params["forceBasicFlow"] = context.forceBasicFlow ? "true" : "false"
+            if !context.locale.isEmpty {
+                params["locale"] = context.locale
             }
 
             self.getResponse(forURL: URL, withParameters: params, success: { (responseObject) in
@@ -203,7 +202,7 @@ public class C2SCommunicator {
         }
     }
 
-    public func checkAvailability(forProduct paymentProductId: String, context: PaymentContext, success: @escaping () -> Void, failure: @escaping (_ error: Error) -> Void) {
+    @objc public func checkAvailability(forProduct paymentProductId: String, context: PaymentContext, success: @escaping () -> Void, failure: @escaping (_ error: Error) -> Void) {
         if paymentProductId == SDKConstants.kApplePayIdentifier {
             if SDKConstants.SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(v: "8.0") && PKPaymentAuthorizationViewController.canMakePayments() {
                 paymentProductNetworks(forProduct: SDKConstants.kApplePayIdentifier, context: context, success: {(_ paymentProductNetworks: PaymentProductNetworks) -> Void in
@@ -223,16 +222,16 @@ public class C2SCommunicator {
         }
     }
 
-    public func badRequestError(forProduct paymentProductId: String, context: PaymentContext) -> Error {
+    @objc public func badRequestError(forProduct paymentProductId: String, context: PaymentContext) -> Error {
         let isRecurring = context.isRecurring ? "true" : "false"
-        let url = "\(baseURL)/\(configuration.customerId)/products/\(paymentProductId)/?countryCode=\(context.countryCode.rawValue)&locale=\(context.locale!)&currencyCode=\(context.amountOfMoney.currencyCode.rawValue)&amount=\(UInt(context.amountOfMoney.totalAmount))&isRecurring=\(isRecurring)"
+        let url = "\(baseURL)/\(configuration.customerId)/products/\(paymentProductId)/?countryCode=\(context.countryCode.rawValue)&locale=\(context.locale)&currencyCode=\(context.amountOfMoney.currencyCode.rawValue)&amount=\(UInt(context.amountOfMoney.totalAmount))&isRecurring=\(isRecurring)"
         let errorUserInfo = ["com.alamofire.serialization.response.error.response":
             HTTPURLResponse(url: URL(string: url)!, statusCode: 400, httpVersion: nil, headerFields: ["Connection": "close"])!, "NSErrorFailingURLKey": url, "com.alamofire.serialization.response.error.data": Data(), "NSLocalizedDescription": "Request failed: bad request (400)"] as [String: Any]
         let error = NSError(domain: "com.alamofire.serialization.response.error.response", code: -1011, userInfo: errorUserInfo)
         return error
     }
 
-    public func publicKey(success: @escaping (_ publicKeyResponse: PublicKeyResponse) -> Void, failure: @escaping (_ error: Error) -> Void) {
+    @objc public func publicKey(success: @escaping (_ publicKeyResponse: PublicKeyResponse) -> Void, failure: @escaping (_ error: Error) -> Void) {
         let URL = "\(baseURL)/\(configuration.customerId)/crypto/publickey"
         getResponse(forURL: URL, success: {(_ responseObject: Any) -> Void in
             guard let rawPublicKeyResponse = responseObject as? [AnyHashable: Any],
@@ -248,7 +247,7 @@ public class C2SCommunicator {
         })
     }
 
-    public func paymentProductId(byPartialCreditCardNumber partialCreditCardNumber: String,
+    @objc public func paymentProductId(byPartialCreditCardNumber partialCreditCardNumber: String,
                                  context: PaymentContext?,
                                  success: @escaping (_ iinDetailsResponse: IINDetailsResponse) -> Void,
                                  failure: @escaping (_ error: Error) -> Void) {
@@ -283,7 +282,7 @@ public class C2SCommunicator {
         })
     }
 
-    func getIINDigitsFrom(partialCreditCardNumber: String) -> String {
+    internal func getIINDigitsFrom(partialCreditCardNumber: String) -> String {
         let max: Int
         if partialCreditCardNumber.count >= 8 {
             max = 8
@@ -293,12 +292,12 @@ public class C2SCommunicator {
         return String(partialCreditCardNumber[..<partialCreditCardNumber.index(partialCreditCardNumber.startIndex, offsetBy: max)])
     }
 
-    public func getResponse(forURL URL: String, withParameters parameters: Parameters? = nil, success: @escaping (_ responseObject: Any) -> Void, failure: @escaping (_ error: Error) -> Void) {
-        networkingWrapper.getResponse(forURL: URL, withParameters: parameters, headers: headers as? HTTPHeaders, additionalAcceptableStatusCodes: nil, success: success, failure: failure)
+    @objc public func getResponse(forURL URL: String, withParameters parameters: Parameters? = nil, success: @escaping (_ responseObject: Any) -> Void, failure: @escaping (_ error: Error) -> Void) {
+        networkingWrapper.getResponse(forURL: URL, withParameters: parameters, headers: headers, additionalAcceptableStatusCodes: nil, success: success, failure: failure)
     }
 
-    public func postResponse(forURL URL: String, withParameters parameters: [AnyHashable: Any], additionalAcceptableStatusCodes: IndexSet, success: @escaping (_ responseObject: Any) -> Void, failure: @escaping (_ error: Error) -> Void) {
-        networkingWrapper.postResponse(forURL: URL, headers: headers as? HTTPHeaders, withParameters: parameters as? Parameters, additionalAcceptableStatusCodes: additionalAcceptableStatusCodes, success: success, failure: failure)
+    @objc public func postResponse(forURL URL: String, withParameters parameters: [AnyHashable: Any], additionalAcceptableStatusCodes: IndexSet, success: @escaping (_ responseObject: Any) -> Void, failure: @escaping (_ error: Error) -> Void) {
+        networkingWrapper.postResponse(forURL: URL, headers: headers, withParameters: parameters as? Parameters, additionalAcceptableStatusCodes: additionalAcceptableStatusCodes, success: success, failure: failure)
     }
 
 }

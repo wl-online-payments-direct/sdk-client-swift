@@ -6,10 +6,11 @@
 
 import Foundation
 
-public class Validator {
-    public var errors: [ValidationError] = []
+@objc(OPValidator)
+public class Validator: NSObject {
+    @objc public var errors: [ValidationError] = []
 
-    public func validate(value: String, for: PaymentRequest) {
+    @objc public func validate(value: String, for: PaymentRequest) {
         errors.removeAll()
     }
 }

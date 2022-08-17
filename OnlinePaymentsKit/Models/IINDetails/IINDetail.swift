@@ -6,11 +6,13 @@
 
 import Foundation
 
-public class IINDetail: ResponseObjectSerializable {
-    public var paymentProductId: String
-    public var allowedInContext: Bool = false
+@objc(OPIINDetail)
+public class IINDetail: NSObject, ResponseObjectSerializable {
+    @objc public var paymentProductId: String
+    @objc(isAllowedInContext) public var allowedInContext: Bool = false
+    //public var allowedInContext: Bool = false
 
-    required public init?(json: [String: Any]) {
+    @objc required public init?(json: [String: Any]) {
         if let input = json["paymentProductId"] as? Int {
             paymentProductId = "\(input)"
         } else {
@@ -21,7 +23,7 @@ public class IINDetail: ResponseObjectSerializable {
         }
     }
 
-    public init(paymentProductId: String, allowedInContext: Bool) {
+    @objc public init(paymentProductId: String, allowedInContext: Bool) {
         self.paymentProductId = paymentProductId
         self.allowedInContext = allowedInContext
     }

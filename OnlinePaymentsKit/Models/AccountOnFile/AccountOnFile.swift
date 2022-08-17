@@ -6,15 +6,16 @@
 
 import Foundation
 
-public class AccountOnFile: ResponseObjectSerializable {
+@objc(OPAccountOnFile)
+public class AccountOnFile: NSObject, ResponseObjectSerializable {
 
-    public var identifier: String
-    public var paymentProductIdentifier: String
-    public var displayHints = AccountOnFileDisplayHints()
-    public var attributes = AccountOnFileAttributes()
-    public var stringFormatter = StringFormatter()
+    @objc public var identifier: String
+    @objc public var paymentProductIdentifier: String
+    @objc public var displayHints = AccountOnFileDisplayHints()
+    @objc public var attributes = AccountOnFileAttributes()
+    @objc public var stringFormatter = StringFormatter()
 
-    public required init?(json: [String: Any]) {
+    @objc public required init?(json: [String: Any]) {
 
         guard let identifier = json["id"] as? Int,
             let paymentProductId = json["paymentProductId"] as? Int else {
@@ -40,12 +41,12 @@ public class AccountOnFile: ResponseObjectSerializable {
         }
     }
 
-    public func maskedValue(forField paymentProductFieldId: String) -> String {
+    @objc public func maskedValue(forField paymentProductFieldId: String) -> String {
         let mask = displayHints.labelTemplate.mask(forAttributeKey: paymentProductFieldId)
         return maskedValue(forField: paymentProductFieldId, mask: mask)
     }
 
-    public func maskedValue(forField paymentProductFieldId: String, mask: String?) -> String {
+    @objc public func maskedValue(forField paymentProductFieldId: String, mask: String?) -> String {
         let value = attributes.value(forField: paymentProductFieldId)
 
         if let mask = mask {
@@ -56,15 +57,16 @@ public class AccountOnFile: ResponseObjectSerializable {
         return value
     }
 
-    public func hasValue(forField paymentProductFieldId: String) -> Bool {
+    @objc public func hasValue(forField paymentProductFieldId: String) -> Bool {
         return attributes.hasValue(forField: paymentProductFieldId)
     }
 
+    @objc(fieldIsReadOnly:)
     public func isReadOnly(field paymentProductFieldId: String) -> Bool {
         return attributes.isReadOnly(field: paymentProductFieldId)
     }
 
-    public var label: String {
+    @objc public var label: String {
         var labelComponents = [String]()
 
         for labelTemplateItem in displayHints.labelTemplate.labelTemplateItems {

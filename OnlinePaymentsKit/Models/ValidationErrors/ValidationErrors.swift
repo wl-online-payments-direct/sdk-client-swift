@@ -6,26 +6,28 @@
 
 import Foundation
 
-public class ValidationError { public init() {} }
+@objc(OPValidationError) public class ValidationError: NSObject { @objc public override init() {} }
 
-public class ValidationErrorAllowed: ValidationError {}
-public class ValidationErrorEmailAddress: ValidationError {}
-public class ValidationErrorExpirationDate: ValidationError {}
-public class ValidationErrorFixedList: ValidationError {}
-public class ValidationErrorInteger: ValidationError {}
-public class ValidationErrorIsRequired: ValidationError {}
-public class ValidationErrorLuhn: ValidationError {}
-public class ValidationErrorNumericString: ValidationError {}
-public class ValidationErrorRegularExpression: ValidationError {}
-public class ValidationErrorTermsAndConditions: ValidationError {}
-public class ValidationErrorIBAN: ValidationError {}
+@objc(OPValidationErrorAllowed) public class ValidationErrorAllowed: ValidationError {}
+@objc(OPValidationErrorEmailAddress) public class ValidationErrorEmailAddress: ValidationError {}
+@objc(OPValidationErrorExpirationDate) public class ValidationErrorExpirationDate: ValidationError {}
+@objc(OPValidationErrorFixedList) public class ValidationErrorFixedList: ValidationError {}
+@objc(OPValidationErrorInteger) public class ValidationErrorInteger: ValidationError {}
+@objc(OPValidationErrorIsRequired) public class ValidationErrorIsRequired: ValidationError {}
+@objc(OPValidationErrorLuhn) public class ValidationErrorLuhn: ValidationError {}
+@objc(OPValidationErrorNumericString) public class ValidationErrorNumericString: ValidationError {}
+@objc(OPValidationErrorRegularExpression) public class ValidationErrorRegularExpression: ValidationError {}
+@objc(OPValidationErrorTermsAndConditions) public class ValidationErrorTermsAndConditions: ValidationError {}
+@objc(OPValidationErrorIBAN) public class ValidationErrorIBAN: ValidationError {}
 
+@objc(OPValidationErrorLength)
 public class ValidationErrorLength: ValidationError {
-    public var minLength = 0
-    public var maxLength = 0
+    @objc public var minLength = 0
+    @objc public var maxLength = 0
 }
 
+@objc(OPValidationErrorRange)
 public class ValidationErrorRange: ValidationError {
-    public var minValue = 0
-    public var maxValue = 0
+    @objc public var minValue = 0
+    @objc public var maxValue = 0
 }

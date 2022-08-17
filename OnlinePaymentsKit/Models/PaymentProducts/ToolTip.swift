@@ -6,13 +6,14 @@
 
 import UIKit
 
-public class ToolTip: ResponseObjectSerializable {
+@objc(OPTooltip)
+public class ToolTip: NSObject, ResponseObjectSerializable {
 
-    public var imagePath: String?
-    public var image: UIImage?
-    public var label: String?
+    @objc public var imagePath: String?
+    @objc public var image: UIImage?
+    @objc public var label: String?
 
-    required public init(json: [String: Any]) {
+    @objc required public init(json: [String: Any]) {
         imagePath = json["image"] as? String
         if let input = json["label"] as? String {
             label = input

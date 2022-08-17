@@ -5,17 +5,18 @@
 // 
 
 import Alamofire
+import Foundation
 
-public class AlamofireWrapper {
+public class AlamofireWrapper: NSObject {
 
     static let shared = AlamofireWrapper()
 
     public var headers: HTTPHeaders? {
         get {
-            return URLSessionConfiguration.default.httpAdditionalHeaders as? HTTPHeaders
+            return URLSessionConfiguration.default.headers
         }
         set {
-            URLSessionConfiguration.default.httpAdditionalHeaders = newValue
+            URLSessionConfiguration.default.headers = newValue ?? .default
         }
     }
 
@@ -30,16 +31,16 @@ public class AlamofireWrapper {
         if let additionalAcceptableStatusCodes = additionalAcceptableStatusCodes {
             acceptableStatusCodes.add(additionalAcceptableStatusCodes)
         }
-
-        Alamofire
+        
+        AF
             .request(URL, method: .get, parameters: parameters, headers: headers)
             .validate(statusCode: acceptableStatusCodes)
             .responseJSON { response in
-                if let error = response.result.error {
+                if let error = response.error {
                     Macros.DLog(message: "Error while retrieving response for URL \(URL): \(error.localizedDescription)")
                     failure(error)
                 } else {
-                    success(response.result.value as? [String: Any])
+                    success(response.value as? [String: Any])
                 }
         }
     }
@@ -56,15 +57,15 @@ public class AlamofireWrapper {
             acceptableStatusCodes.add(additionalAcceptableStatusCodes)
         }
 
-        Alamofire
+        AF
             .request(URL, method: .post, parameters: parameters, encoding: JSONEncoding.default, headers: headers)
             .validate(statusCode: acceptableStatusCodes)
-            .responseJSON { response in
-                if let error = response.result.error {
+            .responseJSON() { response in
+                if let error = response.error {
                     Macros.DLog(message: "Error while retrieving response for URL \(URL): \(error.localizedDescription)")
                     failure(error)
                 } else {
-                    success(response.result.value as? [String: Any])
+                    success(response.value as? [String: Any])
                 }
         }
     }

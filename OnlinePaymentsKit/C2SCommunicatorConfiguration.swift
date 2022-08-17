@@ -6,20 +6,21 @@
 
 import Foundation
 
-public class C2SCommunicatorConfiguration {
-    let clientSessionId: String
-    let customerId: String
-    let util: Util
-    let appIdentifier: String
-    let ipAddress: String?
-    let assetsBaseURL: String
+@objc(OPC2SCommunicatorConfiguration)
+public class C2SCommunicatorConfiguration: NSObject {
+    internal let clientSessionId: String
+    internal let customerId: String
+    internal let util: Util
+    internal let appIdentifier: String
+    internal let ipAddress: String?
+    internal let assetsBaseURL: String
     
     private var _baseURL: String
         var baseURL: String {
             return fixURL(url: _baseURL) ?? _baseURL
         }
 
-    public init(clientSessionId: String, customerId: String, baseURL: String, assetBaseURL: String, appIdentifier: String, util: Util? = nil) {
+    @objc public init(clientSessionId: String, customerId: String, baseURL: String, assetBaseURL: String, appIdentifier: String, util: Util? = nil) {
         self.clientSessionId = clientSessionId
         self.customerId = customerId
         self.util = util ?? Util.shared
@@ -28,7 +29,7 @@ public class C2SCommunicatorConfiguration {
         self._baseURL = baseURL
         self.assetsBaseURL = assetBaseURL
     }
-    public init(clientSessionId: String, customerId: String, baseURL: String, assetBaseURL: String, appIdentifier: String, ipAddress: String?, util: Util? = nil) {
+    @objc public init(clientSessionId: String, customerId: String, baseURL: String, assetBaseURL: String, appIdentifier: String, ipAddress: String?, util: Util? = nil) {
         self.clientSessionId = clientSessionId
         self.customerId = customerId
         self.util = util ?? Util.shared
@@ -73,7 +74,7 @@ public class C2SCommunicatorConfiguration {
         return nil
     }
 
-    public var base64EncodedClientMetaInfo: String? {
+    @objc public var base64EncodedClientMetaInfo: String? {
         return util.base64EncodedClientMetaInfo(withAppIdentifier: appIdentifier, ipAddress: ipAddress)
     }
 }
