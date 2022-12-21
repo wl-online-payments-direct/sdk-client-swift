@@ -10,7 +10,7 @@ import XCTest
 class PaymentAmountOfMoneyTestCase: XCTestCase {
 
     func testPaymentAmountOfMoneyUnknown() {
-        let amount = PaymentAmountOfMoney(totalAmount: 3, currencyCode: .EUR)
+        let amount = PaymentAmountOfMoney(totalAmount: 3, currencyCode: "EUR")
         XCTAssertEqual(amount.description, "3-EUR")
     }
 }

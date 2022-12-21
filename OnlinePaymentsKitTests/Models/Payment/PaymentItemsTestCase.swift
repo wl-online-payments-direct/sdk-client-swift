@@ -20,9 +20,9 @@ class PaymentItemsTestCase: XCTestCase {
                           baseURL: "https://example.com/client/v1",
                           assetBaseURL: "https://example.com/client/v1",
                           appIdentifier: "")
-    let context = PaymentContext(amountOfMoney: PaymentAmountOfMoney(totalAmount: 3, currencyCode: .EUR),
+    let context = PaymentContext(amountOfMoney: PaymentAmountOfMoney(totalAmount: 3, currencyCode: "EUR"),
                                  isRecurring: true,
-                                 countryCode: .NL)
+                                 countryCode: "NL")
 
     override func setUp() {
         super.setUp()

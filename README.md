@@ -50,3 +50,7 @@ You can add the Swift SDK with Swift Package Manager, by configuring your projec
 5. Click 'Add package'
 
 When the package has successfully been added, it will automatically be added as a dependency to your targets as well.
+
+## Objective-C Compatibility
+The Online Payments Swift SDK can also be used in Objective-C projects by using CocoaPods or Carthage. Once you have added Online Payments Kit as a dependency, it can easily be used by adding the following import statement where you want to use the SDK:
+`@import OnlinePaymentsKit;` 

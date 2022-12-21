@@ -14,7 +14,7 @@ class C2SCommunicatorTestCase: XCTestCase {
 
     var communicator: C2SCommunicator!
     var configuration: C2SCommunicatorConfiguration!
-    let context = PaymentContext(amountOfMoney: PaymentAmountOfMoney(totalAmount: 3, currencyCode: .EUR), isRecurring: true, countryCode: .NL)
+    let context = PaymentContext(amountOfMoney: PaymentAmountOfMoney(totalAmount: 3, currencyCode: "EUR"), isRecurring: true, countryCode: "NL")
 
     var applePaymentProduct: BasicPaymentProduct!
 
@@ -132,7 +132,7 @@ class C2SCommunicatorTestCase: XCTestCase {
             return HTTPStubsResponse(jsonObject: response, statusCode: 200, headers: ["Content-Type":"application/json"])
         }
 
-        let context = PaymentContext(amountOfMoney: PaymentAmountOfMoney(totalAmount: 3, currencyCode: .EUR), isRecurring: true, countryCode: .NL)
+        let context = PaymentContext(amountOfMoney: PaymentAmountOfMoney(totalAmount: 3, currencyCode: "EUR"), isRecurring: true, countryCode: "NL")
         let expectation = self.expectation(description: "Response provided")
 
         communicator.paymentProducts(forContext: context, success: { responseObject in
@@ -305,7 +305,7 @@ class C2SCommunicatorTestCase: XCTestCase {
         communicator.paymentProductId(byPartialCreditCardNumber: "520953", context: context, success: { (gciinDetailsResponse) in
             expectation.fulfill()
 
-            XCTAssertEqual(gciinDetailsResponse.countryCode, .RU, "Received countrycode not as expected")
+            XCTAssertEqual(gciinDetailsResponse.countryCodeString, "RU", "Received countrycode not as expected")
             XCTAssertEqual(gciinDetailsResponse.paymentProductId, "3", "Received paymentProductId not as expected")
         }) { (error) in
             XCTFail("Unexpected failure while testing paymentProductWithIdPartialCreditCard: \(error.localizedDescription)")

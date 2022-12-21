@@ -12,6 +12,7 @@ public class IINDetailsResponse: NSObject, ResponseObjectSerializable {
     @objc public var paymentProductId: String?
     @objc public var status: IINStatus = .supported
     @objc public var coBrands = [IINDetail]()
+    @available(*, deprecated, message: "Use countryCodeString instead. In a future release this field will become 'String' type.")
     public var countryCode: CountryCode?
     @objc public var countryCodeString: String?
     @objc public var allowedInContext = false
@@ -52,8 +53,12 @@ public class IINDetailsResponse: NSObject, ResponseObjectSerializable {
         self.status = status
     }
 
-    @objc convenience public init(paymentProductId: String, status: IINStatus, coBrands: [IINDetail], countryCode: String, allowedInContext: Bool) {
-        self.init()
+    @available(*, deprecated, message: "Use init(String:IINStatus:[IINDetail]:String:Bool:) instead")
+    public convenience init(paymentProductId: String, status: IINStatus, coBrands: [IINDetail], countryCode: CountryCode, allowedInContext: Bool) {
+        self.init(paymentProductId: paymentProductId, status: status, coBrands: coBrands, countryCode: countryCode.rawValue, allowedInContext: allowedInContext)
+    }
+    
+    @objc public init(paymentProductId: String, status: IINStatus, coBrands: [IINDetail], countryCode: String, allowedInContext: Bool) {
         self.paymentProductId = paymentProductId
         self.status = status
         self.coBrands = coBrands

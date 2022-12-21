@@ -1,3 +1,0 @@
-github "Alamofire/Alamofire" ~> 5.6.0
-github "krzyzanowskim/CryptoSwift" == 1.5.1
-github "AliSoftware/OHHTTPStubs" ~> 9.1.0

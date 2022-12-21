@@ -13,8 +13,8 @@ import OHHTTPStubsSwift
 class SessionTestCase: XCTestCase {
     let host = "example.com"
     
-    var session = StubSession(clientSessionId: "client-session-id", customerId: "customer-id",baseURL: "https://example.com/client/v1", assetBaseURL: "https://example.com/client/v1", appIdentifier: "")
-    let context = PaymentContext(amountOfMoney: PaymentAmountOfMoney(totalAmount: 3, currencyCode: .EUR), isRecurring: true, countryCode: .NL)
+    var session = Session(clientSessionId: "client-session-id", customerId: "customer-id",baseURL: "https://example.com/client/v1", assetBaseURL: "https://example.com/client/v1", appIdentifier: "")
+    let context = PaymentContext(amountOfMoney: PaymentAmountOfMoney(totalAmount: 3, currencyCode: "EUR"), isRecurring: true, countryCode: "NL")
     
     override func setUp() {
         super.setUp()
@@ -370,7 +370,7 @@ class SessionTestCase: XCTestCase {
     }
 
     func testIinDetailsForPartialCreditCardNumber(){
-        _ = PaymentAmountOfMoney(totalAmount: 0, currencyCode: .EUR)
+        _ = PaymentAmountOfMoney(totalAmount: 0, currencyCode: "EUR")
         
         // Stub for IIN details "supported" status response
         stub(condition: isHost(host)) { _ in
@@ -401,7 +401,7 @@ class SessionTestCase: XCTestCase {
         expectation = self.expectation(description: "Response provided")
         session.iinDetails(forPartialCreditCardNumber: "012345", context: context, success: { iinDetailsResponse in
             XCTAssertEqual(iinDetailsResponse.status.hashValue, IINStatus.supported.hashValue)
-            XCTAssertEqual(iinDetailsResponse.countryCode, .RU)
+            XCTAssertEqual(iinDetailsResponse.countryCodeString, "RU")
             XCTAssertEqual(iinDetailsResponse.paymentProductId, "3")
             expectation.fulfill()
         }, failure: { error in
@@ -428,7 +428,7 @@ class SessionTestCase: XCTestCase {
         session.iinLookupPending = true
         session.iinDetails(forPartialCreditCardNumber: "426398", context: context, success: { iinDetailsResponse in
             XCTAssertEqual(iinDetailsResponse.status.hashValue, IINStatus.existingButNotAllowed.hashValue)
-            XCTAssertEqual(iinDetailsResponse.countryCode, .RU)
+            XCTAssertEqual(iinDetailsResponse.countryCodeString, "RU")
             XCTAssertEqual(iinDetailsResponse.paymentProductId, "3")
             expectation.fulfill()
         }, failure: { error in

@@ -42,7 +42,7 @@ public class C2SCommunicator: NSObject {
     @objc public func paymentProducts(forContext context: PaymentContext, success: @escaping (_ paymentProducts: BasicPaymentProducts) -> Void, failure: @escaping (_ error: Error) -> Void) {
         let isRecurring = context.isRecurring ? "true" : "false"
         let URL = "\(baseURL)/\(configuration.customerId)/products"
-        var params: [String: Any] = ["countryCode": context.countryCode.rawValue, "currencyCode": context.amountOfMoney.currencyCode.rawValue, "amount": context.amountOfMoney.totalAmount, "hide": "fields", "isRecurring": isRecurring]
+        var params: [String: Any] = ["countryCode": context.countryCodeString, "currencyCode": context.amountOfMoney.currencyCodeString, "amount": context.amountOfMoney.totalAmount, "hide": "fields", "isRecurring": isRecurring]
 
         if !context.locale.isEmpty {
             params["locale"] = context.locale
@@ -116,7 +116,7 @@ public class C2SCommunicator: NSObject {
             return
         }
         let URL = "\(self.baseURL)/\(self.configuration.customerId)/products/\(paymentProductId)/networks"
-        let params: [String: Any] = ["countryCode": context.countryCode.rawValue, "locale": context.locale, "currencyCode": context.amountOfMoney.currencyCode.rawValue, "amount": context.amountOfMoney.totalAmount, "hide": "fields", "isRecurring": isRecurring]
+        let params: [String: Any] = ["countryCode": context.countryCodeString, "locale": context.locale, "currencyCode": context.amountOfMoney.currencyCodeString, "amount": context.amountOfMoney.totalAmount, "hide": "fields", "isRecurring": isRecurring]
 
         getResponse(forURL: URL, withParameters: params, success: { (responseObject) in
             guard let response = responseObject as? [String: Any] else {
@@ -143,7 +143,7 @@ public class C2SCommunicator: NSObject {
             let isRecurring = context.isRecurring ? "true" : "false"
 
             let URL = "\(self.baseURL)/\(self.configuration.customerId)/products/\(paymentProductId)/"
-            var params: [String: Any] = ["countryCode": context.countryCode.rawValue, "currencyCode": context.amountOfMoney.currencyCode.rawValue, "amount": context.amountOfMoney.totalAmount, "isRecurring": isRecurring]
+            var params: [String: Any] = ["countryCode": context.countryCodeString, "currencyCode": context.amountOfMoney.currencyCodeString, "amount": context.amountOfMoney.totalAmount, "isRecurring": isRecurring]
             params["forceBasicFlow"] = context.forceBasicFlow ? "true" : "false"
             if !context.locale.isEmpty {
                 params["locale"] = context.locale
@@ -224,7 +224,7 @@ public class C2SCommunicator: NSObject {
 
     @objc public func badRequestError(forProduct paymentProductId: String, context: PaymentContext) -> Error {
         let isRecurring = context.isRecurring ? "true" : "false"
-        let url = "\(baseURL)/\(configuration.customerId)/products/\(paymentProductId)/?countryCode=\(context.countryCode.rawValue)&locale=\(context.locale)&currencyCode=\(context.amountOfMoney.currencyCode.rawValue)&amount=\(UInt(context.amountOfMoney.totalAmount))&isRecurring=\(isRecurring)"
+        let url = "\(baseURL)/\(configuration.customerId)/products/\(paymentProductId)/?countryCode=\(context.countryCodeString)&locale=\(context.locale)&currencyCode=\(context.amountOfMoney.currencyCodeString)&amount=\(UInt(context.amountOfMoney.totalAmount))&isRecurring=\(isRecurring)"
         let errorUserInfo = ["com.alamofire.serialization.response.error.response":
             HTTPURLResponse(url: URL(string: url)!, statusCode: 400, httpVersion: nil, headerFields: ["Connection": "close"])!, "NSErrorFailingURLKey": url, "com.alamofire.serialization.response.error.data": Data(), "NSLocalizedDescription": "Request failed: bad request (400)"] as [String: Any]
         let error = NSError(domain: "com.alamofire.serialization.response.error.response", code: -1011, userInfo: errorUserInfo)
@@ -259,11 +259,11 @@ public class C2SCommunicator: NSObject {
         if let context = context {
             var paymentContext: [String: Any] = [:]
             paymentContext["isRecurring"] = context.isRecurring ? "true" : "false"
-            paymentContext["countryCode"] = context.countryCode.rawValue
+            paymentContext["countryCode"] = context.countryCodeString
 
             var amountOfMoney: [String: Any] = [:]
             amountOfMoney["amount"] = String(context.amountOfMoney.totalAmount)
-            amountOfMoney["currencyCode"] = context.amountOfMoney.currencyCode.rawValue
+            amountOfMoney["currencyCode"] = context.amountOfMoney.currencyCodeString
             paymentContext["amountOfMoney"] = amountOfMoney
 
             parameters["paymentContext"] = paymentContext

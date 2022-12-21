@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
 
   s.name          = "OnlinePaymentsKit"
-  s.version       = "2.0.2"
+  s.version       = "2.0.3"
   s.summary       = "Online payments Swift SDK"
   s.description   = <<-DESC
                     This native iOS SDK facilitates handling payments in your apps
@@ -11,7 +11,7 @@ Pod::Spec.new do |s|
   s.homepage      = "https://github.com/wl-online-payments-direct/sdk-client-swift"
   s.license       = { :type => "MIT", :file => "LICENSE.txt" }
   s.author        = "Worldline"
-  s.platform      = :ios, "10.0"
+  s.platform      = :ios, "11.0"
   s.source        = { :git => "https://github.com/wl-online-payments-direct/sdk-client-swift.git", :tag => s.version }
   s.source_files  = "OnlinePaymentsKit/**/*.{swift,h}"
   s.resource      = "OnlinePaymentsKit/Resources/OnlinePaymentsKit.bundle"

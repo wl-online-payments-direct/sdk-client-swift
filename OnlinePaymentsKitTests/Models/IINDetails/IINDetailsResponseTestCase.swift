@@ -19,9 +19,9 @@ class IINDetailsResponseTestCase: XCTestCase {
                           baseURL: "https://example.com/client/v1",
                           assetBaseURL: "https://example.com/client/v1",
                           appIdentifier: "")
-    let context = PaymentContext(amountOfMoney: PaymentAmountOfMoney(totalAmount: 3, currencyCode: .EUR),
+    let context = PaymentContext(amountOfMoney: PaymentAmountOfMoney(totalAmount: 3, currencyCode: "EUR"),
                                  isRecurring: true,
-                                 countryCode: .NL)
+                                 countryCode: "NL")
 
     override func setUp() {
         super.setUp()
@@ -62,7 +62,7 @@ class IINDetailsResponseTestCase: XCTestCase {
         let expectation = self.expectation(description: "Response provided")
         session.iinDetails(forPartialCreditCardNumber: "666666", context: context, success: { (response) in
             XCTAssertTrue(response.paymentProductId == "3", "Payment product ID did not match: \(String(describing: response.paymentProductId))")
-            XCTAssertEqual(response.countryCode, .RU, "Country code did not match: \(String(describing: response.countryCode))")
+            XCTAssertEqual(response.countryCodeString, "RU", "Country code did not match: \(String(describing: response.countryCodeString))")
 
             let details = IINDetail(paymentProductId: response.paymentProductId!, allowedInContext: true)
             XCTAssertTrue(details.paymentProductId == response.paymentProductId, "Payment product ID did not match.")

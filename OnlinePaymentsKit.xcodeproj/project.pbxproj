@@ -12,9 +12,10 @@
 		55919B6F28AB985A004B6D31 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 55919B6E28AB985A004B6D31 /* Assets.xcassets */; };
 		55919B7228AB985A004B6D31 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 55919B7128AB985A004B6D31 /* Preview Assets.xcassets */; };
 		7B053E3D28509B3B00A600C8 /* StubSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B053E3C28509B3B00A600C8 /* StubSession.swift */; };
-		7B595411284F53B900125D42 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = 7B595410284F53B900125D42 /* Alamofire */; };
-		7B595414284F53CC00125D42 /* CryptoSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 7B595413284F53CC00125D42 /* CryptoSwift */; };
-		7B595417284F53F200125D42 /* OHHTTPStubsSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 7B595416284F53F200125D42 /* OHHTTPStubsSwift */; };
+		7BBE950C2930D70000105564 /* OnlinePaymentsKit.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 7BBE950B2930D70000105564 /* OnlinePaymentsKit.bundle */; };
+		7BCE527D28BCEA76003E22B1 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = 7BCE527C28BCEA76003E22B1 /* Alamofire */; };
+		7BCE528028BCEA85003E22B1 /* CryptoSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 7BCE527F28BCEA85003E22B1 /* CryptoSwift */; };
+		7BCE528628BCEB4C003E22B1 /* OHHTTPStubsSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 7BCE528528BCEB4C003E22B1 /* OHHTTPStubsSwift */; };
 		F7027A5F24C08B0300DAE78D /* AlamofireWrapperTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7027A5E24C08B0300DAE78D /* AlamofireWrapperTestCase.swift */; };
 		F7027A6324C08BA000DAE78D /* StubBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7027A6224C08BA000DAE78D /* StubBundle.swift */; };
 		F7027A6524C08BB800DAE78D /* StubFileManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7027A6424C08BB800DAE78D /* StubFileManager.swift */; };
@@ -128,7 +129,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		55919B7628AB98A0004B6D31 /* PBXContainerItemProxy */ = {
+		7B9B702128B8F7D200B8781D /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = F7FBD62224C07E1A00D6A2BC /* Project object */;
 			proxyType = 1;
@@ -152,6 +153,10 @@
 		55919B7128AB985A004B6D31 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		7B053E3C28509B3B00A600C8 /* StubSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StubSession.swift; sourceTree = "<group>"; };
 		7B7C73362833BA6F006F9BF5 /* OnlinePaymentsKit-Bridging-Swift.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "OnlinePaymentsKit-Bridging-Swift.h"; sourceTree = "<group>"; };
+		7B9A722228B60D33004EF8C2 /* Alamofire.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = Alamofire.xcframework; path = Carthage/Build/Alamofire.xcframework; sourceTree = "<group>"; };
+		7B9A722328B60D33004EF8C2 /* CryptoSwift.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = CryptoSwift.xcframework; path = Carthage/Build/CryptoSwift.xcframework; sourceTree = "<group>"; };
+		7B9A722428B60D33004EF8C2 /* OHHTTPStubs.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = OHHTTPStubs.xcframework; path = Carthage/Build/OHHTTPStubs.xcframework; sourceTree = "<group>"; };
+		7BBE950B2930D70000105564 /* OnlinePaymentsKit.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; name = OnlinePaymentsKit.bundle; path = OnlinePaymentsKit/Resources/OnlinePaymentsKit.bundle; sourceTree = "<group>"; };
 		F7027A5E24C08B0300DAE78D /* AlamofireWrapperTestCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlamofireWrapperTestCase.swift; sourceTree = "<group>"; };
 		F7027A6224C08BA000DAE78D /* StubBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StubBundle.swift; sourceTree = "<group>"; };
 		F7027A6424C08BB800DAE78D /* StubFileManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StubFileManager.swift; sourceTree = "<group>"; };
@@ -279,9 +284,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7B595411284F53B900125D42 /* Alamofire in Frameworks */,
-				7B595417284F53F200125D42 /* OHHTTPStubsSwift in Frameworks */,
-				7B595414284F53CC00125D42 /* CryptoSwift in Frameworks */,
+				7BCE527D28BCEA76003E22B1 /* Alamofire in Frameworks */,
+				7BCE528628BCEB4C003E22B1 /* OHHTTPStubsSwift in Frameworks */,
+				7BCE528028BCEA85003E22B1 /* CryptoSwift in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -535,6 +540,7 @@
 		F7FBD62124C07E1A00D6A2BC = {
 			isa = PBXGroup;
 			children = (
+				7BBE950B2930D70000105564 /* OnlinePaymentsKit.bundle */,
 				F7FBD62D24C07E1A00D6A2BC /* OnlinePaymentsKit */,
 				F7FBD63824C07E1A00D6A2BC /* OnlinePaymentsKitTests */,
 				55919B6928AB9859004B6D31 /* KeychainEntitlementsTestApp */,
@@ -594,6 +600,9 @@
 		F7FBD64524C0807B00D6A2BC /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				7B9A722228B60D33004EF8C2 /* Alamofire.xcframework */,
+				7B9A722328B60D33004EF8C2 /* CryptoSwift.xcframework */,
+				7B9A722428B60D33004EF8C2 /* OHHTTPStubs.xcframework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -739,9 +748,9 @@
 			);
 			name = OnlinePaymentsKit;
 			packageProductDependencies = (
-				7B595410284F53B900125D42 /* Alamofire */,
-				7B595413284F53CC00125D42 /* CryptoSwift */,
-				7B595416284F53F200125D42 /* OHHTTPStubsSwift */,
+				7BCE527C28BCEA76003E22B1 /* Alamofire */,
+				7BCE527F28BCEA85003E22B1 /* CryptoSwift */,
+				7BCE528528BCEB4C003E22B1 /* OHHTTPStubsSwift */,
 			);
 			productName = IngenicoDirectKit;
 			productReference = F7FBD62B24C07E1A00D6A2BC /* OnlinePaymentsKit.framework */;
@@ -759,7 +768,7 @@
 			);
 			dependencies = (
 				F7FBD63724C07E1A00D6A2BC /* PBXTargetDependency */,
-				55919B7728AB98A0004B6D31 /* PBXTargetDependency */,
+				7B9B702228B8F7D200B8781D /* PBXTargetDependency */,
 			);
 			name = OnlinePaymentsKitTests;
 			productName = IngenicoDirectKitTests;
@@ -799,9 +808,9 @@
 			);
 			mainGroup = F7FBD62124C07E1A00D6A2BC;
 			packageReferences = (
-				7B59540F284F53B900125D42 /* XCRemoteSwiftPackageReference "Alamofire" */,
-				7B595412284F53CC00125D42 /* XCRemoteSwiftPackageReference "CryptoSwift" */,
-				7B595415284F53F200125D42 /* XCRemoteSwiftPackageReference "OHHTTPStubs" */,
+				7BCE527B28BCEA76003E22B1 /* XCRemoteSwiftPackageReference "Alamofire" */,
+				7BCE527E28BCEA85003E22B1 /* XCRemoteSwiftPackageReference "CryptoSwift" */,
+				7BCE528428BCEB4C003E22B1 /* XCRemoteSwiftPackageReference "OHHTTPStubs" */,
 			);
 			productRefGroup = F7FBD62C24C07E1A00D6A2BC /* Products */;
 			projectDirPath = "";
@@ -828,6 +837,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7BBE950C2930D70000105564 /* OnlinePaymentsKit.bundle in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -977,10 +987,10 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		55919B7728AB98A0004B6D31 /* PBXTargetDependency */ = {
+		7B9B702228B8F7D200B8781D /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 55919B6728AB9859004B6D31 /* KeychainEntitlementsTestApp */;
-			targetProxy = 55919B7628AB98A0004B6D31 /* PBXContainerItemProxy */;
+			targetProxy = 7B9B702128B8F7D200B8781D /* PBXContainerItemProxy */;
 		};
 		F7FBD63724C07E1A00D6A2BC /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -1104,7 +1114,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -1161,7 +1171,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
@@ -1184,14 +1194,10 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)/Carthage/Build/iOS",
-					"$(PROJECT_DIR)/Carthage/Build/Mac",
-				);
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = "$(SRCROOT)/OnlinePaymentsKit/Essentials/Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1223,14 +1229,10 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)/Carthage/Build/iOS",
-					"$(PROJECT_DIR)/Carthage/Build/Mac",
-				);
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = "$(SRCROOT)/OnlinePaymentsKit/Essentials/Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1255,11 +1257,9 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = "";
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)/Carthage/Build/iOS",
-				);
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = OnlinePaymentsKitTests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1281,11 +1281,9 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = "";
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)/Carthage/Build/iOS",
-				);
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = OnlinePaymentsKitTests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1343,7 +1341,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		7B59540F284F53B900125D42 /* XCRemoteSwiftPackageReference "Alamofire" */ = {
+		7BCE527B28BCEA76003E22B1 /* XCRemoteSwiftPackageReference "Alamofire" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/Alamofire/Alamofire";
 			requirement = {
@@ -1351,15 +1349,15 @@
 				minimumVersion = 5.6.0;
 			};
 		};
-		7B595412284F53CC00125D42 /* XCRemoteSwiftPackageReference "CryptoSwift" */ = {
+		7BCE527E28BCEA85003E22B1 /* XCRemoteSwiftPackageReference "CryptoSwift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/krzyzanowskim/CryptoSwift";
 			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 1.5.0;
+				kind = exactVersion;
+				version = 1.5.1;
 			};
 		};
-		7B595415284F53F200125D42 /* XCRemoteSwiftPackageReference "OHHTTPStubs" */ = {
+		7BCE528428BCEB4C003E22B1 /* XCRemoteSwiftPackageReference "OHHTTPStubs" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/AliSoftware/OHHTTPStubs";
 			requirement = {
@@ -1370,19 +1368,19 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		7B595410284F53B900125D42 /* Alamofire */ = {
+		7BCE527C28BCEA76003E22B1 /* Alamofire */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 7B59540F284F53B900125D42 /* XCRemoteSwiftPackageReference "Alamofire" */;
+			package = 7BCE527B28BCEA76003E22B1 /* XCRemoteSwiftPackageReference "Alamofire" */;
 			productName = Alamofire;
 		};
-		7B595413284F53CC00125D42 /* CryptoSwift */ = {
+		7BCE527F28BCEA85003E22B1 /* CryptoSwift */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 7B595412284F53CC00125D42 /* XCRemoteSwiftPackageReference "CryptoSwift" */;
+			package = 7BCE527E28BCEA85003E22B1 /* XCRemoteSwiftPackageReference "CryptoSwift" */;
 			productName = CryptoSwift;
 		};
-		7B595416284F53F200125D42 /* OHHTTPStubsSwift */ = {
+		7BCE528528BCEB4C003E22B1 /* OHHTTPStubsSwift */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 7B595415284F53F200125D42 /* XCRemoteSwiftPackageReference "OHHTTPStubs" */;
+			package = 7BCE528428BCEB4C003E22B1 /* XCRemoteSwiftPackageReference "OHHTTPStubs" */;
 			productName = OHHTTPStubsSwift;
 		};
 /* End XCSwiftPackageProductDependency section */

@@ -17,7 +17,7 @@ class UtilTestCase: XCTestCase {
             
             if let JSON = try! JSONSerialization.jsonObject(with: decodedInfo, options: []) as? [String: String] {
                 XCTAssertEqual(JSON["deviceBrand"], "Apple", "Incorrect device brand in meta info")
-                XCTAssertEqual(JSON["deviceType"], "arm64", "Incorrect device type in meta info")
+                XCTAssert(JSON["deviceType"] == "arm64" || JSON["deviceType"] == "x86_64", "Incorrect device type in meta info")
             }
         }
     }
