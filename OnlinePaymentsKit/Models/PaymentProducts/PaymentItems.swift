@@ -36,7 +36,11 @@ public class PaymentItems: NSObject {
         allPaymentItems = products.paymentProducts
     }
 
-    @objc public func createPaymentItemsFromProducts(products: BasicPaymentProducts, groups: BasicPaymentProductGroups?) -> [BasicPaymentItem] {
+    // TODO: SMBO-96367 - Parameter 'groups' is unused
+    @objc public func createPaymentItemsFromProducts(
+        products: BasicPaymentProducts,
+        groups: BasicPaymentProductGroups?
+    ) -> [BasicPaymentItem] {
         return products.paymentProducts
     }
 
@@ -44,7 +48,7 @@ public class PaymentItems: NSObject {
         guard let item = paymentItem(withIdentifier: identifier) else {
             return nil
         }
-        
+
         guard let displayHints = item.displayHintsList.first else {
             return nil
         }
@@ -63,7 +67,7 @@ public class PaymentItems: NSObject {
         paymentItems = paymentItems.sorted {
             let displayOrder0 = $0.displayHintsList[0].displayOrder
             let displayOrder1 = $1.displayHintsList[0].displayOrder
-            
+
             return displayOrder0 < displayOrder1
         }
     }

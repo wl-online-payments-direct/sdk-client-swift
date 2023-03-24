@@ -2,7 +2,9 @@
 // Do not remove or alter the notices in this preamble.
 // This software code is created for Online Payments on 16/07/2020
 // Copyright © 2020 Global Collect Services. All rights reserved.
-// 
+//
+// swiftlint:disable function_parameter_count
+// swiftlint:disable cyclomatic_complexity
 
 import Foundation
 
@@ -13,9 +15,15 @@ public class StringFormatter: NSObject {
     @objc public var upperAlphaRegex: NSRegularExpression
 
     @objc public override init() {
-        decimalRegex = try! NSRegularExpression(pattern: "[0-9]")
-        lowerAlphaRegex = try! NSRegularExpression(pattern: "[a-z]")
-        upperAlphaRegex = try! NSRegularExpression(pattern: "[A-Z]")
+        guard let decimalRegex = try? NSRegularExpression(pattern: "[0-9]"),
+              let lowerAlphaRegex = try? NSRegularExpression(pattern: "[a-z]"),
+              let upperAlphaRegex = try? NSRegularExpression(pattern: "[A-Z]") else {
+            fatalError("Could not create Regular Expression")
+        }
+
+        self.decimalRegex = decimalRegex
+        self.lowerAlphaRegex = lowerAlphaRegex
+        self.upperAlphaRegex = upperAlphaRegex
     }
 
     @objc public func formatString(string: String, mask: String) -> String {
@@ -32,7 +40,16 @@ public class StringFormatter: NSObject {
         var result = ""
 
         for match in matches {
-            let matchString = processMatch(match: match, string: string, stringIndex: &stringIndex, mask: mask, copyFromMask: &copyFromMask, appendRestOfMask: &appendRestOfMask, cursorPosition: &cursorPosition.pointee)
+            let matchString =
+                processMatch(
+                    match: match,
+                    string: string,
+                    stringIndex: &stringIndex,
+                    mask: mask,
+                    copyFromMask: &copyFromMask,
+                    appendRestOfMask: &appendRestOfMask,
+                    cursorPosition: &cursorPosition.pointee
+                )
             result = result.appending(matchString)
         }
 
@@ -67,7 +84,15 @@ public class StringFormatter: NSObject {
         return result
     }
 
-    @objc public func processMatch(match: String, string: String, stringIndex: UnsafeMutablePointer<Int>, mask: String, copyFromMask: UnsafeMutablePointer<Bool>, appendRestOfMask: UnsafeMutablePointer<Bool>, cursorPosition: UnsafeMutablePointer<Int>) -> String {
+    @objc public func processMatch(
+        match: String,
+        string: String,
+        stringIndex: UnsafeMutablePointer<Int>,
+        mask: String,
+        copyFromMask: UnsafeMutablePointer<Bool>,
+        appendRestOfMask: UnsafeMutablePointer<Bool>,
+        cursorPosition: UnsafeMutablePointer<Int>
+    ) -> String {
         var result = ""
 
         if match.isEqual("{{") {
@@ -95,10 +120,12 @@ public class StringFormatter: NSObject {
                     if maskChar.isEqual("9") && decimalRegex.numberOfMatches(in: stringChar, range: range) > 0 {
                         result = result.appending(stringChar)
                         maskIndex += 1
-                    } else if maskChar.isEqual("a") && lowerAlphaRegex.numberOfMatches(in: stringChar, range: range) > 0 {
+                    } else if maskChar.isEqual("a") &&
+                                lowerAlphaRegex.numberOfMatches(in: stringChar, range: range) > 0 {
                         result = result.appending(stringChar)
                         maskIndex += 1
-                    } else if maskChar.isEqual("A") && upperAlphaRegex.numberOfMatches(in: stringChar, range: range) > 0 {
+                    } else if maskChar.isEqual("A") &&
+                                upperAlphaRegex.numberOfMatches(in: stringChar, range: range) > 0 {
                         result = result.appending(stringChar)
                         maskIndex += 1
                     } else if maskChar.isEqual("*") {
@@ -131,7 +158,10 @@ public class StringFormatter: NSObject {
     }
 
     func parts(ofMask mask: String) -> [String] {
-        let regex = try! NSRegularExpression(pattern: "\\{\\{|\\}\\}|([^\\{\\}]|\\{(?!\\{)|\\}(?!\\}))*")
+        guard let regex = try? NSRegularExpression(pattern: "\\{\\{|\\}\\}|([^\\{\\}]|\\{(?!\\{)|\\}(?!\\}))*") else {
+            fatalError("Could not create Regular Expression")
+        }
+
         let results = regex.matches(in: mask, range: NSRange(location: 0, length: mask.count))
 
         return results.map { (mask as NSString).substring(with: $0.range) }
@@ -146,10 +176,10 @@ public class StringFormatter: NSObject {
         for match in matches {
             if match.isEqual("{{") {
                 replaceCharacters = true
-                maskIndex = maskIndex + 2
+                maskIndex += 2
             } else if match.isEqual("}}") {
                 replaceCharacters = false
-                maskIndex = maskIndex + 2
+                maskIndex += 2
             } else {
                 var length = match.count
                 while length > 0 {

@@ -42,7 +42,10 @@ class AccountOnFileAttributesTestCase: XCTestCase {
         attributes.attributes.append(readableAttr)
         XCTAssertTrue(!attributes.isReadOnly(field: readableAttr.key), "readableAttr is read only.")
 
-        let mustWriteAttr = AccountOnFileAttribute(json: ["key": "readable", "value": "value3", "status": "MUST_WRITE"])!
+        let mustWriteAttr =
+            AccountOnFileAttribute(
+                json: ["key": "readable", "value": "value3", "status": "MUST_WRITE"]
+            )!
         attributes.attributes.append(mustWriteAttr)
         XCTAssertTrue(!attributes.isReadOnly(field: mustWriteAttr.key), "mustWriteAttr is read only.")
     }

@@ -35,4 +35,35 @@ class BasicPaymentProductTestCase: XCTestCase {
         XCTAssert(product.accountOnFile(withIdentifier: "1") === account1, "Unexpected account on file retrieved")
     }
 
+    func testSameBasicPaymentProduct() {
+        let sameProduct = BasicPaymentProduct(json: [
+            "fields": [[:]],
+            "id": 1,
+            "paymentMethod": "card",
+            "displayHints": [
+                "displayOrder": 20,
+                "label": "Visa",
+                "logo": "/templates/master/global/css/img/ppimages/pp_logo_1_v1.png"
+            ]
+        ])!
+
+        XCTAssertTrue(product == sameProduct)
+        XCTAssertTrue(product.isEqual(sameProduct))
+    }
+
+    func testOtherBasicPaymentProduct() {
+        let otherProduct = BasicPaymentProduct(json: [
+            "fields": [[:]],
+            "id": 2,
+            "paymentMethod": "card",
+            "displayHints": [
+                "displayOrder": 21,
+                "label": "MasterCard",
+                "logo": "/templates/master/global/css/img/ppimages/pp_logo_2_v1.png"
+            ]
+        ])!
+
+        XCTAssertFalse(product == otherProduct)
+        XCTAssertFalse(product.isEqual(otherProduct))
+    }
 }

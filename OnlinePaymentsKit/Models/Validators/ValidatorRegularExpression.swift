@@ -28,7 +28,11 @@ public class ValidatorRegularExpression: Validator, ResponseObjectSerializable {
     @objc public override func validate(value: String, for request: PaymentRequest) {
         super.validate(value: value, for: request)
 
-        let numberOfMatches = regularExpression.numberOfMatches(in: value, range: NSRange(location: 0, length: value.count))
+        let numberOfMatches =
+            regularExpression.numberOfMatches(
+                in: value,
+                range: NSRange(location: 0, length: value.count)
+            )
         if numberOfMatches != 1 {
             let error = ValidationErrorRegularExpression()
             errors.append(error)

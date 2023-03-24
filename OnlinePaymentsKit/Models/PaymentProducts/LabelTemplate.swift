@@ -7,7 +7,7 @@
 import Foundation
 
 @objc(OPLabelTemplate)
-public class LabelTemplate: NSObject  {
+public class LabelTemplate: NSObject {
 
     @objc public var labelTemplateItems = [LabelTemplateItem]()
 

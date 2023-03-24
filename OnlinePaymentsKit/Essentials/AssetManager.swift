@@ -23,7 +23,8 @@ public class AssetManager: NSObject {
     @objc public let logoFormat = "pp_logo_%@"
     @objc public let tooltipFormat = "pp_%@_tooltip_%@"
 
-    @objc public var documentsFolderPath = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0]
+    @objc public var documentsFolderPath =
+        NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0]
     @objc public var fileManager = FileManager() // var for testing
     @objc public var sdkBundle = Bundle(path: SDKConstants.kSDKBundlePath ?? "") { // var for testing
         didSet {
@@ -148,7 +149,11 @@ public class AssetManager: NSObject {
 
             for field in fields.paymentProductFields where field.displayHints.tooltip?.imagePath != nil {
                 let identifier = String(format: self.tooltipFormat, paymentItem.identifier, field.identifier)
-                self.updateImage(withIdentifier: identifier, newPath: field.displayHints.tooltip!.imagePath!, baseURL: baseURL)
+                self.updateImage(
+                    withIdentifier: identifier,
+                    newPath: field.displayHints.tooltip!.imagePath!,
+                    baseURL: baseURL
+                )
             }
         }
 
@@ -222,20 +227,23 @@ public class AssetManager: NSObject {
         // Could not find image so return an empty image
         return UIImage()
     }
-    
-    @objc public func getLogoByStringURL(from url: String, completion: @escaping (Data?, URLResponse?, Error?) -> ()) {
+
+    @objc public func getLogoByStringURL(
+        from url: String,
+        completion: @escaping (Data?, URLResponse?, Error?) -> Void
+    ) {
         guard let encodedUrlString = url.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) else {
             Macros.DLog(message: "Unable to decode URL for url string: \(url)")
             completion(nil, nil, nil)
             return
         }
-        
+
         guard let encodedUrl = URL(string: encodedUrlString) else {
             Macros.DLog(message: "Unable to create URL for url string: \(encodedUrlString)")
             completion(nil, nil, nil)
             return
         }
-        
+
         URLSession.shared.dataTask(with: encodedUrl, completionHandler: {data, response, error in
             DispatchQueue.main.async {
                 completion(data, response, error)

@@ -10,7 +10,6 @@ import OHHTTPStubsSwift
 
 @testable import OnlinePaymentsKit
 
-
 class PaymentItemsTestCase: XCTestCase {
 
     let host = "example.com"
@@ -127,7 +126,8 @@ class PaymentItemsTestCase: XCTestCase {
                     ]
                 ]
             ]
-            return HTTPStubsResponse(jsonObject: response, statusCode: 200, headers: ["Content-Type": "application/json"])
+            return
+                HTTPStubsResponse(jsonObject: response, statusCode: 200, headers: ["Content-Type": "application/json"])
         }
 
         stub(condition: isHost("\(host)") && isPath("/client/v1/customer-id/productgroups") && isMethodGET()) { _ in
@@ -153,42 +153,59 @@ class PaymentItemsTestCase: XCTestCase {
                     ]
                 ]
             ]
-            return HTTPStubsResponse(jsonObject: response, statusCode: 200, headers: ["Content-Type": "application/json"])
+            return
+                HTTPStubsResponse(jsonObject: response, statusCode: 200, headers: ["Content-Type": "application/json"])
         }
 
         let expectation = self.expectation(description: "Response provided")
-        session.paymentItems(for: context, groupPaymentProducts: true, success: { (items) in
+        session.paymentItems(
+            for: context,
+            groupPaymentProducts: true,
+            success: { (items) in
+                items.sort()
 
-            items.sort()
+                XCTAssertTrue(items.hasAccountsOnFile, "Accounts on file are missing.")
 
-            XCTAssertTrue(items.hasAccountsOnFile, "Accounts on file are missing.")
+                self.allPaymentItems(basicItems: items.allPaymentItems)
 
-            self.allPaymentItems(basicItems: items.allPaymentItems)
+                XCTAssertTrue(items.paymentItem(withIdentifier: "3") != nil, "Payment item was not found.")
+                XCTAssertTrue(
+                    items.paymentItem(withIdentifier: "999") == nil,
+                    "Payment item should not have been found."
+                )
 
-            XCTAssertTrue(items.paymentItem(withIdentifier: "3") != nil, "Payment item was not found.")
-            XCTAssertTrue(items.paymentItem(withIdentifier: "999") == nil, "Payment item should not have been found.")
+                XCTAssertTrue(items.logoPath(forItem: "3") != nil, "Logo path not found.")
+                XCTAssertTrue(
+                    items.logoPath(forItem: "0000") == nil,
+                    "Logo path should been nil: \(String(describing: items.logoPath(forItem: "0000")))."
+                )
 
-            XCTAssertTrue(items.logoPath(forItem: "3") != nil, "Logo path not found.")
-            XCTAssertTrue(items.logoPath(forItem: "0000") == nil, "Logo path should been nil: \(String(describing: items.logoPath(forItem: "0000"))).")
-
-            let sortedItems = items.paymentItems.sorted {
-                guard let displayOrder0 = $0.displayHintsList.first?.displayOrder, let displayOrder1 = $1.displayHintsList.first?.displayOrder else {
-                    return false
+                let sortedItems = items.paymentItems.sorted {
+                    guard let displayOrder0 = $0.displayHintsList.first?.displayOrder,
+                          let displayOrder1 = $1.displayHintsList.first?.displayOrder else {
+                        return false
+                    }
+                    return displayOrder0 < displayOrder1
                 }
-                return displayOrder0 < displayOrder1
-            }
 
-            items.sort()
-            for index in 0..<sortedItems.count
-                where sortedItems[index].identifier != items.paymentItems[index].identifier {
-                    XCTFail("Sorted order is not the same: \(items.paymentItems[index].identifier) should have been: \(sortedItems[index].identifier)")
-            }
+                items.sort()
+                for index in 0..<sortedItems.count
+                    where sortedItems[index].identifier != items.paymentItems[index].identifier {
+                        XCTFail(
+                            """
+                            Sorted order is not the same: \(items.paymentItems[index].identifier),
+                            should have been: \(sortedItems[index].identifier)
+                            """
+                        )
+                }
 
-            expectation.fulfill()
-        }) { (error) in
-            XCTFail("Unexpected failure while loading Payment groups: \(error.localizedDescription)")
-            expectation.fulfill()
-        }
+                expectation.fulfill()
+            },
+            failure: { (error) in
+                XCTFail("Unexpected failure while loading Payment groups: \(error.localizedDescription)")
+                expectation.fulfill()
+            }
+        )
         waitForExpectations(timeout: 3) { error in
             if let error = error {
                 print("Timeout error: \(error.localizedDescription)")
@@ -196,10 +213,18 @@ class PaymentItemsTestCase: XCTestCase {
         }
 
         XCTAssertTrue(AccountOnFile(json: ["": ""]) == nil, "Init of the account on file should have failed.")
-        XCTAssertTrue(AccountOnFile(json: ["id": "string id"]) == nil, "Init of the account on file should have failed.")
-
-        XCTAssertTrue(AccountOnFile(json: ["id": 1, "paymentProductId": ""]) == nil, "Init of the account on file should have failed. Based on the payment product ID.")
-        XCTAssertTrue(AccountOnFile(json: ["id": 1, "paymentProductId": "string id"]) == nil, "Init of the account on file should have failed. Based on the payment product ID.")
+        XCTAssertTrue(
+            AccountOnFile(json: ["id": "string id"]) == nil,
+            "Init of the account on file should have failed."
+        )
+        XCTAssertTrue(
+            AccountOnFile(json: ["id": 1, "paymentProductId": ""]) == nil,
+            "Init of the account on file should have failed. Based on the payment product ID."
+        )
+        XCTAssertTrue(
+            AccountOnFile(json: ["id": 1, "paymentProductId": "string id"]) == nil,
+            "Init of the account on file should have failed. Based on the payment product ID."
+        )
 
     }
 
@@ -220,7 +245,10 @@ class PaymentItemsTestCase: XCTestCase {
             }
             if let product = item as? BasicPaymentProduct {
                 XCTAssertTrue(product.identifier == "\(index)", "Identifier was incorrect.")
-                XCTAssertTrue(product.displayHintsList.first?.displayOrder != nil, "Display order was nil (\(String(describing: product.displayHintsList.first?.displayOrder))).")
+                XCTAssertTrue(
+                    product.displayHintsList.first?.displayOrder != nil,
+                    "Display order was nil (\(String(describing: product.displayHintsList.first?.displayOrder)))."
+                )
                 XCTAssertTrue(product.allowsTokenization, "Tokenization was false.")
                 XCTAssertTrue(product.allowsRecurring, "Recurring was false.")
                 XCTAssertTrue(product.paymentMethod == "card", "Payment method was not card.")

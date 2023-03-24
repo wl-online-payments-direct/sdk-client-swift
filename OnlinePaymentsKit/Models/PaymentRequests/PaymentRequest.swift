@@ -17,7 +17,7 @@ public class PaymentRequest: NSObject {
     @objc public var formatter = StringFormatter()
 
     @objc public var accountOnFile: AccountOnFile?
-    
+
     @objc public override init() {}
 
     @objc public init(paymentProduct: PaymentProduct, accountOnFile: AccountOnFile? = nil, tokenize: Bool = false) {
@@ -37,8 +37,11 @@ public class PaymentRequest: NSObject {
         }
 
         var value: String?
-        if let paymentProduct = paymentProduct, let field = paymentProduct.paymentProductField(withId: paymentProductFieldId),
-            let fixedListValidator = field.dataRestrictions.validators.validators.filter({ $0 is ValidatorFixedList }).first as? ValidatorFixedList,
+        if let paymentProduct = paymentProduct,
+           let field = paymentProduct.paymentProductField(withId: paymentProductFieldId),
+            let fixedListValidator =
+                field.dataRestrictions.validators.validators.filter({ $0 is ValidatorFixedList }).first
+                    as? ValidatorFixedList,
             let allowedValue = fixedListValidator.allowedValues.first {
             value = allowedValue
             setValue(forField: paymentProductFieldId, value: allowedValue)
@@ -94,7 +97,10 @@ public class PaymentRequest: NSObject {
 
     @objc public func validate() {
         guard let paymentProduct = paymentProduct else {
-            NSException(name: NSExceptionName(rawValue: "Invalid payment product"), reason: "Payment product is invalid").raise()
+            NSException(
+                name: NSExceptionName(rawValue: "Invalid payment product"),
+                reason: "Payment product is invalid"
+            ).raise()
             return
         }
 
@@ -111,7 +117,10 @@ public class PaymentRequest: NSObject {
 
     @objc public var unmaskedFieldValues: [String: String]? {
         guard let paymentProduct = paymentProduct else {
-            NSException(name: NSExceptionName(rawValue: "Invalid payment product"), reason: "Payment product is invalid").raise()
+            NSException(
+                name: NSExceptionName(rawValue: "Invalid payment product"),
+                reason: "Payment product is invalid"
+            ).raise()
             return nil
         }
 

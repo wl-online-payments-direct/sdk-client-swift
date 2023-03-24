@@ -38,13 +38,22 @@ class AccountsOnFileTestCase: XCTestCase {
             account1.displayHints.labelTemplate.labelTemplateItems.append(tempItem!)
         }
 
-        XCTAssertTrue(account1.maskedValue(forField: "attributeKey1") == "123451", "Mask was: \(account1.maskedValue(forField: "attributeKey1")) should have been: mask1")
-        XCTAssertTrue(account1.maskedValue(forField: "9999").isEmpty, "Mask was: \(account1.maskedValue(forField: "attributeKey1")) should have been nil.")
+        XCTAssertTrue(
+            account1.maskedValue(forField: "attributeKey1") == "123451",
+            "Mask was: \(account1.maskedValue(forField: "attributeKey1")) should have been: mask1"
+        )
+        XCTAssertTrue(
+            account1.maskedValue(forField: "9999").isEmpty,
+            "Mask was: \(account1.maskedValue(forField: "attributeKey1")) should have been nil."
+        )
 
         account1.attributes = AccountOnFileAttributes()
 
         let attr = AccountOnFileAttribute(json: ["key": "1", "status": "READ_ONLY"])!
-        let attr2 = AccountOnFileAttribute(json: ["key": "2", "value": "12345", "status": "MUST_WRITE", "mustWriteReason": "Must!"])!
+        let attr2 =
+            AccountOnFileAttribute(
+                json: ["key": "2", "value": "12345", "status": "MUST_WRITE", "mustWriteReason": "Must!"]
+            )!
 
         XCTAssertTrue(!account1.hasValue(forField: "999"), "Should not have value.")
 

@@ -72,17 +72,22 @@ public class BasicPaymentProducts: NSObject, ResponseObjectSerializable {
         paymentProducts = paymentProducts.sorted {
             let displayOrder0 = $0.displayHintsList[0].displayOrder
             let displayOrder1 = $1.displayHintsList[0].displayOrder
-            
+
             return displayOrder0 < displayOrder1
         }
     }
 
-    public static func == (lhs: BasicPaymentProducts, rhs: BasicPaymentProducts) -> Bool {
-        if lhs.paymentProducts.count != rhs.paymentProducts.count {
+    public override func isEqual(_ object: Any?) -> Bool {
+        guard let products = object as? BasicPaymentProducts else {
             return false
         }
 
-        for i in 0..<lhs.paymentProducts.count where lhs.paymentProducts[i] != rhs.paymentProducts[i] {
+        if self.paymentProducts.count != products.paymentProducts.count {
+            return false
+        }
+
+        for index in 0..<self.paymentProducts.count
+          where self.paymentProducts[index] != products.paymentProducts[index] {
             return false
         }
         return true

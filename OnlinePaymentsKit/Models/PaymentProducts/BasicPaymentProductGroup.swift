@@ -34,7 +34,7 @@ public class BasicPaymentProductGroup: NSObject, ResponseObjectSerializable, Bas
         }
         self.identifier = identifier
         self.displayHints = displayHints
-        
+
         if let input = json["displayHintsList"] as? [[String: Any]] {
             for displayHintInput in input {
                 if let displayHint = PaymentItemDisplayHints(json: displayHintInput) {
@@ -42,7 +42,6 @@ public class BasicPaymentProductGroup: NSObject, ResponseObjectSerializable, Bas
                 }
             }
         }
-        
 
         if let input = json["accountsOnFile"] as? [[String: Any]] {
             for accountInput in input {

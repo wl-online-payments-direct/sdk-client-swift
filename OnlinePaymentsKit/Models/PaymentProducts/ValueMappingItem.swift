@@ -22,8 +22,8 @@ public class ValueMappingItem: NSObject, ResponseObjectSerializable {
         self.displayElements = []
 
         if let displayElements = json["displayElements"] as? [[String: Any]] {
-            for el in displayElements {
-                if let displayElement = DisplayElement(json: el) {
+            for element in displayElements {
+                if let displayElement = DisplayElement(json: element) {
                     self.displayElements.append(displayElement)
                 }
             }

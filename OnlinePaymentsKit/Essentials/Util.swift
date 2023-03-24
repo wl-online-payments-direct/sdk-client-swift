@@ -21,7 +21,11 @@ public class Util: NSObject {
     @objc public var screenSize: String {
         let screenBounds = UIScreen.main.bounds
         let screenScale = UIScreen.main.scale
-        let screenSize = CGSize(width: CGFloat(screenBounds.size.width * screenScale), height: CGFloat(screenBounds.size.height * screenScale))
+        let screenSize =
+            CGSize(
+                width: CGFloat(screenBounds.size.width * screenScale),
+                height: CGFloat(screenBounds.size.height * screenScale)
+            )
 
         return "\(Int(screenSize.width))\(Int(screenSize.height))"
     }
@@ -38,7 +42,7 @@ public class Util: NSObject {
         super.init()
         metaInfo = [
             "platformIdentifier": platformIdentifier,
-            "sdkIdentifier": "SwiftClientSDK/v2.0.3",
+            "sdkIdentifier": "SwiftClientSDK/v2.0.4",
             "sdkCreator": "Online Payments",
             "screenSize": screenSize,
             "deviceBrand": "Apple",
@@ -58,14 +62,21 @@ public class Util: NSObject {
         return base64EncodedClientMetaInfo(withAppIdentifier: appIdentifier, ipAddress: nil, addedData: nil)
     }
 
-    @objc public func base64EncodedClientMetaInfo(withAppIdentifier appIdentifier: String?, ipAddress: String?) -> String? {
+    @objc public func base64EncodedClientMetaInfo(
+        withAppIdentifier appIdentifier: String?,
+        ipAddress: String?
+    ) -> String? {
         return base64EncodedClientMetaInfo(withAppIdentifier: appIdentifier, ipAddress: ipAddress, addedData: nil)
     }
 
-    @objc public func base64EncodedClientMetaInfo(withAppIdentifier appIdentifier: String?, ipAddress: String?, addedData: [String: String]?) -> String? {
+    @objc public func base64EncodedClientMetaInfo(
+        withAppIdentifier appIdentifier: String?,
+        ipAddress: String?,
+        addedData: [String: String]?
+    ) -> String? {
         if let addedData = addedData {
-            for (k, v) in addedData {
-                metaInfo!.updateValue(v, forKey: k)
+            for (key, value) in addedData {
+                metaInfo!.updateValue(value, forKey: key)
             }
         }
 
@@ -82,7 +93,6 @@ public class Util: NSObject {
         return base64EncodedString(fromDictionary: metaInfo!)
     }
 
-    //TODO: move to Base64 class
     @objc public func base64EncodedString(fromDictionary dictionary: [AnyHashable: Any]) -> String? {
         guard let json = try? JSONSerialization.data(withJSONObject: dictionary, options: []) else {
             Macros.DLog(message: "Unable to serialize dictionary")

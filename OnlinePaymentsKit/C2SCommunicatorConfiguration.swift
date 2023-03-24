@@ -14,13 +14,20 @@ public class C2SCommunicatorConfiguration: NSObject {
     internal let appIdentifier: String
     internal let ipAddress: String?
     internal let assetsBaseURL: String
-    
+
     private var _baseURL: String
         var baseURL: String {
             return fixURL(url: _baseURL) ?? _baseURL
         }
 
-    @objc public init(clientSessionId: String, customerId: String, baseURL: String, assetBaseURL: String, appIdentifier: String, util: Util? = nil) {
+    @objc public init(
+        clientSessionId: String,
+        customerId: String,
+        baseURL: String,
+        assetBaseURL: String,
+        appIdentifier: String,
+        util: Util? = nil
+    ) {
         self.clientSessionId = clientSessionId
         self.customerId = customerId
         self.util = util ?? Util.shared
@@ -29,7 +36,15 @@ public class C2SCommunicatorConfiguration: NSObject {
         self._baseURL = baseURL
         self.assetsBaseURL = assetBaseURL
     }
-    @objc public init(clientSessionId: String, customerId: String, baseURL: String, assetBaseURL: String, appIdentifier: String, ipAddress: String?, util: Util? = nil) {
+    @objc public init(
+        clientSessionId: String,
+        customerId: String,
+        baseURL: String,
+        assetBaseURL: String,
+        appIdentifier: String,
+        ipAddress: String?,
+        util: Util? = nil
+    ) {
         self.clientSessionId = clientSessionId
         self.customerId = customerId
         self.util = util ?? Util.shared
@@ -45,7 +60,13 @@ public class C2SCommunicatorConfiguration: NSObject {
             var components = finalComponents.path.split(separator: "/").map { String($0)}
             let versionComponents = (SDKConstants.kApiVersion as NSString).pathComponents
             let error = {
-                fatalError("This version of the OnlinePayments SDK is only compatible with \(versionComponents.joined(separator: "/")) , you supplied: '\(components.joined(separator: "/"))'")
+                fatalError(
+                    """
+                    This version of the OnlinePayments SDK is only compatible with
+                     \(versionComponents.joined(separator: "/")),
+                    you supplied: '\(components.joined(separator: "/"))'
+                    """
+                )
             }
 
             switch components.count {

@@ -22,7 +22,7 @@ public class ValidatorExpirationDate: Validator {
         super.validate(value: value, for: request)
 
         // Test whether the date can be parsed normally
-        guard let _ = dateFormatter.date(from: value) else {
+        guard dateFormatter.date(from: value) != nil else {
             let error = ValidationErrorExpirationDate()
             errors.append(error)
             return
@@ -54,7 +54,7 @@ public class ValidatorExpirationDate: Validator {
             errors.append(error)
             return Date()
         }
-        
+
         return dateMonthAndFullYear
     }
 

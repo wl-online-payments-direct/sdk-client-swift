@@ -74,7 +74,7 @@ public class BasicPaymentProductGroups: NSObject, ResponseObjectSerializable {
         paymentProductGroups = paymentProductGroups.sorted {
             let displayOrder0 = $0.displayHintsList[0].displayOrder
             let displayOrder1 = $1.displayHintsList[0].displayOrder
-            
+
             return displayOrder0 < displayOrder1
         }
     }

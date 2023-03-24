@@ -39,7 +39,7 @@ public class PaymentProductGroup: NSObject, PaymentItem, ResponseObjectSerializa
         }
         self.identifier = identifier
         self.displayHints = displayHints
-        
+
         if let input = json["displayHintsList"] as? [[String: Any]] {
             for displayHintInput in input {
                 if let displayHint = PaymentItemDisplayHints(json: displayHintInput) {

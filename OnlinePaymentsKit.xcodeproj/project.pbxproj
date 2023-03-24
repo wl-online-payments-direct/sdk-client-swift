@@ -11,7 +11,7 @@
 		55919B6D28AB9859004B6D31 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55919B6C28AB9859004B6D31 /* ContentView.swift */; };
 		55919B6F28AB985A004B6D31 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 55919B6E28AB985A004B6D31 /* Assets.xcassets */; };
 		55919B7228AB985A004B6D31 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 55919B7128AB985A004B6D31 /* Preview Assets.xcassets */; };
-		7B053E3D28509B3B00A600C8 /* StubSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B053E3C28509B3B00A600C8 /* StubSession.swift */; };
+		7B27217929B72BCE00505CC3 /* BasicPaymentProductsTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B27217829B72BCE00505CC3 /* BasicPaymentProductsTestCase.swift */; };
 		7BBE950C2930D70000105564 /* OnlinePaymentsKit.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 7BBE950B2930D70000105564 /* OnlinePaymentsKit.bundle */; };
 		7BCE527D28BCEA76003E22B1 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = 7BCE527C28BCEA76003E22B1 /* Alamofire */; };
 		7BCE528028BCEA85003E22B1 /* CryptoSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 7BCE527F28BCEA85003E22B1 /* CryptoSwift */; };
@@ -151,7 +151,7 @@
 		55919B6C28AB9859004B6D31 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		55919B6E28AB985A004B6D31 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		55919B7128AB985A004B6D31 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
-		7B053E3C28509B3B00A600C8 /* StubSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StubSession.swift; sourceTree = "<group>"; };
+		7B27217829B72BCE00505CC3 /* BasicPaymentProductsTestCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BasicPaymentProductsTestCase.swift; sourceTree = "<group>"; };
 		7B7C73362833BA6F006F9BF5 /* OnlinePaymentsKit-Bridging-Swift.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "OnlinePaymentsKit-Bridging-Swift.h"; sourceTree = "<group>"; };
 		7B9A722228B60D33004EF8C2 /* Alamofire.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = Alamofire.xcframework; path = Carthage/Build/Alamofire.xcframework; sourceTree = "<group>"; };
 		7B9A722328B60D33004EF8C2 /* CryptoSwift.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = CryptoSwift.xcframework; path = Carthage/Build/CryptoSwift.xcframework; sourceTree = "<group>"; };
@@ -347,6 +347,7 @@
 			children = (
 				F7027A9924C0937400DAE78D /* BasicPaymentProductGroupsTestCase.swift */,
 				F7027A9024C092AF00DAE78D /* BasicPaymentProductTestCase.swift */,
+				7B27217829B72BCE00505CC3 /* BasicPaymentProductsTestCase.swift */,
 				F7027AA124C09AE700DAE78D /* PaymentAmountOfMoneyTestCase.swift */,
 				F7027A9D24C09A5900DAE78D /* PaymentItemsTestCase.swift */,
 				F7027A8E24C0928000DAE78D /* PaymentProductFieldsTestCase.swift */,
@@ -382,7 +383,6 @@
 			children = (
 				F7027A6224C08BA000DAE78D /* StubBundle.swift */,
 				F7027A6424C08BB800DAE78D /* StubFileManager.swift */,
-				7B053E3C28509B3B00A600C8 /* StubSession.swift */,
 			);
 			path = Stubs;
 			sourceTree = "<group>";
@@ -974,12 +974,12 @@
 				F7027A7F24C08F5100DAE78D /* ValidatorFixedListTestCase.swift in Sources */,
 				F7027A9A24C0937400DAE78D /* BasicPaymentProductGroupsTestCase.swift in Sources */,
 				F7027A8324C08FD100DAE78D /* ValidatorLuhnTestCase.swift in Sources */,
+				7B27217929B72BCE00505CC3 /* BasicPaymentProductsTestCase.swift in Sources */,
 				F7027AA924C09BB200DAE78D /* LabelTemplateTestCase.swift in Sources */,
 				F7027A6324C08BA000DAE78D /* StubBundle.swift in Sources */,
 				F7027A8D24C0924A00DAE78D /* PaymentRequestTestCase.swift in Sources */,
 				F7027A8A24C0907200DAE78D /* ValidatorEmailAddressTestCase.swift in Sources */,
 				F7027A6B24C08CFC00DAE78D /* StringFormatterTestCase.swift in Sources */,
-				7B053E3D28509B3B00A600C8 /* StubSession.swift in Sources */,
 				F7027AA024C09ABE00DAE78D /* PreparedPaymentRequestTestCase.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

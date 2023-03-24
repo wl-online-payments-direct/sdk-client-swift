@@ -18,7 +18,7 @@ public class PaymentItemDisplayHints: NSObject {
         if let input = json["label"] as? String {
             label = input
         }
-        
+
         guard let logoPath = json["logo"] as? String else {
             return nil
         }
@@ -29,7 +29,7 @@ public class PaymentItemDisplayHints: NSObject {
         }
         self.displayOrder = displayOrder
     }
-    
+
     internal override init() {
         self.displayOrder = 0
         self.logoPath = ""

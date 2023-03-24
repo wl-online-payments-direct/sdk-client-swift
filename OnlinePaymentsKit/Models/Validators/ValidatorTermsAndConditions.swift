@@ -14,7 +14,7 @@ public class ValidatorTermsAndConditions: Validator {
 
     @objc public override func validate(value: String, for request: PaymentRequest) {
         super.validate(value: value, for: request)
-        if (!(Bool(value) ?? false)) {
+        if !(Bool(value) ?? false) {
             let error = ValidationErrorTermsAndConditions()
             errors.append(error)
         }

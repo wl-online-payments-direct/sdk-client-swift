@@ -14,12 +14,12 @@ let package = Package(
     products: [
         .library(
             name: "OnlinePaymentsKit",
-            targets: ["OnlinePaymentsKit"]),
+            targets: ["OnlinePaymentsKit"])
     ],
     dependencies: [
         .package(url: "https://github.com/Alamofire/Alamofire", from: "5.6.0"),
         .package(url: "https://github.com/krzyzanowskim/CryptoSwift", from: "1.5.0"),
-        .package(url: "https://github.com/AliSoftware/OHHTTPStubsSwift", from: "9.1.0"),
+        .package(url: "https://github.com/AliSoftware/OHHTTPStubsSwift", from: "9.1.0")
     ],
     targets: [
         .target(

@@ -5,6 +5,9 @@
 // 
 
 import XCTest
+import OHHTTPStubs
+import OHHTTPStubsSwift
+
 @testable import OnlinePaymentsKit
 
 class PaymentRequestTestCase: XCTestCase {
@@ -24,14 +27,17 @@ class PaymentRequestTestCase: XCTestCase {
     var attribute: AccountOnFileAttribute!
     var session = Session(clientSessionId: "client-session-id",
                           customerId: "customer-id",
-                          baseURL: "example.com",
-                          assetBaseURL: "exampe.com",
+                          baseURL: "https://example.com/client/v1",
+                          assetBaseURL: "https://example.com/client/v1",
                           appIdentifier: "")
 
     override func setUp() {
         super.setUp()
 
-        attribute = AccountOnFileAttribute(json: ["key": fieldId, "value": "paymentProductFieldValue1", "status": "CAN_WRITE"])!
+        attribute =
+            AccountOnFileAttribute(
+                json: ["key": fieldId, "value": "paymentProductFieldValue1", "status": "CAN_WRITE"]
+            )!
 
         account.attributes = AccountOnFileAttributes()
         account.attributes.attributes.append(attribute)
@@ -59,7 +65,8 @@ class PaymentRequestTestCase: XCTestCase {
             "type": "numericstring"
         ])!
         request.paymentProduct?.fields.paymentProductFields.append(field)
-        request.paymentProduct?.paymentProductField(withId: fieldId)?.displayHints.mask = "{{9999}} {{9999}} {{9999}} {{9999}} {{9999}}"
+        request.paymentProduct?.paymentProductField(withId: fieldId)?.displayHints.mask =
+            "{{9999}} {{9999}} {{9999}} {{9999}} {{9999}}"
         request.setValue(forField: field.identifier, value: "payment1Value")
         request.formatter = StringFormatter()
 
@@ -70,7 +77,10 @@ class PaymentRequestTestCase: XCTestCase {
         let value = request.getValue(forField: attribute.key)
         XCTAssertTrue(value != nil, "Did not find value of existing attribute.")
 
-        XCTAssertTrue(request.getValue(forField: "9999") == nil, "Should have been nil: \(request.getValue(forField: "9999")!).")
+        XCTAssertTrue(
+            request.getValue(forField: "9999") == nil,
+            "Should have been nil: \(request.getValue(forField: "9999")!)."
+        )
 
         XCTAssertTrue(request.getValue(forField: fieldId) == "payment1Value", "Value not found.")
     }
@@ -79,11 +89,14 @@ class PaymentRequestTestCase: XCTestCase {
         let value = request.maskedValue(forField: attribute.key)
         XCTAssertTrue(value != nil, "Value was not yet.")
 
-        //TODO: Test masked value
-        request.paymentProduct?.paymentProductField(withId: fieldId)?.displayHints.mask = "[[9999]] [[9999]] [[9999]] [[9999]] [[999]]"
+        request.paymentProduct?.paymentProductField(withId: fieldId)?.displayHints.mask =
+            "[[9999]] [[9999]] [[9999]] [[9999]] [[999]]"
         XCTAssertTrue(value != request.maskedValue(forField: fieldId), "Value was not succesfully masked.")
 
-        XCTAssertTrue(request.maskedValue(forField: "999") == nil, "Value was found: \(request.maskedValue(forField: "999")!).")
+        XCTAssertTrue(
+            request.maskedValue(forField: "999") == nil,
+            "Value was found: \(request.maskedValue(forField: "999")!)."
+        )
 
     }
 
@@ -128,5 +141,40 @@ class PaymentRequestTestCase: XCTestCase {
         XCTAssertTrue(request.unmaskedValue(forField: fieldId) == "", "No unmasked items.")
 
         XCTAssertTrue(request.unmaskedValue(forField: "9999") == nil, "Unexpected success.")
+    }
+
+    func testPrepare() {
+        let host = "example.com"
+        stub(condition: isHost("\(host)") && isPath("/client/v1/customer-id/crypto/publickey") && isMethodGET()) { _ in
+            // swiftlint:disable line_length
+            let response = [
+                    "keyId": "86b64e4e-f43e-4a27-9863-9bbd5b499f82",
+                    "publicKey":
+                    """
+                    MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAkiJlGL1QjUnGDLpMNBtZPYVtOU121jfFcV4WrZayfw9Ib/1AtPBHP/0ZPocdA23zDh6aB+QiOQEkHZlfnelBNnEzEu4ibda3nDdjSrKveSiQPyB5X+u/IS3CR48B/g4QJ+mcMV9hoFt6Hx3R99A0HWMs4um8elQsgB11MsLmGb1SuLo0S1pgL3EcckXfBDNMUBMQ9EtLC9zQW6Y0kx6GFXHgyjNb4yixXfjo194jfhei80sVQ49Y/SHBt/igATGN1l18IBDtO0eWmWeBckwbNkpkPLAvJfsfa3JpaxbXwg3rTvVXLrIRhvMYqTsQmrBIJDl7F6igPD98Y1FydbKe5QIDAQAB
+                    """
+                ]
+            // swiftlint:enable line_length
+            return
+                HTTPStubsResponse(
+                    jsonObject: response,
+                    statusCode: 200,
+                    headers: ["Content-Type": "application/json"]
+                )
+        }
+        let expectation = self.expectation(description: "Response provided")
+
+        session.prepare(request, success: { (_) in
+            expectation.fulfill()
+        }, failure: { (error) in
+            XCTFail("Prepare failed: \(error).")
+            expectation.fulfill()
+        })
+
+        waitForExpectations(timeout: 3) { error in
+            if let error = error {
+                print("Timeout error: \(error.localizedDescription)")
+            }
+        }
     }
 }

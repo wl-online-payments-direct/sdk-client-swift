@@ -18,6 +18,6 @@ public class AccountsOnFile: NSObject {
         }
         return nil
     }
-    
+
     internal override init() {}
 }

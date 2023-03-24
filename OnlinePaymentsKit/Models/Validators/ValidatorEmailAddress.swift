@@ -12,7 +12,10 @@ public class ValidatorEmailAddress: Validator {
     @objc public override init() {
         let regex = "^[^@\\.]+(\\.[^@\\.]+)*@([^@\\.]+\\.)*[^@\\.]+\\.[^@\\.][^@\\.]+$"
 
-        expression = try! NSRegularExpression(pattern: regex)
+        guard let regex = try? NSRegularExpression(pattern: regex) else {
+            fatalError("Could not create Regular Expression")
+        }
+        expression = regex
     }
 
     @objc public override func validate(value: String, for request: PaymentRequest) {

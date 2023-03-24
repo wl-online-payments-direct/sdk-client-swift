@@ -1,0 +1,11 @@
+project: OnlinePaymentsKit.xcodeproj
+schemes:
+- OnlinePaymentsKit
+targets:
+- OnlinePaymentsKit
+- OnlinePaymentsKitTests
+clean_build: true
+retain_public: true
+build_arguments:
+- -destination
+- platform="iOS Simulator,name=iPhone 13,OS=15.5"

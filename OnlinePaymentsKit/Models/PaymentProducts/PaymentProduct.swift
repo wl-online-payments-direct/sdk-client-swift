@@ -14,7 +14,7 @@ public class PaymentProduct: BasicPaymentProduct, PaymentItem {
     @objc public override init() {
         super.init()
     }
-    
+
     @objc public required init?(json: [String: Any]) {
         super.init(json: json)
 

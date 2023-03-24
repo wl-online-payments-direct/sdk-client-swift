@@ -39,49 +39,74 @@ public class C2SCommunicator: NSObject {
         self.configuration = configuration
     }
 
-    @objc public func paymentProducts(forContext context: PaymentContext, success: @escaping (_ paymentProducts: BasicPaymentProducts) -> Void, failure: @escaping (_ error: Error) -> Void) {
+    @objc public func paymentProducts(
+        forContext context: PaymentContext,
+        success: @escaping (_ paymentProducts: BasicPaymentProducts) -> Void,
+        failure: @escaping (_ error: Error) -> Void
+    ) {
         let isRecurring = context.isRecurring ? "true" : "false"
         let URL = "\(baseURL)/\(configuration.customerId)/products"
-        var params: [String: Any] = ["countryCode": context.countryCodeString, "currencyCode": context.amountOfMoney.currencyCodeString, "amount": context.amountOfMoney.totalAmount, "hide": "fields", "isRecurring": isRecurring]
+        var params: [String: Any] =
+            [
+                "countryCode": context.countryCodeString,
+                "currencyCode": context.amountOfMoney.currencyCodeString,
+                "amount": context.amountOfMoney.totalAmount, "hide": "fields",
+                "isRecurring": isRecurring
+            ]
 
         if !context.locale.isEmpty {
             params["locale"] = context.locale
         }
 
-        getResponse(forURL: URL, withParameters: params, success: { (responseObject) in
-            guard let responseDic = responseObject as? [String: Any] else {
-                failure(SessionError.RuntimeError("Response was not a dictionary. Raw response: \(responseObject)"))
-                return
-            }
-            var paymentProducts = BasicPaymentProducts(json: responseDic)
+        getResponse(
+            forURL: URL,
+            withParameters: params,
+            success: { (responseObject) in
+                guard let responseDic = responseObject as? [String: Any] else {
+                    failure(SessionError.RuntimeError("Response was not a dictionary. Raw response: \(responseObject)"))
+                    return
+                }
+                var paymentProducts = BasicPaymentProducts(json: responseDic)
 
-            paymentProducts = self.checkApplePayAvailability(with: paymentProducts, for: context, success: {
-                success(paymentProducts)
-            }, failure: { error in
-                failure(error)
-            })
-            paymentProducts = self.removeGooglePayProduct(with: paymentProducts)
-        }) { error in
-            failure(error)
-        }
-    }
-
-    @objc public func checkApplePayAvailability(with paymentProducts: BasicPaymentProducts,
-                                          for context: PaymentContext,
-                                          success: @escaping () -> Void,
-                                          failure: @escaping (_ error: Error) -> Void) -> BasicPaymentProducts {
-        if let applePayPaymentProduct = paymentProducts.paymentProduct(withIdentifier: SDKConstants.kApplePayIdentifier) {
-            if SDKConstants.SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(v: "8.0") && PKPaymentAuthorizationViewController.canMakePayments() {
-
-                paymentProductNetworks(forProduct: SDKConstants.kApplePayIdentifier, context: context, success: {(_ paymentProductNetworks: PaymentProductNetworks) -> Void in
-                    if let product = paymentProducts.paymentProducts.firstIndex(of: applePayPaymentProduct),
-                        !PKPaymentAuthorizationViewController.canMakePayments(usingNetworks: paymentProductNetworks.paymentProductNetworks) {
-                        paymentProducts.paymentProducts.remove(at: product)
-                    }
-                    success()
+                paymentProducts = self.checkApplePayAvailability(with: paymentProducts, for: context, success: {
+                    success(paymentProducts)
                 }, failure: { error in
                     failure(error)
                 })
+                paymentProducts = self.removeGooglePayProduct(with: paymentProducts)
+            },
+            failure: { error in
+                failure(error)
+            }
+        )
+    }
+
+    @objc public func checkApplePayAvailability(
+        with paymentProducts: BasicPaymentProducts,
+        for context: PaymentContext,
+        success: @escaping () -> Void,
+        failure: @escaping (_ error: Error) -> Void
+    ) -> BasicPaymentProducts {
+        if let applePayPaymentProduct =
+            paymentProducts.paymentProduct(withIdentifier: SDKConstants.kApplePayIdentifier) {
+            if SDKConstants.SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(v: "8.0") &&
+                PKPaymentAuthorizationViewController.canMakePayments() {
+                paymentProductNetworks(
+                    forProduct: SDKConstants.kApplePayIdentifier,
+                    context: context,
+                    success: {(_ paymentProductNetworks: PaymentProductNetworks) -> Void in
+                        if let product = paymentProducts.paymentProducts.firstIndex(of: applePayPaymentProduct),
+                            !PKPaymentAuthorizationViewController.canMakePayments(
+                                usingNetworks: paymentProductNetworks.paymentProductNetworks
+                            ) {
+                            paymentProducts.paymentProducts.remove(at: product)
+                        }
+                        success()
+                    },
+                    failure: { error in
+                        failure(error)
+                    }
+                )
             } else {
                 if let product = paymentProducts.paymentProducts.firstIndex(of: applePayPaymentProduct) {
                     paymentProducts.paymentProducts.remove(at: product)
@@ -95,62 +120,86 @@ public class C2SCommunicator: NSObject {
 
         return paymentProducts
     }
-    
+
     private func removeGooglePayProduct(with paymentProducts: BasicPaymentProducts) -> BasicPaymentProducts {
-        if let googlePayPaymentProduct = paymentProducts.paymentProduct(withIdentifier: SDKConstants.kGooglePayIdentifier) {
+        if let googlePayPaymentProduct =
+                paymentProducts.paymentProduct(withIdentifier: SDKConstants.kGooglePayIdentifier) {
             if let product = paymentProducts.paymentProducts.firstIndex(of: googlePayPaymentProduct) {
                 paymentProducts.paymentProducts.remove(at: product)
             }
         }
-        
+
         return paymentProducts
     }
 
-    @objc public func paymentProductNetworks(forProduct paymentProductId: String,
-                                       context: PaymentContext,
-                                       success: @escaping (_ paymentProductNetworks: PaymentProductNetworks) -> Void,
-                                       failure: @escaping (_ error: Error) -> Void) {
+    @objc public func paymentProductNetworks(
+        forProduct paymentProductId: String,
+        context: PaymentContext,
+        success: @escaping (_ paymentProductNetworks: PaymentProductNetworks) -> Void,
+        failure: @escaping (_ error: Error) -> Void
+    ) {
         let isRecurring = context.isRecurring ? "true" : "false"
         if context.locale.isEmpty {
             failure(SessionError.RuntimeError("Locale was nil."))
             return
         }
         let URL = "\(self.baseURL)/\(self.configuration.customerId)/products/\(paymentProductId)/networks"
-        let params: [String: Any] = ["countryCode": context.countryCodeString, "locale": context.locale, "currencyCode": context.amountOfMoney.currencyCodeString, "amount": context.amountOfMoney.totalAmount, "hide": "fields", "isRecurring": isRecurring]
+        let params: [String: Any] =
+        [
+            "countryCode": context.countryCodeString,
+            "locale": context.locale,
+            "currencyCode": context.amountOfMoney.currencyCodeString,
+            "amount": context.amountOfMoney.totalAmount,
+            "hide": "fields",
+            "isRecurring": isRecurring
+        ]
 
-        getResponse(forURL: URL, withParameters: params, success: { (responseObject) in
-            guard let response = responseObject as? [String: Any] else {
-                failure(SessionError.RuntimeError("Response was not a dictionary. Raw response: \(responseObject)"))
-                return
+        getResponse(
+            forURL: URL,
+            withParameters: params,
+            success: { (responseObject) in
+                guard let response = responseObject as? [String: Any] else {
+                    failure(SessionError.RuntimeError("Response was not a dictionary. Raw response: \(responseObject)"))
+                    return
+                }
+                let rawProductNetworks = response["networks"]
+                let paymentProductNetworks = PaymentProductNetworks()
+                if let productNetworks = rawProductNetworks as? [PKPaymentNetwork] {
+                    paymentProductNetworks.paymentProductNetworks.append(contentsOf: productNetworks)
+                }
+                success(paymentProductNetworks)
+            },
+            failure: { error in
+                failure(error)
             }
-            let rawProductNetworks = response["networks"]
-            let paymentProductNetworks = PaymentProductNetworks()
-            if let productNetworks = rawProductNetworks as? [PKPaymentNetwork] {
-                paymentProductNetworks.paymentProductNetworks.append(contentsOf: productNetworks)
-            }
-            success(paymentProductNetworks)
-        }) { error in
-            failure(error)
-        }
+        )
     }
 
-    @objc public func paymentProduct(withIdentifier paymentProductId: String,
-                               context: PaymentContext,
-                               success: @escaping (_ paymentProduct: PaymentProduct) -> Void,
-                               failure: @escaping (_ error: Error) -> Void) {
-
+    @objc public func paymentProduct(
+        withIdentifier paymentProductId: String,
+        context: PaymentContext,
+        success: @escaping (_ paymentProduct: PaymentProduct) -> Void,
+        failure: @escaping (_ error: Error) -> Void
+    ) {
         checkAvailability(forProduct: paymentProductId, context: context, success: {() -> Void in
             let isRecurring = context.isRecurring ? "true" : "false"
 
             let URL = "\(self.baseURL)/\(self.configuration.customerId)/products/\(paymentProductId)/"
-            var params: [String: Any] = ["countryCode": context.countryCodeString, "currencyCode": context.amountOfMoney.currencyCodeString, "amount": context.amountOfMoney.totalAmount, "isRecurring": isRecurring]
+            var params: [String: Any] =
+            [
+                "countryCode": context.countryCodeString,
+                "currencyCode": context.amountOfMoney.currencyCodeString,
+                "amount": context.amountOfMoney.totalAmount,
+                "isRecurring": isRecurring
+            ]
             params["forceBasicFlow"] = context.forceBasicFlow ? "true" : "false"
             if !context.locale.isEmpty {
                 params["locale"] = context.locale
             }
 
             self.getResponse(forURL: URL, withParameters: params, success: { (responseObject) in
-                guard let responseDic = responseObject as? [String: Any], let paymentProduct = PaymentProduct(json: responseDic) else {
+                guard let responseDic = responseObject as? [String: Any],
+                      let paymentProduct = PaymentProduct(json: responseDic) else {
                     failure(SessionError.RuntimeError("Response was not a dictionary. Raw response: \(responseObject)"))
                     return
                 }
@@ -192,7 +241,9 @@ public class C2SCommunicator: NSObject {
                 }
             }
 
-            if fieldId == CARD_NUMBER_FIELD_ID && (paymentProductField.displayHints.mask == nil || paymentProductField.displayHints.mask!.isEmpty) {
+            if fieldId ==
+                CARD_NUMBER_FIELD_ID &&
+                (paymentProductField.displayHints.mask == nil || paymentProductField.displayHints.mask!.isEmpty) {
                 if paymentProduct.identifier == AMEX_PRODUCT_ID {
                     paymentProductField.displayHints.mask = AMEX_CARD_NUMBER_MASK
                 } else {
@@ -202,18 +253,31 @@ public class C2SCommunicator: NSObject {
         }
     }
 
-    @objc public func checkAvailability(forProduct paymentProductId: String, context: PaymentContext, success: @escaping () -> Void, failure: @escaping (_ error: Error) -> Void) {
+    @objc public func checkAvailability(
+        forProduct paymentProductId: String,
+        context: PaymentContext,
+        success: @escaping () -> Void,
+        failure: @escaping (_ error: Error) -> Void
+    ) {
         if paymentProductId == SDKConstants.kApplePayIdentifier {
-            if SDKConstants.SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(v: "8.0") && PKPaymentAuthorizationViewController.canMakePayments() {
-                paymentProductNetworks(forProduct: SDKConstants.kApplePayIdentifier, context: context, success: {(_ paymentProductNetworks: PaymentProductNetworks) -> Void in
-                    if !PKPaymentAuthorizationViewController.canMakePayments(usingNetworks: paymentProductNetworks.paymentProductNetworks) {
-                        failure(self.badRequestError(forProduct: paymentProductId, context: context))
-                    } else {
-                        success()
+            if SDKConstants.SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(v: "8.0") &&
+                PKPaymentAuthorizationViewController.canMakePayments() {
+                paymentProductNetworks(
+                    forProduct: SDKConstants.kApplePayIdentifier,
+                    context: context,
+                    success: {(_ paymentProductNetworks: PaymentProductNetworks) -> Void in
+                        if !PKPaymentAuthorizationViewController.canMakePayments(
+                            usingNetworks: paymentProductNetworks.paymentProductNetworks
+                        ) {
+                            failure(self.badRequestError(forProduct: paymentProductId, context: context))
+                        } else {
+                            success()
+                        }
+                    },
+                    failure: { error in
+                        failure(error)
                     }
-                }, failure: { error in
-                    failure(error)
-                })
+                )
             } else {
                 failure(badRequestError(forProduct: paymentProductId, context: context))
             }
@@ -223,15 +287,41 @@ public class C2SCommunicator: NSObject {
     }
 
     @objc public func badRequestError(forProduct paymentProductId: String, context: PaymentContext) -> Error {
-        let isRecurring = context.isRecurring ? "true" : "false"
-        let url = "\(baseURL)/\(configuration.customerId)/products/\(paymentProductId)/?countryCode=\(context.countryCodeString)&locale=\(context.locale)&currencyCode=\(context.amountOfMoney.currencyCodeString)&amount=\(UInt(context.amountOfMoney.totalAmount))&isRecurring=\(isRecurring)"
-        let errorUserInfo = ["com.alamofire.serialization.response.error.response":
-            HTTPURLResponse(url: URL(string: url)!, statusCode: 400, httpVersion: nil, headerFields: ["Connection": "close"])!, "NSErrorFailingURLKey": url, "com.alamofire.serialization.response.error.data": Data(), "NSLocalizedDescription": "Request failed: bad request (400)"] as [String: Any]
-        let error = NSError(domain: "com.alamofire.serialization.response.error.response", code: -1011, userInfo: errorUserInfo)
+        let url = createBadRequestErrorURL(forProduct: paymentProductId, context: context)
+        let errorUserInfo =
+        [
+            "com.alamofire.serialization.response.error.response":
+            HTTPURLResponse(
+                url: URL(string: url)!,
+                statusCode: 400,
+                httpVersion: nil,
+                headerFields: ["Connection": "close"]
+            )!,
+            "NSErrorFailingURLKey": url,
+            "com.alamofire.serialization.response.error.data": Data(),
+            "NSLocalizedDescription": "Request failed: bad request (400)"
+        ] as [String: Any]
+        let error =
+            NSError(
+                domain: "com.alamofire.serialization.response.error.response",
+                code: -1011,
+                userInfo: errorUserInfo
+            )
         return error
     }
 
-    @objc public func publicKey(success: @escaping (_ publicKeyResponse: PublicKeyResponse) -> Void, failure: @escaping (_ error: Error) -> Void) {
+    private func createBadRequestErrorURL(forProduct paymentProductId: String, context: PaymentContext) -> String {
+        let isRecurring = context.isRecurring ? "true" : "false"
+        // swiftlint:disable line_length
+        return
+            "\(baseURL)/\(configuration.customerId)/products/\(paymentProductId)/?countryCode=\(context.countryCodeString)&locale=\(context.locale)&currencyCode=\(context.amountOfMoney.currencyCodeString)&amount=\(UInt(context.amountOfMoney.totalAmount))&isRecurring=\(isRecurring)"
+        // swiftlint:enable line_length
+    }
+
+    @objc public func publicKey(
+        success: @escaping (_ publicKeyResponse: PublicKeyResponse) -> Void,
+        failure: @escaping (_ error: Error) -> Void
+    ) {
         let URL = "\(baseURL)/\(configuration.customerId)/crypto/publickey"
         getResponse(forURL: URL, success: {(_ responseObject: Any) -> Void in
             guard let rawPublicKeyResponse = responseObject as? [AnyHashable: Any],
@@ -247,10 +337,12 @@ public class C2SCommunicator: NSObject {
         })
     }
 
-    @objc public func paymentProductId(byPartialCreditCardNumber partialCreditCardNumber: String,
-                                 context: PaymentContext?,
-                                 success: @escaping (_ iinDetailsResponse: IINDetailsResponse) -> Void,
-                                 failure: @escaping (_ error: Error) -> Void) {
+    @objc public func paymentProductId(
+        byPartialCreditCardNumber partialCreditCardNumber: String,
+        context: PaymentContext?,
+        success: @escaping (_ iinDetailsResponse: IINDetailsResponse) -> Void,
+        failure: @escaping (_ error: Error) -> Void
+    ) {
         let URL = "\(baseURL)/\(configuration.customerId)/services/getIINdetails"
 
         var parameters: [String: Any] = [:]
@@ -270,16 +362,22 @@ public class C2SCommunicator: NSObject {
         }
 
         let additionalAcceptableStatusCodes = IndexSet(integer: 404)
-        postResponse(forURL: URL, withParameters: parameters, additionalAcceptableStatusCodes: additionalAcceptableStatusCodes, success: {(responseObject) -> Void in
-            guard let json = responseObject as? [String: Any] else {
-                failure(SessionError.RuntimeError("Response was not a dictionary. Raw response: \(responseObject)"))
-                return
+        postResponse(
+            forURL: URL,
+            withParameters: parameters,
+            additionalAcceptableStatusCodes: additionalAcceptableStatusCodes,
+            success: {(responseObject) -> Void in
+                guard let json = responseObject as? [String: Any] else {
+                    failure(SessionError.RuntimeError("Response was not a dictionary. Raw response: \(responseObject)"))
+                    return
+                }
+                let response = IINDetailsResponse(json: json)
+                success(response)
+            },
+            failure: { error in
+                failure(error)
             }
-            let response = IINDetailsResponse(json: json)
-            success(response)
-        }, failure: { error in
-            failure(error)
-        })
+        )
     }
 
     internal func getIINDigitsFrom(partialCreditCardNumber: String) -> String {
@@ -289,15 +387,44 @@ public class C2SCommunicator: NSObject {
         } else {
             max = min(partialCreditCardNumber.count, 6)
         }
-        return String(partialCreditCardNumber[..<partialCreditCardNumber.index(partialCreditCardNumber.startIndex, offsetBy: max)])
+        return
+            String(
+                partialCreditCardNumber[
+                    ..<partialCreditCardNumber.index(partialCreditCardNumber.startIndex, offsetBy: max)
+                ]
+            )
     }
 
-    @objc public func getResponse(forURL URL: String, withParameters parameters: Parameters? = nil, success: @escaping (_ responseObject: Any) -> Void, failure: @escaping (_ error: Error) -> Void) {
-        networkingWrapper.getResponse(forURL: URL, withParameters: parameters, headers: headers, additionalAcceptableStatusCodes: nil, success: success, failure: failure)
+    @objc public func getResponse(
+        forURL URL: String,
+        withParameters parameters: Parameters? = nil,
+        success: @escaping (_ responseObject: Any) -> Void,
+        failure: @escaping (_ error: Error) -> Void
+    ) {
+        networkingWrapper.getResponse(
+            forURL: URL,
+            withParameters: parameters,
+            headers: headers,
+            additionalAcceptableStatusCodes: nil,
+            success: success,
+            failure: failure
+        )
     }
 
-    @objc public func postResponse(forURL URL: String, withParameters parameters: [AnyHashable: Any], additionalAcceptableStatusCodes: IndexSet, success: @escaping (_ responseObject: Any) -> Void, failure: @escaping (_ error: Error) -> Void) {
-        networkingWrapper.postResponse(forURL: URL, headers: headers, withParameters: parameters as? Parameters, additionalAcceptableStatusCodes: additionalAcceptableStatusCodes, success: success, failure: failure)
+    @objc public func postResponse(
+        forURL URL: String,
+        withParameters parameters: [AnyHashable: Any],
+        additionalAcceptableStatusCodes: IndexSet,
+        success: @escaping (_ responseObject: Any) -> Void,
+        failure: @escaping (_ error: Error) -> Void
+    ) {
+        networkingWrapper.postResponse(
+            forURL: URL,
+            headers: headers,
+            withParameters: parameters as? Parameters,
+            additionalAcceptableStatusCodes: additionalAcceptableStatusCodes,
+            success: success,
+            failure: failure
+        )
     }
-
 }

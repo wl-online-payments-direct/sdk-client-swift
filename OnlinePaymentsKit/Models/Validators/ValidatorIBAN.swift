@@ -22,7 +22,12 @@ public class ValidatorIBAN: Validator {
     private func modulo(numericString: String, modulo: Int) -> Int {
         var remainder = numericString
         repeat {
-            let endIndex = remainder.index(remainder.startIndex, offsetBy: min(9, remainder.count), limitedBy: remainder.endIndex)!
+            let endIndex =
+                remainder.index(
+                    remainder.startIndex,
+                    offsetBy: min(9, remainder.count),
+                    limitedBy: remainder.endIndex
+                )!
             let currentChunk = remainder[remainder.startIndex ..< endIndex]
             let currentInt = Int(currentChunk)
             let currentResult = currentInt! % modulo
@@ -35,12 +40,21 @@ public class ValidatorIBAN: Validator {
         let strippedText = value.components(separatedBy: .whitespacesAndNewlines).joined().uppercased()
         do {
             let formatRegex = try NSRegularExpression(pattern: "^[A-Z]{2}[0-9]{2}[A-Z0-9]{4}[0-9]{7}([A-Z0-9]?){0,16}$")
-            let numberOfMatches = formatRegex.numberOfMatches(in: strippedText, range: NSRange(location: 0, length: strippedText.count))
+            let numberOfMatches =
+                formatRegex.numberOfMatches(
+                    in: strippedText,
+                    range: NSRange(location: 0, length: strippedText.count)
+                )
             if numberOfMatches == 1 {
-                let endIndex = strippedText.index(strippedText.startIndex, offsetBy: min(4, strippedText.count), limitedBy: strippedText.endIndex)!
+                let endIndex =
+                    strippedText.index(
+                        strippedText.startIndex,
+                        offsetBy: min(4, strippedText.count),
+                        limitedBy: strippedText.endIndex
+                    )!
                 let prefix = strippedText[strippedText.startIndex ..< endIndex]
-                let numericString = (strippedText.dropFirst(4) + prefix).map { (c: Character) in
-                    return  String(charToIndex(mychar: c)!)
+                let numericString = (strippedText.dropFirst(4) + prefix).map { (character: Character) in
+                    return  String(charToIndex(mychar: character)!)
                 }.joined()
                 if modulo(numericString: numericString, modulo: 97) == 1 {
                     // Success

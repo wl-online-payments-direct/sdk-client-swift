@@ -26,10 +26,10 @@ class EncryptorTestCase: XCTestCase {
             dataCollection.append(encryptor.generateRandomBytes(length: 16))
         }
 
-        for i in 0..<10 {
-            for j in i+1..<10 {
-                let data1 = dataCollection[i]
-                let data2 = dataCollection[j]
+        for outerIndex in 0..<10 {
+            for innerIndex in outerIndex+1..<10 {
+                let data1 = dataCollection[outerIndex]
+                let data2 = dataCollection[innerIndex]
 
                 if data1 == data2 {
                     XCTFail("Generated the same random bytes more than once")
@@ -37,7 +37,7 @@ class EncryptorTestCase: XCTestCase {
             }
         }
     }
-    
+
     func testDeleteRSAKeyWithtag() {
         encryptor.deleteRSAKey(withTag: publicTag)
         encryptor.deleteRSAKey(withTag: privateTag)
@@ -64,7 +64,11 @@ class EncryptorTestCase: XCTestCase {
         let AESIV = encryptor.generateRandomBytes(length: 16)
         let input = Data([0, 255, 43, 1])
         let output = encryptor.encryptAES(data: input, key: AESKey!, IV: AESIV!)
-        XCTAssertEqual(output?.count, 16, "AES ciphertext does not have the right length: \(String(describing: output?.count))")
+        XCTAssertEqual(
+            output?.count,
+            16,
+            "AES ciphertext does not have the right length: \(String(describing: output?.count))"
+        )
         XCTAssertNotEqual(input, output, "AES does not perform encryption")
     }
 
@@ -93,9 +97,13 @@ class EncryptorTestCase: XCTestCase {
             UUIDCollection.append(encryptor.generateUUID())
         }
 
-        for i in 0..<amount {
-            for j in i+1..<amount {
-                XCTAssertNotEqual(UUIDCollection[i], UUIDCollection[j], "Generated the same UUID more than once")
+        for outerIndex in 0..<amount {
+            for innerIndex in outerIndex+1..<amount {
+                XCTAssertNotEqual(
+                    UUIDCollection[outerIndex],
+                    UUIDCollection[innerIndex],
+                    "Generated the same UUID more than once"
+                )
             }
         }
     }

@@ -2,7 +2,8 @@
 // Do not remove or alter the notices in this preamble.
 // This software code is created for Online Payments on 16/07/2020
 // Copyright © 2020 Global Collect Services. All rights reserved.
-// 
+//
+// swiftlint:disable identifier_name
 
 import Foundation
 import CryptoSwift
@@ -54,7 +55,7 @@ public class Encryptor: NSObject {
             Macros.DLog(message: "Error while retrieving key with tag \(tag): \(copyStatus)")
         }
 
-        return keyRef as! (SecKey?)
+        return keyRef as! (SecKey?) // swiftlint:disable:this force_cast
     }
 
     @objc public func deleteRSAKey(withTag tag: String) {
@@ -114,7 +115,11 @@ public class Encryptor: NSObject {
     // A PFX file suited to test the following methods can be generated with the following commands:
     // - openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout privateKey.key -out certificate.crt
     // - openssl pkcs12 -export -out certificate.pfx -inkey privatekey.key -in certificate.crt
-    @objc public func storeRSAKeyPairFromPFXData(PFXData: NSData, password: String, publicTag: String, privateTag: String) {
+    @objc public func storeRSAKeyPairFromPFXData(
+        PFXData: NSData,
+        password: String,
+        publicTag: String, privateTag: String
+    ) {
         var privateKey: SecKey?
         var publicKey: SecKey?
 
@@ -128,11 +133,13 @@ public class Encryptor: NSObject {
         }
 
         let identities: NSDictionary = unsafeBitCast(CFArrayGetValueAtIndex(items, 0), to: NSDictionary.self)
-        // TODO: make this safer
+
+        // swiftlint:disable force_cast
         let secIdentity: SecIdentity? = identities.value(forKey: kSecImportItemIdentity as String) as! SecIdentity?
         guard let identity = secIdentity else {
             return
         }
+        // swiftlint:enable force_cast
 
         let copyPrivateKeyStatus = SecIdentityCopyPrivateKey(identity, &privateKey)
         if copyPrivateKeyStatus != errSecSuccess {
@@ -212,9 +219,13 @@ public class Encryptor: NSObject {
 
     @objc public func stripPublicKey(publicKey: [UInt8]) -> ([UInt8]?) {
         let prefixLength = 24
-        let prefix: [UInt8] = [0x30, 0x82, 0x01, 0x22, 0x30, 0x0D, 0x06, 0x09, 0x2A, 0x86, 0x48, 0x86, 0xF7, 0x0D, 0x01, 0x01, 0x01, 0x05, 0x00, 0x03, 0x82, 0x01, 0x0F, 0x00]
+        let prefix: [UInt8] =
+            [
+                0x30, 0x82, 0x01, 0x22, 0x30, 0x0D, 0x06, 0x09, 0x2A, 0x86, 0x48, 0x86, 0xF7,
+                0x0D, 0x01, 0x01, 0x01, 0x05, 0x00, 0x03, 0x82, 0x01, 0x0F, 0x00
+            ]
 
-        for i in 0..<prefixLength where prefix[i] != publicKey[i] {
+        for index in 0..<prefixLength where prefix[index] != publicKey[index] {
             Macros.DLog(message: "The provided data has an unexpected format")
             return nil
         }
@@ -231,7 +242,11 @@ public class Encryptor: NSObject {
         return nil
     }
 
-    @available(*, deprecated, message: "Depricated in favor of encryptAES(ciphertext: [UInt8], key: [UInt8], IV: [UInt8])")
+    @available(
+        *,
+        deprecated,
+        message: "Deprecated in favor of encryptAES(ciphertext: [UInt8], key: [UInt8], IV: [UInt8])"
+    )
     @objc public func encryptAES(plaintext: [UInt8], key: String, IV: String) -> ([UInt8]?) {
         return self.encryptAES(plaintext: plaintext, key: key.bytes, IV: IV.bytes)
     }
@@ -247,8 +262,6 @@ public class Encryptor: NSObject {
 
     @objc public func decryptAES(data: Data, key: Data, IV: Data) -> (Data?) {
         let ciphertext = convertDataToByteArray(data: data)
-        //let key = String(data: key, encoding: String.Encoding.utf8)!
-        //let IV = String(data: IV, encoding: String.Encoding.utf8)!
 
         if let result = decryptAES(ciphertext: ciphertext, key: key.bytes, IV: IV.bytes) {
             return Data(result)
@@ -256,11 +269,15 @@ public class Encryptor: NSObject {
         return nil
     }
 
-    @available(*, deprecated, message: "Depricated in favor of decryptAES(ciphertext: [UInt8], key: [UInt8], IV: [UInt8])")
+    @available(
+        *,
+        deprecated,
+        message: "Deprecated in favor of decryptAES(ciphertext: [UInt8], key: [UInt8], IV: [UInt8])"
+    )
     @objc public func decryptAES(ciphertext: [UInt8], key: String, IV: String) -> ([UInt8]?) {
         return self.decryptAES(ciphertext: ciphertext, key: key.bytes, IV: IV.bytes)
     }
-    
+
     private func decryptAES(ciphertext: [UInt8], key: [UInt8], IV: [UInt8]) -> ([UInt8]?) {
         guard let aes = try? AES(key: key, blockMode: CBC(iv: IV), padding: .pkcs7),
             let plaintext = try? aes.decrypt(ciphertext) else {

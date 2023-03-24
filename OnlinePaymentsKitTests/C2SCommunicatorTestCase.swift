@@ -14,7 +14,12 @@ class C2SCommunicatorTestCase: XCTestCase {
 
     var communicator: C2SCommunicator!
     var configuration: C2SCommunicatorConfiguration!
-    let context = PaymentContext(amountOfMoney: PaymentAmountOfMoney(totalAmount: 3, currencyCode: "EUR"), isRecurring: true, countryCode: "NL")
+    let context =
+        PaymentContext(
+            amountOfMoney: PaymentAmountOfMoney(totalAmount: 3, currencyCode: "EUR"),
+            isRecurring: true,
+            countryCode: "NL"
+        )
 
     var applePaymentProduct: BasicPaymentProduct!
 
@@ -32,7 +37,15 @@ class C2SCommunicatorTestCase: XCTestCase {
             ]
         ])!
 
-        configuration = C2SCommunicatorConfiguration(clientSessionId: "1", customerId: "1", baseURL: "https://example.com/client/v1", assetBaseURL: "https://example.com/client/v1", appIdentifier: "", ipAddress: "")
+        configuration =
+            C2SCommunicatorConfiguration(
+                clientSessionId: "1",
+                customerId: "1",
+                baseURL: "https://example.com/client/v1",
+                assetBaseURL: "https://example.com/client/v1",
+                appIdentifier: "",
+                ipAddress: ""
+            )
         communicator = C2SCommunicator(configuration: configuration)
     }
 
@@ -41,11 +54,16 @@ class C2SCommunicatorTestCase: XCTestCase {
 
         let expectation = self.expectation(description: "Response provided")
 
-        _ = communicator.checkApplePayAvailability(with: paymentProducts, for: context, success: {
-            expectation.fulfill()
-        }) { (error) in
-            XCTFail("Unexpected failure while testing checkApplePayAvailability: \(error.localizedDescription)")
-        }
+        _ = communicator.checkApplePayAvailability(
+            with: paymentProducts,
+            for: context,
+            success: {
+                expectation.fulfill()
+            },
+            failure: { (error) in
+                XCTFail("Unexpected failure while testing checkApplePayAvailability: \(error.localizedDescription)")
+            }
+        )
 
         waitForExpectations(timeout: 3) { error in
             if let error = error {
@@ -57,9 +75,10 @@ class C2SCommunicatorTestCase: XCTestCase {
     func testApplePayAvailabilityWithApplePay() {
         stub(condition: isHost("example.com")) { _ in
              let response = [
-                "networks" : [ "amex", "discover", "masterCard", "visa" ]
+                "networks": [ "amex", "discover", "masterCard", "visa" ]
              ]
-            return HTTPStubsResponse(jsonObject: response, statusCode: 200, headers: ["Content-Type":"application/json"])
+            return
+                HTTPStubsResponse(jsonObject: response, statusCode: 200, headers: ["Content-Type": "application/json"])
         }
 
         let paymentProducts = BasicPaymentProducts()
@@ -67,12 +86,17 @@ class C2SCommunicatorTestCase: XCTestCase {
 
         let expectation = self.expectation(description: "Response provided")
 
-        _ = communicator.checkApplePayAvailability(with: paymentProducts, for: context, success: {
-            expectation.fulfill()
+        _ = communicator.checkApplePayAvailability(
+            with: paymentProducts,
+            for: context,
+            success: {
+                expectation.fulfill()
 
-        }) { (error) in
-            XCTFail("Unexpected failure while testing checkApplePayAvailability: \(error.localizedDescription)")
-        }
+            },
+            failure: { (error) in
+                XCTFail("Unexpected failure while testing checkApplePayAvailability: \(error.localizedDescription)")
+            }
+        )
 
         waitForExpectations(timeout: 3) { error in
             if let error = error {
@@ -129,13 +153,19 @@ class C2SCommunicatorTestCase: XCTestCase {
                     ]
                 ]
             ]
-            return HTTPStubsResponse(jsonObject: response, statusCode: 200, headers: ["Content-Type":"application/json"])
+            return
+                HTTPStubsResponse(jsonObject: response, statusCode: 200, headers: ["Content-Type": "application/json"])
         }
 
-        let context = PaymentContext(amountOfMoney: PaymentAmountOfMoney(totalAmount: 3, currencyCode: "EUR"), isRecurring: true, countryCode: "NL")
+        let context =
+            PaymentContext(
+                amountOfMoney: PaymentAmountOfMoney(totalAmount: 3, currencyCode: "EUR"),
+                isRecurring: true,
+                countryCode: "NL"
+            )
         let expectation = self.expectation(description: "Response provided")
 
-        communicator.paymentProducts(forContext: context, success: { responseObject in
+        communicator.paymentProducts(forContext: context, success: { _ in
             expectation.fulfill()
         }, failure: { error in
             XCTFail("Unexpected failure while testing paymentProductForContext: \(error.localizedDescription)")
@@ -153,23 +183,31 @@ class C2SCommunicatorTestCase: XCTestCase {
         stub(condition: isHost("example.com")) { _ in
             let response = [
                 "keyId": "86b64e4e-f43e-4a27-9863-9bbd5b499f82",
+                // swiftlint:disable line_length
                 "publicKey": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAkiJlGL1QjUnGDLpMNBtZPYVtOU121jfFcV4WrZayfw9Ib/1AtPBHP/0ZPocdA23zDh6aB+QiOQEkHZlfnelBNnEzEu4ibda3nDdjSrKveSiQPyB5X+u/IS3CR48B/g4QJ+mcMV9hoFt6Hx3R99A0HWMs4um8elQsgB11MsLmGb1SuLo0S1pgL3EcckXfBDNMUBMQ9EtLC9zQW6Y0kx6GFXHgyjNb4yixXfjo194jfhei80sVQ49Y/SHBt/igATGN1l18IBDtO0eWmWeBckwbNkpkPLAvJfsfa3JpaxbXwg3rTvVXLrIRhvMYqTsQmrBIJDl7F6igPD98Y1FydbKe5QIDAQAB"
 
                 ]
-            return HTTPStubsResponse(jsonObject: response, statusCode: 200, headers: ["Content-Type":"application/json"])
+            return
+                HTTPStubsResponse(jsonObject: response, statusCode: 200, headers: ["Content-Type": "application/json"])
         }
 
         let expectation = self.expectation(description: "Response provided")
 
-        communicator.publicKey(success: { (publicKeyResponse) in
-            expectation.fulfill()
+        communicator.publicKey(
+            success: { (publicKeyResponse) in
+                expectation.fulfill()
 
-            XCTAssertEqual(publicKeyResponse.keyId,  "86b64e4e-f43e-4a27-9863-9bbd5b499f82", "Received keyId not as expected")
-            XCTAssertEqual(publicKeyResponse.encodedPublicKey,  "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAkiJlGL1QjUnGDLpMNBtZPYVtOU121jfFcV4WrZayfw9Ib/1AtPBHP/0ZPocdA23zDh6aB+QiOQEkHZlfnelBNnEzEu4ibda3nDdjSrKveSiQPyB5X+u/IS3CR48B/g4QJ+mcMV9hoFt6Hx3R99A0HWMs4um8elQsgB11MsLmGb1SuLo0S1pgL3EcckXfBDNMUBMQ9EtLC9zQW6Y0kx6GFXHgyjNb4yixXfjo194jfhei80sVQ49Y/SHBt/igATGN1l18IBDtO0eWmWeBckwbNkpkPLAvJfsfa3JpaxbXwg3rTvVXLrIRhvMYqTsQmrBIJDl7F6igPD98Y1FydbKe5QIDAQAB", "Received publicKey not as expected")
-        }) { (error) in
-            XCTFail("Unexpected failure while testing publicKey: \(error.localizedDescription)")
-        }
-
+                XCTAssertEqual(
+                    publicKeyResponse.keyId,
+                    "86b64e4e-f43e-4a27-9863-9bbd5b499f82",
+                    "Received keyId not as expected"
+                )
+                XCTAssertEqual(publicKeyResponse.encodedPublicKey, "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAkiJlGL1QjUnGDLpMNBtZPYVtOU121jfFcV4WrZayfw9Ib/1AtPBHP/0ZPocdA23zDh6aB+QiOQEkHZlfnelBNnEzEu4ibda3nDdjSrKveSiQPyB5X+u/IS3CR48B/g4QJ+mcMV9hoFt6Hx3R99A0HWMs4um8elQsgB11MsLmGb1SuLo0S1pgL3EcckXfBDNMUBMQ9EtLC9zQW6Y0kx6GFXHgyjNb4yixXfjo194jfhei80sVQ49Y/SHBt/igATGN1l18IBDtO0eWmWeBckwbNkpkPLAvJfsfa3JpaxbXwg3rTvVXLrIRhvMYqTsQmrBIJDl7F6igPD98Y1FydbKe5QIDAQAB", "Received publicKey not as expected")
+            },
+            failure: { (error) in
+                XCTFail("Unexpected failure while testing publicKey: \(error.localizedDescription)")
+            }
+        )
         waitForExpectations(timeout: 3) { error in
             if let error = error {
                 print("Timeout error: \(error.localizedDescription)")
@@ -178,7 +216,6 @@ class C2SCommunicatorTestCase: XCTestCase {
     }
 
     func testPaymentProductWithId() {
-        // TODO: Merges two response stubs, need to find a way to make stubs specific for a url. (Does not work with get variables)
         stub(condition: isHost("example.com")) { _ in
             let response = [
                 "allowsRecurring": true,
@@ -204,7 +241,7 @@ class C2SCommunicatorTestCase: XCTestCase {
                                 ],
                                 "luhn": [
 
-                                ],"expirationDate": [
+                                ], "expirationDate": [
 
                                 ],
                                 "regularExpression": [
@@ -216,14 +253,14 @@ class C2SCommunicatorTestCase: XCTestCase {
                             "displayOrder": 10,
                             "formElement": [
                                 "type": "text",
-                                "valueMapping":[
+                                "valueMapping": [
                                     [
-                                        "displayName":"Value map display",
-                                        "value":"Value map value"
+                                        "displayName": "Value map display",
+                                        "value": "Value map value"
                                     ],
                                     [
-                                        "displayName":"Value map display 2",
-                                        "value":"Value map value 2"
+                                        "displayName": "Value map display 2",
+                                        "value": "Value map value 2"
                                     ]
                                 ]
                             ],
@@ -242,47 +279,96 @@ class C2SCommunicatorTestCase: XCTestCase {
                 "mobileIntegrationLevel": "OPTIMISED_SUPPORT",
                 "paymentMethod": "card",
                 "paymentProductGroup": "cards"
-                ] as [String : Any]
-            return HTTPStubsResponse(jsonObject: response, statusCode: 200, headers: ["Content-Type":"application/json"])
+                ] as [String: Any]
+            return
+                HTTPStubsResponse(jsonObject: response, statusCode: 200, headers: ["Content-Type": "application/json"])
         }
 
         let expectation = self.expectation(description: "Response provided")
 
-        communicator.paymentProduct(withIdentifier: "1", context: context, success: { (paymentProduct) in
-            expectation.fulfill()
+        communicator.paymentProduct(
+            withIdentifier: "1",
+            context: context,
+            success: { (paymentProduct) in
+                expectation.fulfill()
 
-            let product = paymentProduct
-            XCTAssertEqual(product.identifier, "1", "Received product id not as expected")
-            XCTAssertEqual(product.displayHintsList.first?.displayOrder, 20, "Received product displayOrder not as expected")
-            XCTAssertEqual(product.displayHintsList.first?.logoPath, "/templates/master/global/css/img/ppimages/pp_logo_1_v1.png", "Received product logoPath not as expected")
+                let product = paymentProduct
+                XCTAssertEqual(product.identifier, "1", "Received product id not as expected")
+                XCTAssertEqual(
+                    product.displayHintsList.first?.displayOrder,
+                    20,
+                    "Received product displayOrder not as expected"
+                )
+                XCTAssertEqual(
+                    product.displayHintsList.first?.logoPath,
+                    "/templates/master/global/css/img/ppimages/pp_logo_1_v1.png",
+                    "Received product logoPath not as expected"
+                )
 
-            guard let field = product.fields.paymentProductFields.first else {
-                XCTFail("Received product field not as expected")
-                return
+                guard let field = product.fields.paymentProductFields.first else {
+                    XCTFail("Received product field not as expected")
+                    return
+                }
+                // Data Restrictions
+                XCTAssertEqual(
+                    field.dataRestrictions.isRequired,
+                    true,
+                    "Received product field isRequired not as expected"
+                )
+                guard let lengthValidator = field.dataRestrictions.validators.validators[2] as? ValidatorLength else {
+                    XCTFail("Received product field length validator not as expected")
+                    return
+                }
+
+                XCTAssertEqual(
+                    lengthValidator.maxLength,
+                    19,
+                    "Received product field length validator maxlength not as expected"
+                )
+                XCTAssertEqual(
+                    lengthValidator.minLength,
+                    12,
+                    "Received product field length validator minLength not as expected"
+                )
+                XCTAssertEqual(
+                    field.dataRestrictions.validators.validators.count,
+                    4,
+                    "Received product fields count not as expected"
+                )
+
+                // Display Hints
+                XCTAssertEqual(
+                    field.displayHints.displayOrder,
+                    10,
+                    "Received product field displayHints displayOrder not as expected"
+                )
+                XCTAssertEqual(
+                    field.displayHints.mask,
+                    "{{9999}} {{9999}} {{9999}} {{9999}} {{999}}",
+                    "Received product field displayHints mask not as expected"
+                )
+                XCTAssertEqual(
+                    field.displayHints.obfuscate,
+                    false,
+                    "Received product field displayHints obfuscate not as expected"
+                )
+                XCTAssertEqual(
+                    field.displayHints.preferredInputType,
+                    PreferredInputType.integerKeyboard,
+                    "Received product field displayHints preferredInputType not as expected"
+                )
+                XCTAssertEqual(
+                    field.displayHints.formElement.type,
+                    FormElementType.textType,
+                    "Received product field displayHints formElement type not as expected"
+                )
+                XCTAssertTrue(field.displayHints.formElement.valueMapping.count > 0, "No Value map found.")
+
+            },
+            failure: { (error) in
+                XCTFail("Unexpected failure while testing paymentProductWithId: \(error.localizedDescription)")
             }
-            // Data Restrictions
-            XCTAssertEqual(field.dataRestrictions.isRequired, true, "Received product field isRequired not as expected")
-            guard let lengthValidator = field.dataRestrictions.validators.validators[2] as? ValidatorLength else {
-                XCTFail("Received product field length validator not as expected")
-                return
-            }
-
-            XCTAssertEqual(lengthValidator.maxLength, 19, "Received product field length validator maxlength not as expected")
-            XCTAssertEqual(lengthValidator.minLength, 12, "Received product field length validator minLength not as expected")
-            XCTAssertEqual(field.dataRestrictions.validators.validators.count, 4, "Received product fields count not as expected")
-
-            // Display Hints
-            XCTAssertEqual(field.displayHints.displayOrder, 10, "Received product field displayHints displayOrder not as expected")
-            XCTAssertEqual(field.displayHints.mask, "{{9999}} {{9999}} {{9999}} {{9999}} {{999}}", "Received product field displayHints mask not as expected")
-            XCTAssertEqual(field.displayHints.obfuscate, false, "Received product field displayHints obfuscate not as expected")
-            XCTAssertEqual(field.displayHints.preferredInputType, PreferredInputType.integerKeyboard, "Received product field displayHints preferredInputType not as expected")
-            XCTAssertEqual(field.displayHints.formElement.type, FormElementType.textType, "Received product field displayHints formElement type not as expected")
-            XCTAssertTrue(field.displayHints.formElement.valueMapping.count > 0, "No Value map found.")
-
-
-        }) { (error) in
-            XCTFail("Unexpected failure while testing paymentProductWithId: \(error.localizedDescription)")
-        }
+        )
 
         waitForExpectations(timeout: 3) { error in
             if let error = error {
@@ -296,20 +382,28 @@ class C2SCommunicatorTestCase: XCTestCase {
             let response = [
                 "countryCode": "RU",
                 "paymentProductId": 3
-                ] as [String : Any]
-            return HTTPStubsResponse(jsonObject: response, statusCode: 200, headers: ["Content-Type":"application/json"])
+                ] as [String: Any]
+            return
+                HTTPStubsResponse(jsonObject: response, statusCode: 200, headers: ["Content-Type": "application/json"])
         }
 
         let expectation = self.expectation(description: "Response provided")
 
-        communicator.paymentProductId(byPartialCreditCardNumber: "520953", context: context, success: { (gciinDetailsResponse) in
-            expectation.fulfill()
+        communicator.paymentProductId(
+            byPartialCreditCardNumber: "520953",
+            context: context,
+            success: { (gciinDetailsResponse) in
+                expectation.fulfill()
 
-            XCTAssertEqual(gciinDetailsResponse.countryCodeString, "RU", "Received countrycode not as expected")
-            XCTAssertEqual(gciinDetailsResponse.paymentProductId, "3", "Received paymentProductId not as expected")
-        }) { (error) in
-            XCTFail("Unexpected failure while testing paymentProductWithIdPartialCreditCard: \(error.localizedDescription)")
-        }
+                XCTAssertEqual(gciinDetailsResponse.countryCodeString, "RU", "Received countrycode not as expected")
+                XCTAssertEqual(gciinDetailsResponse.paymentProductId, "3", "Received paymentProductId not as expected")
+            },
+            failure: { (error) in
+                XCTFail(
+                    "Unexpected failure while testing paymentProductWithIdPartialCreditCard: \(error.localizedDescription)"
+                )
+            }
+        )
 
         waitForExpectations(timeout: 3) { error in
             if let error = error {
@@ -344,4 +438,3 @@ class C2SCommunicatorTestCase: XCTestCase {
         XCTAssertEqual(result6, "12345678", "Expected: '123456', actual: \(result6)")
     }
 }
-

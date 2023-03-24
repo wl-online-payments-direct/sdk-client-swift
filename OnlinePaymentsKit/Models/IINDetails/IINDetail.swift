@@ -10,7 +10,6 @@ import Foundation
 public class IINDetail: NSObject, ResponseObjectSerializable {
     @objc public var paymentProductId: String
     @objc(isAllowedInContext) public var allowedInContext: Bool = false
-    //public var allowedInContext: Bool = false
 
     @objc required public init?(json: [String: Any]) {
         if let input = json["paymentProductId"] as? Int {

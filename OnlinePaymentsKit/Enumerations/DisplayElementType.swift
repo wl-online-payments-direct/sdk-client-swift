@@ -12,7 +12,7 @@ import Foundation
     @objc(OPDisplayElementTypeCurrency) case currency
     @objc(OPDisplayElementTypePercentage) case percentage
     @objc(OPDisplayElementTypeURI) case uri
-    
+
     func text() -> String {
         switch self {
         case .string:
@@ -32,18 +32,18 @@ import Foundation
 @objc public class DisplayElementTypeEnumHandler: NSObject {
     @objc public func displayElementTypeFor(type: String) -> DisplayElementType {
         switch type {
-            case "STRING":
-                return DisplayElementType.string
-            case "INTEGER":
-                return DisplayElementType.integer
-            case "CURRENCY":
-                return DisplayElementType.currency
-            case "PERCENTAGE":
-                return DisplayElementType.percentage
-            case "URI":
-                return DisplayElementType.uri
-            default:
-                return DisplayElementType.string
+        case "STRING":
+            return DisplayElementType.string
+        case "INTEGER":
+            return DisplayElementType.integer
+        case "CURRENCY":
+            return DisplayElementType.currency
+        case "PERCENTAGE":
+            return DisplayElementType.percentage
+        case "URI":
+            return DisplayElementType.uri
+        default:
+            return DisplayElementType.string
         }
     }
     /// Objective-C compatible method to get a String value of DisplayElementType enum case

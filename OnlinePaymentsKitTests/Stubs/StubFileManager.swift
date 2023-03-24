@@ -57,7 +57,7 @@ class StubFileManager: OnlinePaymentsKit.FileManager {
     }
 
     override func write(toURL url: URL, data: Data, options: Data.WritingOptions) throws {
-        guard (["pp_logo_", "_tooltip_"].reduce(false) { $0 || url.absoluteString.contains($1) }) else {
+        guard url.absoluteString.contains("pp_logo_") || url.absoluteString.contains("_tooltip_") else {
             fatalError("URL invalid")
         }
     }

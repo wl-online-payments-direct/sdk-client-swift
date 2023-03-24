@@ -16,14 +16,14 @@ public class ValidatorLuhn: Validator {
         var oddSum = 0
         var digit = 0
 
-        for i in 1 ... value.count {
-            let j = value.count - i
-            digit = Int(value[j])!
+        for index in 1 ... value.count {
+            let reversedIndex = value.count - index
+            digit = Int(value[reversedIndex])!
 
-            if i % 2 == 1 {
+            if index % 2 == 1 {
                 evenSum += digit
             } else {
-                digit = digit * 2
+                digit *= 2
                 digit = (digit % 10) + (digit / 10)
                 oddSum += digit
             }

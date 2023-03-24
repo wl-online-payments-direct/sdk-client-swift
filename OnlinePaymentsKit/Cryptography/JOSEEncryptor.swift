@@ -2,7 +2,8 @@
 // Do not remove or alter the notices in this preamble.
 // This software code is created for Online Payments on 16/07/2020
 // Copyright © 2020 Global Collect Services. All rights reserved.
-// 
+//
+// swiftlint:disable identifier_name
 
 import Foundation
 
@@ -21,7 +22,11 @@ public class JOSEEncryptor: NSObject {
         return header
     }
 
-    @objc public func encryptToCompactSerialization(JSON: String, withPublicKey publicKey: SecKey, keyId: String) -> String {
+    @objc public func encryptToCompactSerialization(
+        JSON: String,
+        withPublicKey publicKey: SecKey,
+        keyId: String
+    ) -> String {
         guard let protectedheader = generateProtectedHeader(withKey: keyId).data(using: String.Encoding.utf8),
             let AESKey = encryptor.generateRandomBytes(length: 32),
             let HMACKey = encryptor.generateRandomBytes(length: 32)
@@ -35,23 +40,28 @@ public class JOSEEncryptor: NSObject {
         let encryptedKey = encryptor.encryptRSA(data: key, publicKey: publicKey)
         let encodedKey = encryptedKey.base64URLEncode()
 
-        guard let IV = encryptor.generateRandomBytes(length: 16) else {
+        guard let initializationVector = encryptor.generateRandomBytes(length: 16) else {
             return ""
         }
-        let encodedIV = IV.base64URLEncode()
+        let encodedIV = initializationVector.base64URLEncode()
 
         guard let additionalAuthenticatedData = encodedProtectedHeader.data(using: String.Encoding.ascii) else {
             return ""
         }
         let AL = computeAL(forData: additionalAuthenticatedData)
 
-        guard let ciphertext = encryptor.encryptAES(data: JSON.data(using: String.Encoding.utf8)!, key: AESKey, IV: IV) else {
+        guard let ciphertext =
+                encryptor.encryptAES(
+                    data: JSON.data(using: String.Encoding.utf8)!,
+                    key: AESKey,
+                    IV: initializationVector
+                ) else {
             return ""
         }
         let encodedCiphertext = ciphertext.base64URLEncode()
 
         var authenticationData = additionalAuthenticatedData
-        authenticationData.append(IV)
+        authenticationData.append(initializationVector)
         authenticationData.append(ciphertext)
         authenticationData.append(AL)
         guard let authenticationTag = encryptor.generateHMAC(data: authenticationData, key: HMACKey) else {
@@ -76,10 +86,10 @@ public class JOSEEncryptor: NSObject {
         let HMACKey = decryptedKeys.subdata(in: 0..<32)
         let AESKey = decryptedKeys.subdata(in: 0..<32)
 
-        let IV = components[2].base64URLDecode()
+        let initializationVector = components[2].base64URLDecode()
 
         let ciphertext = components[3].base64URLDecode()
-        guard let plaintext = encryptor.decryptAES(data: ciphertext, key: AESKey, IV: IV) else {
+        guard let plaintext = encryptor.decryptAES(data: ciphertext, key: AESKey, IV: initializationVector) else {
             return ""
         }
         _ = String(data: plaintext, encoding: String.Encoding.utf8)
@@ -90,7 +100,7 @@ public class JOSEEncryptor: NSObject {
         let AL = computeAL(forData: additionalAuthenticatedData)
 
         var authenticationData = additionalAuthenticatedData
-        authenticationData.append(IV)
+        authenticationData.append(initializationVector)
         authenticationData.append(ciphertext)
         authenticationData.append(AL)
         guard let authenticationTag = encryptor.generateHMAC(data: authenticationData, key: HMACKey) else {

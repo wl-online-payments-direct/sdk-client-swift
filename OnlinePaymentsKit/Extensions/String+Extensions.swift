@@ -8,21 +8,21 @@ import Foundation
 
 extension String {
 
-    subscript (i: Int) -> String {
-        return self[i ..< i + 1]
+    subscript (index: Int) -> String {
+        return self[index ..< index + 1]
     }
 
-    func substring(from: Int) -> String {
-        return self[min(from, count) ..< count]
+    func substring(from minIndex: Int) -> String {
+        return self[min(minIndex, count) ..< count]
     }
 
-    func substring(to: Int) -> String {
-        return self[0 ..< max(0, to)]
+    func substring(to maxIndex: Int) -> String {
+        return self[0 ..< max(0, maxIndex)]
     }
 
-    subscript (r: Range<Int>) -> String {
-        let range = Range(uncheckedBounds: (lower: max(0, min(count, r.lowerBound)),
-                                            upper: min(count, max(0, r.upperBound))))
+    subscript (range: Range<Int>) -> String {
+        let range = Range(uncheckedBounds: (lower: max(0, min(count, range.lowerBound)),
+                                            upper: min(count, max(0, range.upperBound))))
         let start = index(startIndex, offsetBy: range.lowerBound)
         let end = index(start, offsetBy: range.upperBound - range.lowerBound)
         return String(self[start ..< end])

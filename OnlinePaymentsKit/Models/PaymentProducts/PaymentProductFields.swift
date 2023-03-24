@@ -14,7 +14,7 @@ public class PaymentProductFields: NSObject {
         paymentProductFields = paymentProductFields.sorted {
             let displayOrder0 = $0.displayHints.displayOrder
             let displayOrder1 = $1.displayHints.displayOrder
-            
+
             return displayOrder0 < displayOrder1
         }
     }

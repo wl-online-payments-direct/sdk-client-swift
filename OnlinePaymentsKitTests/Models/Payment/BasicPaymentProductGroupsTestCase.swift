@@ -14,7 +14,7 @@ class BasicPaymentProductGroupsTestCase: XCTestCase {
         super.setUp()
 
         for index in 1..<6 {
-            let b = BasicPaymentProductGroup(json: [
+            let basicPaymentProductGroup = BasicPaymentProductGroup(json: [
                 "id": "\(index)",
                 "displayHints": [
                     "displayOrder": 20,
@@ -32,7 +32,7 @@ class BasicPaymentProductGroupsTestCase: XCTestCase {
                     ]
                 ]])!
 
-            basicPaymentProductGroups.paymentProductGroups.append(b)
+            basicPaymentProductGroups.paymentProductGroups.append(basicPaymentProductGroup)
         }
         basicPaymentProductGroups.sort()
     }
@@ -65,7 +65,10 @@ class BasicPaymentProductGroupsTestCase: XCTestCase {
         XCTAssertTrue(foundGroup != nil, "Group was not found.")
 
         let nonExistingGroup = basicPaymentProductGroups.paymentProductGroup(withIdentifier: "999")
-        XCTAssertTrue(nonExistingGroup == nil, "Group was not suppose to be found: \(String(describing: nonExistingGroup)).")
+        XCTAssertTrue(
+            nonExistingGroup == nil,
+            "Group was not suppose to be found: \(String(describing: nonExistingGroup))."
+        )
     }
 
     func testLogoPath() {

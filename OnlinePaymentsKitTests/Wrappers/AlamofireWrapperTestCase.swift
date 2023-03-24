@@ -54,11 +54,18 @@ class AlamofireWrapperTestCase: XCTestCase {
     let sessionsURL = "\(baseURL)/\(merchantId)/sessions"
     let expectation = self.expectation(description: "Response provided")
 
-    AlamofireWrapper.shared.postResponse(forURL: sessionsURL, headers: nil, withParameters: nil, additionalAcceptableStatusCodes: nil, success: { responseObject in
-      self.assertErrorResponse(responseObject, expectation: expectation)
-    }, failure: { error in
-      XCTFail("Unexpected failure while testing POST request: \(error.localizedDescription)")
-    })
+    AlamofireWrapper.shared.postResponse(
+        forURL: sessionsURL,
+        headers: nil,
+        withParameters: nil,
+        additionalAcceptableStatusCodes: nil,
+        success: { responseObject in
+          self.assertErrorResponse(responseObject, expectation: expectation)
+        },
+        failure: { error in
+          XCTFail("Unexpected failure while testing POST request: \(error.localizedDescription)")
+        }
+    )
 
     waitForExpectations(timeout: 3) { error in
       if let error = error {
@@ -71,11 +78,17 @@ class AlamofireWrapperTestCase: XCTestCase {
     let publicKeyURL = "\(baseURL)/\(merchantId)/crypto/publickey"
     let expectation = self.expectation(description: "Response provided")
 
-    AlamofireWrapper.shared.getResponse(forURL: publicKeyURL, headers: nil, additionalAcceptableStatusCodes: nil, success: { responseObject in
-      self.assertErrorResponse(responseObject, expectation: expectation)
-    }, failure: { error in
-      XCTFail("Unexpected failure while testing GET request: \(error.localizedDescription)")
-    })
+    AlamofireWrapper.shared.getResponse(
+        forURL: publicKeyURL,
+        headers: nil,
+        additionalAcceptableStatusCodes: nil,
+        success: { responseObject in
+          self.assertErrorResponse(responseObject, expectation: expectation)
+        },
+        failure: { error in
+          XCTFail("Unexpected failure while testing GET request: \(error.localizedDescription)")
+        }
+    )
 
     waitForExpectations(timeout: 3) { error in
       if let error = error {
@@ -89,11 +102,17 @@ class AlamofireWrapperTestCase: XCTestCase {
     let expectation = self.expectation(description: "Response provided")
     let additionalAcceptableStatusCodes: IndexSet = [401]
 
-    AlamofireWrapper.shared.getResponse(forURL: publicKeyURL, headers: nil, additionalAcceptableStatusCodes: additionalAcceptableStatusCodes, success: { _ in
-      expectation.fulfill()
-    }, failure: { error in
-      XCTFail("Additional status code did not accept: \(error.localizedDescription)")
-    })
+    AlamofireWrapper.shared.getResponse(
+        forURL: publicKeyURL,
+        headers: nil,
+        additionalAcceptableStatusCodes: additionalAcceptableStatusCodes,
+        success: { _ in
+          expectation.fulfill()
+        },
+        failure: { error in
+          XCTFail("Additional status code did not accept: \(error.localizedDescription)")
+        }
+    )
 
     waitForExpectations(timeout: 3) { error in
       if let error = error {
@@ -106,11 +125,17 @@ class AlamofireWrapperTestCase: XCTestCase {
     let publicKeyURL = "\(baseURL)/error"
     let expectation = self.expectation(description: "Response provided")
 
-    AlamofireWrapper.shared.getResponse(forURL: publicKeyURL, headers: nil, additionalAcceptableStatusCodes: nil, success: { _ in
-      XCTFail("Failure should have been called")
-    }, failure: { _ in
-      expectation.fulfill()
-    })
+    AlamofireWrapper.shared.getResponse(
+        forURL: publicKeyURL,
+        headers: nil,
+        additionalAcceptableStatusCodes: nil,
+        success: { _ in
+          XCTFail("Failure should have been called")
+        },
+        failure: { _ in
+          expectation.fulfill()
+        }
+    )
 
     waitForExpectations(timeout: 3) { error in
       if let error = error {

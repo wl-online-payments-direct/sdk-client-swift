@@ -18,7 +18,7 @@ public class DisplayElement: NSObject, ResponseObjectSerializable {
         guard let value = json["value"] as? String else {
             return nil
         }
-        
+
         let type = DisplayElementTypeEnumHandler().displayElementTypeFor(type: json["type"] as? String ?? "")
 
         self.id = id

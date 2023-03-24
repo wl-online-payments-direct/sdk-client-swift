@@ -9,7 +9,12 @@ import Foundation
 @objc public class Macros: NSObject {
     @objc public static func DLog(message: String, functionName: String = #function, fileName: String = #file) {
         #if DEBUG
-        print("DLog: Original_Message = \(message)\n Method_Name = \(functionName)\n Line_Number = \(#line)")
+        print(
+            """
+            DLog: Original_Message = \(message)\n File_Name = \(fileName)\n
+            Method_Name = \(functionName)\n Line_Number = \(#line)
+            """
+        )
         #else
         print("DLog: Original_Message = \(message)")
         #endif

@@ -42,7 +42,7 @@ public class BasicPaymentProduct: NSObject, BasicPaymentItem, ResponseObjectSeri
         self.paymentMethod = ""
         super.init()
     }
-    
+
     @objc public required init?(json: [String: Any]) {
         guard let identifier = json["id"] as? Int,
             let paymentMethod = json["paymentMethod"] as? String,
@@ -51,7 +51,7 @@ public class BasicPaymentProduct: NSObject, BasicPaymentItem, ResponseObjectSeri
             else {
                 return nil
         }
-        
+
         if let input = json["displayHintsList"] as? [[String: Any]] {
             for displayHintInput in input {
                 if let displayHint = PaymentItemDisplayHints(json: displayHintInput) {
@@ -61,7 +61,8 @@ public class BasicPaymentProduct: NSObject, BasicPaymentItem, ResponseObjectSeri
         }
 
         if let paymentProduct302SpecificDataDictionary = json["paymentProduct302SpecificData"] as? [String: Any],
-            let paymentProduct302SpecificData = PaymentProduct302SpecificData(json: paymentProduct302SpecificDataDictionary) {
+            let paymentProduct302SpecificData =
+                PaymentProduct302SpecificData(json: paymentProduct302SpecificDataDictionary) {
             self.paymentProduct302SpecificData = paymentProduct302SpecificData
         }
 
@@ -86,8 +87,11 @@ public class BasicPaymentProduct: NSObject, BasicPaymentItem, ResponseObjectSeri
         return accountsOnFile.accountOnFile(withIdentifier: identifier)
     }
 
-    public static func == (lhs: BasicPaymentProduct, rhs: BasicPaymentProduct) -> Bool {
-        return lhs.identifier == rhs.identifier
-    }
+    public override func isEqual(_ object: Any?) -> Bool {
+        guard let product = object as? BasicPaymentProduct else {
+            return false
+        }
 
+        return self.identifier == product.identifier
+    }
 }

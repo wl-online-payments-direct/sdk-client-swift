@@ -2,7 +2,8 @@
 // Do not remove or alter the notices in this preamble.
 // This software code is created for Online Payments on 16/07/2020
 // Copyright © 2020 Global Collect Services. All rights reserved.
-// 
+//
+// swiftlint:disable function_parameter_count
 
 import Alamofire
 import Foundation
@@ -31,13 +32,15 @@ public class AlamofireWrapper: NSObject {
         if let additionalAcceptableStatusCodes = additionalAcceptableStatusCodes {
             acceptableStatusCodes.add(additionalAcceptableStatusCodes)
         }
-        
+
         AF
             .request(URL, method: .get, parameters: parameters, headers: headers)
             .validate(statusCode: acceptableStatusCodes)
             .responseJSON { response in
                 if let error = response.error {
-                    Macros.DLog(message: "Error while retrieving response for URL \(URL): \(error.localizedDescription)")
+                    Macros.DLog(
+                        message: "Error while retrieving response for URL \(URL): \(error.localizedDescription)"
+                    )
                     failure(error)
                 } else {
                     success(response.value as? [String: Any])
@@ -60,9 +63,11 @@ public class AlamofireWrapper: NSObject {
         AF
             .request(URL, method: .post, parameters: parameters, encoding: JSONEncoding.default, headers: headers)
             .validate(statusCode: acceptableStatusCodes)
-            .responseJSON() { response in
+            .responseJSON { response in
                 if let error = response.error {
-                    Macros.DLog(message: "Error while retrieving response for URL \(URL): \(error.localizedDescription)")
+                    Macros.DLog(
+                        message: "Error while retrieving response for URL \(URL): \(error.localizedDescription)"
+                    )
                     failure(error)
                 } else {
                     success(response.value as? [String: Any])
