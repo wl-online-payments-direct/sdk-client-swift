@@ -10,7 +10,13 @@ import Foundation
 public class Validator: NSObject {
     @objc public var errors: [ValidationError] = []
 
-    @objc public func validate(value: String, for: PaymentRequest) {
+    @objc(validate:forPaymentRequest:)
+    public func validate(value: String, for: PaymentRequest) {
         errors.removeAll()
+    }
+
+    @available(*, deprecated, message: "In a future release, this initializer will become internal to the SDK.")
+    @objc public override init() {
+        super.init()
     }
 }

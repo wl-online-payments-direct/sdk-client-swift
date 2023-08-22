@@ -14,6 +14,7 @@ public class PaymentItemDisplayHints: NSObject {
     @objc public var logoPath: String
     @objc public var logoImage: UIImage?
 
+    @available(*, deprecated, message: "In a future release, this initializer will become internal to the SDK.")
     @objc required public init?(json: [String: Any]) {
         if let input = json["label"] as? String {
             label = input

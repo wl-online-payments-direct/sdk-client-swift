@@ -8,6 +8,12 @@ import Foundation
 
 @objc(OPValidatorIBAN)
 public class ValidatorIBAN: Validator {
+
+    @available(*, deprecated, message: "In a future release, this initializer will become internal to the SDK.")
+    @objc public override init() {
+        super.init()
+    }
+
     private func charToIndex(mychar: Character) -> Int? {
         let alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
         if let index = alphabet.firstIndex(of: mychar) {
@@ -19,6 +25,7 @@ public class ValidatorIBAN: Validator {
         }
         return nil
     }
+
     private func modulo(numericString: String, modulo: Int) -> Int {
         var remainder = numericString
         repeat {
@@ -35,7 +42,9 @@ public class ValidatorIBAN: Validator {
         } while remainder.count > 2
         return (Int(remainder)!) % modulo
     }
-    @objc public override func validate(value: String, for request: PaymentRequest) {
+
+    @objc(validate:forPaymentRequest:)
+    public override func validate(value: String, for request: PaymentRequest) {
         super.validate(value: value, for: request)
         let strippedText = value.components(separatedBy: .whitespacesAndNewlines).joined().uppercased()
         do {

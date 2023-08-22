@@ -14,6 +14,7 @@ public class AccountOnFileAttribute: NSObject {
     @objc public var status: AccountOnFileAttributeStatus
     @objc public var mustWriteReason: String?
 
+    @available(*, deprecated, message: "In a future release, this initializer will become internal to the SDK.")
     @objc required public init?(json: [String: Any]) {
         guard let key = json["key"] as? String else {
             return nil

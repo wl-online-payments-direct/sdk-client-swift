@@ -15,7 +15,7 @@ public class IINDetailsResponse: NSObject, ResponseObjectSerializable {
     @available(
         *,
         deprecated,
-        message: "Use countryCodeString instead. In a future release this field will become 'String' type."
+        message: "Use countryCodeString instead. In a future release, this field will become 'String' type."
     )
     public var countryCode: CountryCode?
     @objc public var countryCodeString: String?
@@ -23,6 +23,7 @@ public class IINDetailsResponse: NSObject, ResponseObjectSerializable {
 
     private override init() {}
 
+    @available(*, deprecated, message: "In a future release, this initializer will become internal to the SDK.")
     @objc required public init(json: [String: Any]) {
         if let input = json["isAllowedInContext"] as? Bool {
             allowedInContext = input
@@ -52,12 +53,13 @@ public class IINDetailsResponse: NSObject, ResponseObjectSerializable {
         }
     }
 
+    @available(*, deprecated, message: "In a future release, this initializer will become internal to the SDK.")
     @objc convenience public init(status: IINStatus) {
         self.init()
         self.status = status
     }
 
-    @available(*, deprecated, message: "Use init(String:IINStatus:[IINDetail]:String:Bool:) instead")
+    @available(*, deprecated, message: "Use init(String:IINStatus:[IINDetail]:String:Bool:) instead.")
     public convenience init(
         paymentProductId: String,
         status: IINStatus,
@@ -74,6 +76,7 @@ public class IINDetailsResponse: NSObject, ResponseObjectSerializable {
         )
     }
 
+    @available(*, deprecated, message: "In a future release, this initializer will become internal to the SDK.")
     @objc public init(
         paymentProductId: String,
         status: IINStatus,

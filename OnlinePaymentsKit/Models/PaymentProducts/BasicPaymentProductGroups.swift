@@ -40,8 +40,10 @@ public class BasicPaymentProductGroups: NSObject, ResponseObjectSerializable {
         }
     }
 
+    @available(*, deprecated, message: "In a future release, this initializer will become internal to the SDK.")
     @objc public override init() {}
 
+    @available(*, deprecated, message: "In a future release, this initializer will become internal to the SDK.")
     @objc required public init(json: [String: Any]) {
         super.init()
         if let input = json["paymentProductGroups"] as? [[String: Any]] {
@@ -55,7 +57,8 @@ public class BasicPaymentProductGroups: NSObject, ResponseObjectSerializable {
         }
     }
 
-    @objc public func logoPath(forProductGroup identifier: String) -> String? {
+    @objc(logoPathForPaymentProductGroup:)
+    public func logoPath(forProductGroup identifier: String) -> String? {
         let productGroup = paymentProductGroup(withIdentifier: identifier)
         guard let displayHints = productGroup?.displayHintsList.first else {
             return nil

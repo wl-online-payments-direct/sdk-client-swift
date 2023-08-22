@@ -14,7 +14,7 @@ class PaymentItemsTestCase: XCTestCase {
 
     let host = "example.com"
 
-    var session = Session(clientSessionId: "client-session-id",
+    var session = StubSession(clientSessionId: "client-session-id",
                           customerId: "customer-id",
                           baseURL: "https://example.com/client/v1",
                           assetBaseURL: "https://example.com/client/v1",
@@ -25,8 +25,6 @@ class PaymentItemsTestCase: XCTestCase {
 
     override func setUp() {
         super.setUp()
-        session.assetManager.fileManager = StubFileManager()
-        session.assetManager.sdkBundle = StubBundle()
 
     }
 
@@ -45,12 +43,12 @@ class PaymentItemsTestCase: XCTestCase {
                         "displayHints": [
                             "displayOrder": 20,
                             "label": "Visa",
-                            "logo": "/templates/master/global/css/img/ppimages/pp_logo_1_v1.png"
+                            "logo": "https://example.com/templates/master/global/css/img/ppimages/pp_logo_1_v1.png"
                         ],
                         "displayHintsList": [[
                             "displayOrder": 20,
                             "label": "Visa",
-                            "logo": "/templates/master/global/css/img/ppimages/pp_logo_1_v1.png"
+                            "logo": "https://example.com/templates/master/global/css/img/ppimages/pp_logo_1_v1.png"
                         ]],
                         "id": 1,
                         "maxAmount": 1000000,
@@ -64,12 +62,12 @@ class PaymentItemsTestCase: XCTestCase {
                         "displayHints": [
                             "displayOrder": 19,
                             "label": "American Express",
-                            "logo": "/templates/master/global/css/img/ppimages/pp_logo_2_v1.png"
+                            "logo": "https://example.com/templates/master/global/css/img/ppimages/pp_logo_2_v1.png"
                         ],
                         "displayHintsList": [[
                             "displayOrder": 19,
                             "label": "American Express",
-                            "logo": "/templates/master/global/css/img/ppimages/pp_logo_2_v1.png"
+                            "logo": "https://example.com/templates/master/global/css/img/ppimages/pp_logo_2_v1.png"
                         ]],
                         "id": 2,
                         "maxAmount": 1000000,
@@ -83,12 +81,12 @@ class PaymentItemsTestCase: XCTestCase {
                         "displayHints": [
                             "displayOrder": 18,
                             "label": "MasterCard",
-                            "logo": "/templates/master/global/css/img/ppimages/pp_logo_3_v1.png"
+                            "logo": "https://example.com/templates/master/global/css/img/ppimages/pp_logo_3_v1.png"
                         ],
                         "displayHintsList": [[
                             "displayOrder": 18,
                             "label": "MasterCard",
-                            "logo": "/templates/master/global/css/img/ppimages/pp_logo_3_v1.png"
+                            "logo": "https://example.com/templates/master/global/css/img/ppimages/pp_logo_3_v1.png"
                         ]],
                         "id": 3,
                         "maxAmount": 1000000,
@@ -137,7 +135,7 @@ class PaymentItemsTestCase: XCTestCase {
                         "displayHints": [
                             "displayOrder": 20,
                             "label": "Cards",
-                            "logo": "/templates/master/global/css/img/ppimages/group-card.png"
+                            "logo": "https://example.com/templates/master/global/css/img/ppimages/group-card.png"
                         ],
                         "id": "cards",
                         "accountsOnFile": [

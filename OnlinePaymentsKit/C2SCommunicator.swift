@@ -7,6 +7,14 @@
 import Alamofire
 import PassKit
 
+@available(
+    *,
+    deprecated,
+    message:
+        """
+        In a future release, this class, its functions and its properties will become internal to the SDK.
+        """
+)
 @objc(OPC2SCommunicator)
 public class C2SCommunicator: NSObject {
     @objc public var configuration: C2SCommunicatorConfiguration
@@ -26,6 +34,10 @@ public class C2SCommunicator: NSObject {
 
     @objc public var base64EncodedClientMetaInfo: String {
         return configuration.base64EncodedClientMetaInfo ?? ""
+    }
+
+    internal var loggingEnabled: Bool {
+        return configuration.loggingEnabled
     }
 
     public var headers: HTTPHeaders {
@@ -81,7 +93,8 @@ public class C2SCommunicator: NSObject {
         )
     }
 
-    @objc public func checkApplePayAvailability(
+    @objc(checkApplePayAvailabilityWithPaymentProducts:forContext:success:failure:)
+    public func checkApplePayAvailability(
         with paymentProducts: BasicPaymentProducts,
         for context: PaymentContext,
         success: @escaping () -> Void,
@@ -132,7 +145,8 @@ public class C2SCommunicator: NSObject {
         return paymentProducts
     }
 
-    @objc public func paymentProductNetworks(
+    @objc(paymentProductNetworksForProductId:context:success:failure:)
+    public func paymentProductNetworks(
         forProduct paymentProductId: String,
         context: PaymentContext,
         success: @escaping (_ paymentProductNetworks: PaymentProductNetworks) -> Void,
@@ -175,7 +189,8 @@ public class C2SCommunicator: NSObject {
         )
     }
 
-    @objc public func paymentProduct(
+    @objc(paymentProductWithId:context:success:failure:)
+    public func paymentProduct(
         withIdentifier paymentProductId: String,
         context: PaymentContext,
         success: @escaping (_ paymentProduct: PaymentProduct) -> Void,
@@ -192,7 +207,7 @@ public class C2SCommunicator: NSObject {
                 "amount": context.amountOfMoney.totalAmount,
                 "isRecurring": isRecurring
             ]
-            params["forceBasicFlow"] = context.forceBasicFlow ? "true" : "false"
+
             if !context.locale.isEmpty {
                 params["locale"] = context.locale
             }
@@ -253,7 +268,8 @@ public class C2SCommunicator: NSObject {
         }
     }
 
-    @objc public func checkAvailability(
+    @objc(checkAvailabilityForPaymentProductWithId:context:success:failure:)
+    public func checkAvailability(
         forProduct paymentProductId: String,
         context: PaymentContext,
         success: @escaping () -> Void,
@@ -286,7 +302,8 @@ public class C2SCommunicator: NSObject {
         }
     }
 
-    @objc public func badRequestError(forProduct paymentProductId: String, context: PaymentContext) -> Error {
+    @objc(badRequestErrorForPaymentProductId:context:)
+    public func badRequestError(forProduct paymentProductId: String, context: PaymentContext) -> Error {
         let url = createBadRequestErrorURL(forProduct: paymentProductId, context: context)
         let errorUserInfo =
         [
@@ -318,7 +335,8 @@ public class C2SCommunicator: NSObject {
         // swiftlint:enable line_length
     }
 
-    @objc public func publicKey(
+    @objc(publicKeyWithSuccess:failure:)
+    public func publicKey(
         success: @escaping (_ publicKeyResponse: PublicKeyResponse) -> Void,
         failure: @escaping (_ error: Error) -> Void
     ) {
@@ -401,13 +419,27 @@ public class C2SCommunicator: NSObject {
         success: @escaping (_ responseObject: Any) -> Void,
         failure: @escaping (_ error: Error) -> Void
     ) {
+        if loggingEnabled {
+            logRequest(forURL: URL, requestMethod: .get)
+        }
+
         networkingWrapper.getResponse(
             forURL: URL,
             withParameters: parameters,
             headers: headers,
             additionalAcceptableStatusCodes: nil,
-            success: success,
-            failure: failure
+            success: { response in
+                if self.loggingEnabled {
+                    self.logSuccessResponse(forURL: URL, forResponse: response)
+                }
+                success(response as Any)
+            },
+            failure: { error in
+                if self.loggingEnabled {
+                    self.logFailureResponse(forURL: URL, forError: error)
+                }
+                failure(error)
+            }
         )
     }
 
@@ -418,13 +450,101 @@ public class C2SCommunicator: NSObject {
         success: @escaping (_ responseObject: Any) -> Void,
         failure: @escaping (_ error: Error) -> Void
     ) {
+        if loggingEnabled {
+            logRequest(forURL: URL, requestMethod: .post, postBody: parameters as? Parameters)
+        }
+
         networkingWrapper.postResponse(
             forURL: URL,
             headers: headers,
             withParameters: parameters as? Parameters,
             additionalAcceptableStatusCodes: additionalAcceptableStatusCodes,
-            success: success,
-            failure: failure
+            success: { response in
+                if self.loggingEnabled {
+                    self.logSuccessResponse(forURL: URL, forResponse: response)
+                }
+                success(response as Any)
+            },
+            failure: { error in
+                if self.loggingEnabled {
+                    self.logFailureResponse(forURL: URL, forError: error)
+                }
+                failure(error)
+            }
         )
+    }
+
+    private func responseWithoutStatusCode(response: [String: Any]?) -> [String: Any]? {
+        var originalResponse = response
+        originalResponse?.removeValue(forKey: "statusCode")
+
+        return originalResponse
+    }
+
+    private func logSuccessResponse(forURL URL: String, forResponse response: [String: Any]?) {
+        let responseCode = response?["statusCode"] as? Int
+
+        let originalResponse = self.responseWithoutStatusCode(response: response)
+
+        self.logResponse(forURL: URL, responseCode: responseCode, responseBody: "\(originalResponse as AnyObject)")
+    }
+
+    private func logFailureResponse(forURL URL: String, forError error: Error) {
+        self.logResponse(
+            forURL: URL,
+            responseCode: error.asAFError?.responseCode,
+            responseBody: "\(error.localizedDescription)",
+            isError: true
+        )
+    }
+
+    /**
+     * Logs all request headers, url and body
+     */
+    private func logRequest(forURL URL: String, requestMethod: HTTPMethod, postBody: Parameters? = nil) {
+        var requestLog =
+        """
+        Request URL : \(URL)
+        Request Method : \(requestMethod.rawValue)
+        Request Headers : \n
+        """
+
+        headers.forEach { header in
+            requestLog += " \(header) \n"
+        }
+
+        if requestMethod == .post {
+            requestLog += "Body: \(postBody?.description ?? "")"
+        }
+
+        print(requestLog)
+    }
+
+    /**
+     * Logs all response headers, status code and body
+     */
+    private func logResponse(forURL URL: String, responseCode: Int?, responseBody: String, isError: Bool = false) {
+        var responseLog =
+        """
+        Response URL : \(URL)
+        Response Code :
+        """
+
+        if let responseCode {
+            responseLog += " \(responseCode) \n"
+        } else {
+            responseLog += " Nil \n"
+        }
+
+        responseLog += "Response Headers : \n"
+
+        headers.forEach { header in
+            responseLog += " \(header) \n"
+        }
+
+        responseLog += isError ? "Response Error : " : "Response Body : "
+        responseLog += responseBody
+
+        print(responseLog)
     }
 }

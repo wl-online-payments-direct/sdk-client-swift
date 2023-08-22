@@ -8,3 +8,4 @@
 public enum SessionError: Error {
     case RuntimeError(String)
 }
+// swiftlint:enable identifier_name

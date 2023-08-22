@@ -11,10 +11,12 @@ public class ValidatorRegularExpression: Validator, ResponseObjectSerializable {
 
     @objc public var regularExpression: NSRegularExpression
 
+    @available(*, deprecated, message: "In a future release, this initializer will become internal to the SDK.")
     @objc public init(regularExpression: NSRegularExpression) {
         self.regularExpression = regularExpression
     }
 
+    @available(*, deprecated, message: "In a future release, this initializer will become internal to the SDK.")
     @objc public required init?(json: [String: Any]) {
         guard let input = json["regularExpression"] as? String,
             let regularExpression = try? NSRegularExpression(pattern: input) else {
@@ -25,7 +27,8 @@ public class ValidatorRegularExpression: Validator, ResponseObjectSerializable {
         self.regularExpression = regularExpression
     }
 
-    @objc public override func validate(value: String, for request: PaymentRequest) {
+    @objc(validate:forPaymentRequest:)
+    public override func validate(value: String, for request: PaymentRequest) {
         super.validate(value: value, for: request)
 
         let numberOfMatches =

@@ -10,10 +10,12 @@ import Foundation
 public class ValidatorFixedList: Validator, ResponseObjectSerializable {
     @objc public var allowedValues: [String] = []
 
+    @available(*, deprecated, message: "In a future release, this initializer will become internal to the SDK.")
     @objc public init(allowedValues: [String]) {
         self.allowedValues = allowedValues
     }
 
+    @available(*, deprecated, message: "In a future release, this initializer will become internal to the SDK.")
     @objc required public init(json: [String: Any]) {
         if let input = json["allowedValues"] as? [String] {
             for inputString in input {
@@ -22,7 +24,8 @@ public class ValidatorFixedList: Validator, ResponseObjectSerializable {
         }
     }
 
-    @objc public override func validate(value: String, for request: PaymentRequest) {
+    @objc(validate:forPaymentRequest:)
+    public override func validate(value: String, for request: PaymentRequest) {
         super.validate(value: value, for: request)
 
         for allowedValue in allowedValues where allowedValue.isEqual(value) {

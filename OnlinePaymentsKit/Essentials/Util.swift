@@ -6,6 +6,14 @@
 
 import UIKit
 
+@available(
+    *,
+    deprecated,
+    message:
+        """
+        In a future release, this class, its functions and its properties will become internal to the SDK.
+        """
+)
 @objc(OPUtil)
 public class Util: NSObject {
     @objc internal static let shared = Util()
@@ -42,7 +50,7 @@ public class Util: NSObject {
         super.init()
         metaInfo = [
             "platformIdentifier": platformIdentifier,
-            "sdkIdentifier": "SwiftClientSDK/v2.0.4",
+            "sdkIdentifier": "SwiftClientSDK/v2.1.0",
             "sdkCreator": "Online Payments",
             "screenSize": screenSize,
             "deviceBrand": "Apple",

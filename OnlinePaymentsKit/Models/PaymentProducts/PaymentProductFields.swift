@@ -10,6 +10,11 @@ public class PaymentProductFields: NSObject {
 
     @objc public var paymentProductFields = [PaymentProductField]()
 
+    @available(*, deprecated, message: "In a future release, this initializer will become internal to the SDK.")
+    @objc public override init() {
+        super.init()
+    }
+
     @objc public func sort() {
         paymentProductFields = paymentProductFields.sorted {
             let displayOrder0 = $0.displayHints.displayOrder

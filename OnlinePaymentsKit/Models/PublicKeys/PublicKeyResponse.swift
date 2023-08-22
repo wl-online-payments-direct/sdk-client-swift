@@ -11,6 +11,7 @@ public class PublicKeyResponse: NSObject {
     @objc public var keyId: String
     @objc public var encodedPublicKey: String
 
+    @available(*, deprecated, message: "In a future release, this initializer will become internal to the SDK.")
     @objc public init(keyId: String, encodedPublicKey: String) {
         self.keyId = keyId
         self.encodedPublicKey = encodedPublicKey

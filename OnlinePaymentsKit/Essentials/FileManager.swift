@@ -6,6 +6,7 @@
 
 import UIKit
 
+@available(*, deprecated, message: "In a future release, this class and its functions will become internal to the SDK.")
 @objc public class FileManager: NSObject {
     @objc public func dict(atPath path: String) -> NSDictionary? {
         return NSDictionary(contentsOfFile: path)

@@ -11,10 +11,12 @@ public class PaymentProduct: BasicPaymentProduct, PaymentItem {
 
     @objc public var fields: PaymentProductFields = PaymentProductFields()
 
+    @available(*, deprecated, message: "In a future release, this initializer will become internal to the SDK.")
     @objc public override init() {
         super.init()
     }
 
+    @available(*, deprecated, message: "In a future release, this initializer will become internal to the SDK.")
     @objc public required init?(json: [String: Any]) {
         super.init(json: json)
 

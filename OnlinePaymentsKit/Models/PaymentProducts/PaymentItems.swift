@@ -30,21 +30,25 @@ public class PaymentItems: NSObject {
         return accountsOnFile
     }
 
-    @objc public init(products: BasicPaymentProducts, groups: BasicPaymentProductGroups?) {
+    @available(*, deprecated, message: "In a future release, this initializer will become internal to the SDK.")
+    @objc(initWithPaymentProducts:groups:)
+    public init(products: BasicPaymentProducts, groups: BasicPaymentProductGroups?) {
         super.init()
         paymentItems = createPaymentItemsFromProducts(products: products, groups: groups)
         allPaymentItems = products.paymentProducts
     }
 
     // TODO: SMBO-96367 - Parameter 'groups' is unused
-    @objc public func createPaymentItemsFromProducts(
+    @objc(createPaymentItemsFromProducts:groups:)
+    public func createPaymentItemsFromProducts(
         products: BasicPaymentProducts,
         groups: BasicPaymentProductGroups?
     ) -> [BasicPaymentItem] {
         return products.paymentProducts
     }
 
-    @objc public func logoPath(forItem identifier: String) -> String? {
+    @objc(logoPathForPaymentItem:)
+    public func logoPath(forItem identifier: String) -> String? {
         guard let item = paymentItem(withIdentifier: identifier) else {
             return nil
         }

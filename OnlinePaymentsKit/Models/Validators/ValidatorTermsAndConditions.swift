@@ -8,11 +8,13 @@ import Foundation
 
 @objc(OPValidatorTermsAndConditions)
 public class ValidatorTermsAndConditions: Validator {
+    @available(*, deprecated, message: "In a future release, this initializer will become internal to the SDK.")
     @objc public override init() {
         super.init()
     }
 
-    @objc public override func validate(value: String, for request: PaymentRequest) {
+    @objc(validate:forPaymentRequest:)
+    public override func validate(value: String, for request: PaymentRequest) {
         super.validate(value: value, for: request)
         if !(Bool(value) ?? false) {
             let error = ValidationErrorTermsAndConditions()

@@ -3,10 +3,17 @@
 // This software code is created for Online Payments on 16/07/2020
 // Copyright © 2020 Global Collect Services. All rights reserved.
 //
-// swiftlint:disable identifier_name
 
 import Foundation
 
+@available(
+    *,
+    deprecated,
+    message:
+        """
+        In a future release, this class, its functions and its properties will become internal to the SDK.
+        """
+)
 @objc(OPJOSEEncryptor)
 public class JOSEEncryptor: NSObject {
     @objc public var encryptor = Encryptor()
@@ -17,12 +24,14 @@ public class JOSEEncryptor: NSObject {
         self.encryptor = encryptor
     }
 
-    @objc public func generateProtectedHeader(withKey keyId: String) -> String {
+    @objc(generateProtectedHeader:)
+    public func generateProtectedHeader(withKey keyId: String) -> String {
         let header = "{\"alg\":\"RSA-OAEP\", \"enc\":\"A256CBC-HS512\", \"kid\":\"\(keyId)\"}"
         return header
     }
 
-    @objc public func encryptToCompactSerialization(
+    @objc(encryptToCompactSerialization:withPublicKey:keyId:)
+    public func encryptToCompactSerialization(
         JSON: String,
         withPublicKey publicKey: SecKey,
         keyId: String
@@ -48,7 +57,9 @@ public class JOSEEncryptor: NSObject {
         guard let additionalAuthenticatedData = encodedProtectedHeader.data(using: String.Encoding.ascii) else {
             return ""
         }
+        // swiftlint:disable identifier_name
         let AL = computeAL(forData: additionalAuthenticatedData)
+        // swiftlint:enable identifier_name
 
         guard let ciphertext =
                 encryptor.encryptAES(
@@ -76,7 +87,8 @@ public class JOSEEncryptor: NSObject {
         return concatenatedComponents
     }
 
-    @objc public func decryptFromCompactSerialization(JOSE: String, withPrivateKey privateKey: SecKey) -> String {
+    @objc(decryptFromCompactSerialization:withPrivateKey:)
+    public func decryptFromCompactSerialization(JOSE: String, withPrivateKey privateKey: SecKey) -> String {
         let components = JOSE.components(separatedBy: ".")
         let decodedProtectedHeader = String(data: components[0].base64URLDecode(),
                                             encoding: String.Encoding.utf8)
@@ -97,7 +109,9 @@ public class JOSEEncryptor: NSObject {
         guard let additionalAuthenticatedData = components[0].data(using: String.Encoding.ascii) else {
             return ""
         }
+        // swiftlint:disable identifier_name
         let AL = computeAL(forData: additionalAuthenticatedData)
+        // swiftlint:enable identifier_name
 
         var authenticationData = additionalAuthenticatedData
         authenticationData.append(initializationVector)
@@ -120,10 +134,13 @@ public class JOSEEncryptor: NSObject {
         return decrypted
     }
 
-    @objc public func computeAL(forData data: Data) -> Data {
+    @objc(computeAL:)
+    public func computeAL(forData data: Data) -> Data {
         var lengthInBits = data.count * 8
+        // swiftlint:disable identifier_name
         var AL = Data(bytes: &lengthInBits, count: MemoryLayout<Int>.size)
         AL.reverse()
         return AL
+        // swiftlint:enable identifier_name
     }
 }

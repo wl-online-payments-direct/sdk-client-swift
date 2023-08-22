@@ -9,6 +9,7 @@ import Foundation
 @objc(OPDisplayElement)
 public class DisplayElement: NSObject, ResponseObjectSerializable {
 
+    @available(*, deprecated, message: "In a future release, this initializer will become internal to the SDK.")
     @objc public required init?(json: [String: Any]) {
 
         guard let id = json["id"]  as? String else {

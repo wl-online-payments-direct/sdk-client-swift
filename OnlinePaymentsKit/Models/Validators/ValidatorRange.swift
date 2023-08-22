@@ -12,11 +12,13 @@ public class ValidatorRange: Validator, ResponseObjectSerializable {
     @objc public var maxValue = 0
     @objc public var formatter = NumberFormatter()
 
+    @available(*, deprecated, message: "In a future release, this initializer will become internal to the SDK.")
     public init(minValue: Int?, maxValue: Int?) {
         self.minValue = minValue ?? 0
         self.maxValue = maxValue ?? 0
     }
 
+    @available(*, deprecated, message: "In a future release, this initializer will become internal to the SDK.")
     @objc required public init(json: [String: Any]) {
         if let input = json["maxValue"] as? Int {
             maxValue = input
@@ -26,7 +28,8 @@ public class ValidatorRange: Validator, ResponseObjectSerializable {
         }
     }
 
-    @objc public override func validate(value: String, for request: PaymentRequest) {
+    @objc(validate:forPaymentRequest:)
+    public override func validate(value: String, for request: PaymentRequest) {
         super.validate(value: value, for: request)
 
         let error = ValidationErrorRange()

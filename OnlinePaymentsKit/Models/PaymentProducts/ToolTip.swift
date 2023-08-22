@@ -13,6 +13,7 @@ public class ToolTip: NSObject, ResponseObjectSerializable {
     @objc public var image: UIImage?
     @objc public var label: String?
 
+    @available(*, deprecated, message: "In a future release, this initializer will become internal to the SDK.")
     @objc required public init(json: [String: Any]) {
         imagePath = json["image"] as? String
         if let input = json["label"] as? String {

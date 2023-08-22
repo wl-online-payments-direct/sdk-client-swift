@@ -14,12 +14,13 @@ class SessionTestCase: XCTestCase {
     let host = "example.com"
 
     var session =
-        Session(
+        StubSession(
             clientSessionId: "client-session-id",
             customerId: "customer-id",
             baseURL: "https://example.com/client/v1",
             assetBaseURL: "https://example.com/client/v1",
-            appIdentifier: ""
+            appIdentifier: "",
+            loggingEnabled: false
         )
     let context =
         PaymentContext(
@@ -30,9 +31,6 @@ class SessionTestCase: XCTestCase {
 
     override func setUp() {
         super.setUp()
-
-        session.assetManager.fileManager = StubFileManager()
-        session.assetManager.sdkBundle = StubBundle()
     }
 
     func testPaymentProductsForContext() {
@@ -45,7 +43,7 @@ class SessionTestCase: XCTestCase {
                         "displayHints": [
                             "displayOrder": 20,
                             "label": "Visa",
-                            "logo": "/templates/master/global/css/img/ppimages/pp_logo_1_v1.png"
+                            "logo": "https://example.com/templates/master/global/css/img/ppimages/pp_logo_1_v1.png"
                         ],
                         "id": 1,
                         "maxAmount": 1000000,
@@ -59,7 +57,7 @@ class SessionTestCase: XCTestCase {
                         "displayHints": [
                             "displayOrder": 19,
                             "label": "American Express",
-                            "logo": "/templates/master/global/css/img/ppimages/pp_logo_2_v1.png"
+                            "logo": "https://example.com/templates/master/global/css/img/ppimages/pp_logo_2_v1.png"
                         ],
                         "id": 2,
                         "maxAmount": 1000000,
@@ -73,7 +71,7 @@ class SessionTestCase: XCTestCase {
                         "displayHints": [
                             "displayOrder": 18,
                             "label": "MasterCard",
-                            "logo": "/templates/master/global/css/img/ppimages/pp_logo_3_v1.png"
+                            "logo": "https://example.com/templates/master/global/css/img/ppimages/pp_logo_3_v1.png"
                         ],
                         "id": 3,
                         "maxAmount": 1000000,
@@ -114,12 +112,12 @@ class SessionTestCase: XCTestCase {
                 "displayHints": [
                     "displayOrder": 0,
                     "label": "APPLEPAY",
-                    "logo": "/templates/master/global/css/img/ppimages/pp_logo_1_v1.png"
+                    "logo": "https://example.com/templates/master/global/css/img/ppimages/pp_logo_1_v1.png"
                 ],
                 "displayHintsList": [[
                     "displayOrder": 0,
                     "label": "APPLEPAY",
-                    "logo": "/templates/master/global/css/img/ppimages/pp_logo_1_v1.png"
+                    "logo": "https://example.com/templates/master/global/css/img/ppimages/pp_logo_1_v1.png"
                 ]],
                 "fields": [
                     [
@@ -197,7 +195,8 @@ class SessionTestCase: XCTestCase {
         XCTAssertEqual(product.displayHintsList.first?.displayOrder, 0, "Received product displayOrder not as expected")
         XCTAssertEqual(
             product.displayHintsList.first?.logoPath,
-            "/templates/master/global/css/img/ppimages/pp_logo_1_v1.png", "Received product logoPath not as expected"
+            "https://example.com/templates/master/global/css/img/ppimages/pp_logo_1_v1.png",
+            "Received product logoPath not as expected"
         )
 
         guard let field = product.fields.paymentProductFields.first else {
@@ -255,12 +254,12 @@ class SessionTestCase: XCTestCase {
                 "displayHints": [
                     "displayOrder": 20,
                     "label": "Visa",
-                    "logo": "/templates/master/global/css/img/ppimages/pp_logo_1_v1.png"
+                    "logo": "https://example.com/templates/master/global/css/img/ppimages/pp_logo_1_v1.png"
                 ],
                 "displayHintsList": [[
                     "displayOrder": 20,
                     "label": "Visa",
-                    "logo": "/templates/master/global/css/img/ppimages/pp_logo_1_v1.png"
+                    "logo": "https://example.com/templates/master/global/css/img/ppimages/pp_logo_1_v1.png"
                 ]],
                 "fields": [
                     [
@@ -293,7 +292,7 @@ class SessionTestCase: XCTestCase {
                             "preferredInputType": "IntegerKeyboard",
                             "tooltip": [
                                 "label": "Last 3 digits on the back of the card",
-                                "image": "/templates/master/global/css/img/ppimages/ppf_cvv_v1.png"
+                                "image": "https://example.com/templates/master/global/css/img/ppimages/ppf_cvv_v1.png"
                             ]
                         ],
                         "id": "cardNumber",
@@ -306,6 +305,17 @@ class SessionTestCase: XCTestCase {
                 "paymentMethod": "card",
                 "paymentProductGroup": "cards"
                 ] as [String: Any]
+            return
+                HTTPStubsResponse(jsonObject: response, statusCode: 200, headers: ["Content-Type": "application/json"])
+        }
+
+        stub(
+            condition: isHost(host) &&
+            isPath("/templates/master/global/css/img/ppimages/ppf_cvv_v1.png") &&
+            isMethodGET()
+        ) { _ in
+            let response = [
+                "allowsRecurring": true] as [String: Any]
             return
                 HTTPStubsResponse(jsonObject: response, statusCode: 200, headers: ["Content-Type": "application/json"])
         }
@@ -327,15 +337,12 @@ class SessionTestCase: XCTestCase {
                 self.check(paymentProduct: cachedProduct)
 
                 // Check initializeImages
-                XCTAssertEqual(product.displayHintsList.first?.logoImage?.accessibilityLabel, "logoStubResponse")
+                XCTAssertNotNil(product.displayHintsList.first?.logoImage)
                 for index in 0..<product.fields.paymentProductFields.count {
                     let field = product.fields.paymentProductFields[index]
 
                     if field.displayHints.tooltip?.imagePath != nil {
-                        XCTAssertEqual(
-                            field.displayHints.tooltip?.image?.accessibilityLabel,
-                            "tooltipStubResponse-\(field.identifier)"
-                        )
+                        XCTAssertNotNil(field.displayHints.tooltip?.image)
                     }
                 }
                 expectation.fulfill()
@@ -362,7 +369,7 @@ class SessionTestCase: XCTestCase {
         )
         XCTAssertEqual(
             product.displayHintsList.first?.logoPath,
-            "/templates/master/global/css/img/ppimages/pp_logo_1_v1.png",
+            "https://example.com/templates/master/global/css/img/ppimages/pp_logo_1_v1.png",
             "Received product logoPath not as expected"
         )
 

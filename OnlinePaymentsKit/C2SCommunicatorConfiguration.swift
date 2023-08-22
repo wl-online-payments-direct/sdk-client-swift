@@ -6,6 +6,14 @@
 
 import Foundation
 
+@available(
+    *,
+    deprecated,
+    message:
+        """
+        In a future release, this class, its functions and its properties will become internal to the SDK.
+        """
+)
 @objc(OPC2SCommunicatorConfiguration)
 public class C2SCommunicatorConfiguration: NSObject {
     internal let clientSessionId: String
@@ -14,6 +22,7 @@ public class C2SCommunicatorConfiguration: NSObject {
     internal let appIdentifier: String
     internal let ipAddress: String?
     internal let assetsBaseURL: String
+    internal var loggingEnabled: Bool = false
 
     private var _baseURL: String
         var baseURL: String {
@@ -26,7 +35,8 @@ public class C2SCommunicatorConfiguration: NSObject {
         baseURL: String,
         assetBaseURL: String,
         appIdentifier: String,
-        util: Util? = nil
+        util: Util? = nil,
+        loggingEnabled: Bool = false
     ) {
         self.clientSessionId = clientSessionId
         self.customerId = customerId
@@ -35,7 +45,9 @@ public class C2SCommunicatorConfiguration: NSObject {
         self.ipAddress = nil
         self._baseURL = baseURL
         self.assetsBaseURL = assetBaseURL
+        self.loggingEnabled = loggingEnabled
     }
+
     @objc public init(
         clientSessionId: String,
         customerId: String,
@@ -43,7 +55,8 @@ public class C2SCommunicatorConfiguration: NSObject {
         assetBaseURL: String,
         appIdentifier: String,
         ipAddress: String?,
-        util: Util? = nil
+        util: Util? = nil,
+        loggingEnabled: Bool = false
     ) {
         self.clientSessionId = clientSessionId
         self.customerId = customerId
@@ -52,6 +65,7 @@ public class C2SCommunicatorConfiguration: NSObject {
         self.ipAddress = ipAddress
         self._baseURL = baseURL
         self.assetsBaseURL = assetBaseURL
+        self.loggingEnabled = loggingEnabled
     }
 
     private func fixURL(url: String) -> String? {

@@ -12,6 +12,7 @@ public class PreparedPaymentRequest: NSObject {
     @objc public var encryptedFields: String
     @objc public var encodedClientMetaInfo: String
 
+    @available(*, deprecated, message: "In a future release, this initializer will become internal to the SDK.")
     @objc init(encryptedFields: String, encodedClientMetaInfo mediaInfo: String) {
         self.encryptedFields = encryptedFields
         self.encodedClientMetaInfo = mediaInfo

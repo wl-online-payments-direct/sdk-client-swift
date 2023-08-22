@@ -10,4 +10,9 @@ import Foundation
 public class AccountOnFileDisplayHints: NSObject {
 
     @objc public var labelTemplate: LabelTemplate = LabelTemplate()
+
+    @available(*, deprecated, message: "In a future release, this initializer will become internal to the SDK.")
+    @objc public override init() {
+        super.init()
+    }
 }

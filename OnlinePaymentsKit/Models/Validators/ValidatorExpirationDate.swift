@@ -12,13 +12,15 @@ public class ValidatorExpirationDate: Validator {
     private var fullYearDateFormatter = DateFormatter()
     private var monthAndFullYearDateFormatter = DateFormatter()
 
+    @available(*, deprecated, message: "In a future release, this initializer will become internal to the SDK.")
     @objc public override init() {
         dateFormatter.dateFormat = "MMyy"
         fullYearDateFormatter.dateFormat = "yyyy"
         monthAndFullYearDateFormatter.dateFormat = "MMyyyy"
     }
 
-    @objc public override func validate(value: String, for request: PaymentRequest) {
+    @objc(validate:forPaymentRequest:)
+    public override func validate(value: String, for request: PaymentRequest) {
         super.validate(value: value, for: request)
 
         // Test whether the date can be parsed normally

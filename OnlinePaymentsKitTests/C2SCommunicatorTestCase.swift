@@ -185,8 +185,8 @@ class C2SCommunicatorTestCase: XCTestCase {
                 "keyId": "86b64e4e-f43e-4a27-9863-9bbd5b499f82",
                 // swiftlint:disable line_length
                 "publicKey": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAkiJlGL1QjUnGDLpMNBtZPYVtOU121jfFcV4WrZayfw9Ib/1AtPBHP/0ZPocdA23zDh6aB+QiOQEkHZlfnelBNnEzEu4ibda3nDdjSrKveSiQPyB5X+u/IS3CR48B/g4QJ+mcMV9hoFt6Hx3R99A0HWMs4um8elQsgB11MsLmGb1SuLo0S1pgL3EcckXfBDNMUBMQ9EtLC9zQW6Y0kx6GFXHgyjNb4yixXfjo194jfhei80sVQ49Y/SHBt/igATGN1l18IBDtO0eWmWeBckwbNkpkPLAvJfsfa3JpaxbXwg3rTvVXLrIRhvMYqTsQmrBIJDl7F6igPD98Y1FydbKe5QIDAQAB"
-
                 ]
+                // swiftlint:enable line_length
             return
                 HTTPStubsResponse(jsonObject: response, statusCode: 200, headers: ["Content-Type": "application/json"])
         }
@@ -202,7 +202,9 @@ class C2SCommunicatorTestCase: XCTestCase {
                     "86b64e4e-f43e-4a27-9863-9bbd5b499f82",
                     "Received keyId not as expected"
                 )
+                // swiftlint:disable line_length
                 XCTAssertEqual(publicKeyResponse.encodedPublicKey, "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAkiJlGL1QjUnGDLpMNBtZPYVtOU121jfFcV4WrZayfw9Ib/1AtPBHP/0ZPocdA23zDh6aB+QiOQEkHZlfnelBNnEzEu4ibda3nDdjSrKveSiQPyB5X+u/IS3CR48B/g4QJ+mcMV9hoFt6Hx3R99A0HWMs4um8elQsgB11MsLmGb1SuLo0S1pgL3EcckXfBDNMUBMQ9EtLC9zQW6Y0kx6GFXHgyjNb4yixXfjo194jfhei80sVQ49Y/SHBt/igATGN1l18IBDtO0eWmWeBckwbNkpkPLAvJfsfa3JpaxbXwg3rTvVXLrIRhvMYqTsQmrBIJDl7F6igPD98Y1FydbKe5QIDAQAB", "Received publicKey not as expected")
+                // swiftlint:enable line_length
             },
             failure: { (error) in
                 XCTFail("Unexpected failure while testing publicKey: \(error.localizedDescription)")
@@ -400,7 +402,10 @@ class C2SCommunicatorTestCase: XCTestCase {
             },
             failure: { (error) in
                 XCTFail(
-                    "Unexpected failure while testing paymentProductWithIdPartialCreditCard: \(error.localizedDescription)"
+                    """
+                    Unexpected failure while testing
+                    paymentProductWithIdPartialCreditCard: \(error.localizedDescription)
+                    """
                 )
             }
         )

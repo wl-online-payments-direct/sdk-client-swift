@@ -9,7 +9,13 @@ import Foundation
 @objc(OPValidatorLuhn)
 public class ValidatorLuhn: Validator {
 
-    @objc public override func validate (value: String, for request: PaymentRequest) {
+    @available(*, deprecated, message: "In a future release, this initializer will become internal to the SDK.")
+    @objc public override init() {
+        super.init()
+    }
+
+    @objc(validate:forPaymentRequest:)
+    public override func validate(value: String, for request: PaymentRequest) {
         super.validate(value: value, for: request)
 
         var evenSum = 0

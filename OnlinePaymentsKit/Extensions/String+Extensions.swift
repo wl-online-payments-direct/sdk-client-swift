@@ -6,6 +6,7 @@
 
 import Foundation
 
+@available(*, deprecated, message: "In a future release, this extension will become internal to the SDK.")
 extension String {
 
     subscript (index: Int) -> String {

@@ -11,4 +11,8 @@ public class PaymentProductNetworks: NSObject {
 
     @objc public var paymentProductNetworks = [PKPaymentNetwork]()
 
+    @available(*, deprecated, message: "In a future release, this initializer will become internal to the SDK.")
+    @objc public override init() {
+        super.init()
+    }
 }

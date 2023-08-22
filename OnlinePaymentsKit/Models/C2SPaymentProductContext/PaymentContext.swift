@@ -11,11 +11,12 @@ public class PaymentContext: NSObject {
     @available(
         *,
         deprecated,
-        message: "Use countryCodeString instead. In a future release this field will become 'String' type."
+        message: "Use countryCodeString instead. In a future release, this field will become 'String' type."
     )
     public var countryCode: CountryCode
     @objc public var countryCodeString: String
     @objc public var locale = String()
+    @available(*, deprecated, message: "In a future release, this field will be removed.")
     @objc public var forceBasicFlow = false
     @objc public var amountOfMoney: PaymentAmountOfMoney
     @objc public var isRecurring: Bool
@@ -32,7 +33,8 @@ public class PaymentContext: NSObject {
     ///   - countryCode: The Country Code of the Country where the transaction will take place.
     ///                  The provided code should match the ISO-3166-alpha-2 standard.
     ///                  See [ISO 3166 Country Codes](https://www.iso.org/iso-3166-country-codes.html) .
-    @objc public init(amountOfMoney: PaymentAmountOfMoney, isRecurring: Bool, countryCode: String) {
+    @objc(initWithAmountOfMoney:isRecurring:countryCode:)
+    public init(amountOfMoney: PaymentAmountOfMoney, isRecurring: Bool, countryCode: String) {
         self.amountOfMoney = amountOfMoney
         self.isRecurring = isRecurring
         self.countryCode = CountryCode.init(rawValue: countryCode) ?? .UNKNOWN

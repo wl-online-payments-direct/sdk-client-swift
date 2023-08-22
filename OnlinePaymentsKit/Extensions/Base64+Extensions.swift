@@ -6,6 +6,7 @@
 
 import Foundation
 
+@available(*, deprecated, message: "In a future release, this extension will become internal to the SDK.")
 extension Data {
     public func base64URLEncode() -> String {
         return encode()

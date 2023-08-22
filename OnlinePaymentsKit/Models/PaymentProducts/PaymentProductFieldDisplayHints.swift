@@ -20,6 +20,7 @@ public class PaymentProductFieldDisplayHints: NSObject, ResponseObjectSerializab
     @objc public var link: URL?
     @objc public var preferredInputType: PreferredInputType = .noKeyboard
 
+    @available(*, deprecated, message: "In a future release, this initializer will become internal to the SDK.")
     @objc required public init?(json: [String: Any]) {
         guard let input = json["formElement"] as? [String: Any],
             let formElement = FormElement(json: input) else {

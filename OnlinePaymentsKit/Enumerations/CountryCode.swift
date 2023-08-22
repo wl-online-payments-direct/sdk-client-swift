@@ -280,3 +280,4 @@ public enum CountryCode: String {
             VG, VI, WF, EH, YE, ZM, ZW
         ]
 }
+// swiftlint:enable identifier_name

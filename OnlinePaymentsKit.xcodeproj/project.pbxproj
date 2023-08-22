@@ -16,9 +16,10 @@
 		7BCE527D28BCEA76003E22B1 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = 7BCE527C28BCEA76003E22B1 /* Alamofire */; };
 		7BCE528028BCEA85003E22B1 /* CryptoSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 7BCE527F28BCEA85003E22B1 /* CryptoSwift */; };
 		7BCE528628BCEB4C003E22B1 /* OHHTTPStubsSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 7BCE528528BCEB4C003E22B1 /* OHHTTPStubsSwift */; };
+		7BE533042A1CF56000A4E344 /* StubFileManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BE533032A1CF56000A4E344 /* StubFileManager.swift */; };
 		F7027A5F24C08B0300DAE78D /* AlamofireWrapperTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7027A5E24C08B0300DAE78D /* AlamofireWrapperTestCase.swift */; };
 		F7027A6324C08BA000DAE78D /* StubBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7027A6224C08BA000DAE78D /* StubBundle.swift */; };
-		F7027A6524C08BB800DAE78D /* StubFileManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7027A6424C08BB800DAE78D /* StubFileManager.swift */; };
+		F7027A6524C08BB800DAE78D /* StubSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7027A6424C08BB800DAE78D /* StubSession.swift */; };
 		F7027A6724C08C1200DAE78D /* EncryptorTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7027A6624C08C1200DAE78D /* EncryptorTestCase.swift */; };
 		F7027A6924C08C7200DAE78D /* Base64TestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7027A6824C08C7200DAE78D /* Base64TestCase.swift */; };
 		F7027A6B24C08CFC00DAE78D /* StringFormatterTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7027A6A24C08CFC00DAE78D /* StringFormatterTestCase.swift */; };
@@ -157,9 +158,10 @@
 		7B9A722328B60D33004EF8C2 /* CryptoSwift.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = CryptoSwift.xcframework; path = Carthage/Build/CryptoSwift.xcframework; sourceTree = "<group>"; };
 		7B9A722428B60D33004EF8C2 /* OHHTTPStubs.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = OHHTTPStubs.xcframework; path = Carthage/Build/OHHTTPStubs.xcframework; sourceTree = "<group>"; };
 		7BBE950B2930D70000105564 /* OnlinePaymentsKit.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; name = OnlinePaymentsKit.bundle; path = OnlinePaymentsKit/Resources/OnlinePaymentsKit.bundle; sourceTree = "<group>"; };
+		7BE533032A1CF56000A4E344 /* StubFileManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StubFileManager.swift; sourceTree = "<group>"; };
 		F7027A5E24C08B0300DAE78D /* AlamofireWrapperTestCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlamofireWrapperTestCase.swift; sourceTree = "<group>"; };
 		F7027A6224C08BA000DAE78D /* StubBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StubBundle.swift; sourceTree = "<group>"; };
-		F7027A6424C08BB800DAE78D /* StubFileManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StubFileManager.swift; sourceTree = "<group>"; };
+		F7027A6424C08BB800DAE78D /* StubSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StubSession.swift; sourceTree = "<group>"; };
 		F7027A6624C08C1200DAE78D /* EncryptorTestCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EncryptorTestCase.swift; sourceTree = "<group>"; };
 		F7027A6824C08C7200DAE78D /* Base64TestCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Base64TestCase.swift; sourceTree = "<group>"; };
 		F7027A6A24C08CFC00DAE78D /* StringFormatterTestCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringFormatterTestCase.swift; sourceTree = "<group>"; };
@@ -382,7 +384,8 @@
 			isa = PBXGroup;
 			children = (
 				F7027A6224C08BA000DAE78D /* StubBundle.swift */,
-				F7027A6424C08BB800DAE78D /* StubFileManager.swift */,
+				F7027A6424C08BB800DAE78D /* StubSession.swift */,
+				7BE533032A1CF56000A4E344 /* StubFileManager.swift */,
 			);
 			path = Stubs;
 			sourceTree = "<group>";
@@ -953,7 +956,7 @@
 				F7027AA224C09AE700DAE78D /* PaymentAmountOfMoneyTestCase.swift in Sources */,
 				F7027A9C24C09A2200DAE78D /* PaymentProductGroupTestCase.swift in Sources */,
 				F74A8CA924C1890D00FEE8F1 /* SessionTestCase.swift in Sources */,
-				F7027A6524C08BB800DAE78D /* StubFileManager.swift in Sources */,
+				F7027A6524C08BB800DAE78D /* StubSession.swift in Sources */,
 				F7027A7D24C08F1D00DAE78D /* ValidatorExpirationDateTestCase.swift in Sources */,
 				F7027A6924C08C7200DAE78D /* Base64TestCase.swift in Sources */,
 				F7027AA524C09B3500DAE78D /* AccountOnFileAttributesTestCase.swift in Sources */,
@@ -963,6 +966,7 @@
 				F7027A6724C08C1200DAE78D /* EncryptorTestCase.swift in Sources */,
 				F74A8CA324C187F700FEE8F1 /* AssetManagerTestCase.swift in Sources */,
 				F7027A8124C08F7200DAE78D /* ValidatorLengthTestCase.swift in Sources */,
+				7BE533042A1CF56000A4E344 /* StubFileManager.swift in Sources */,
 				F7027AAB24C09C9C00DAE78D /* ValueMappingItemTestCase.swift in Sources */,
 				F7027A8724C0904500DAE78D /* ValidatorRegularExpressionTestCase.swift in Sources */,
 				F74A8CAB24C1895500FEE8F1 /* UtilTestCase.swift in Sources */,

@@ -12,6 +12,7 @@ public class LabelTemplateItem: NSObject, ResponseObjectSerializable {
     @objc public var attributeKey: String
     @objc public var mask: String?
 
+    @available(*, deprecated, message: "In a future release, this initializer will become internal to the SDK.")
     @objc required public init?(json: [String: Any]) {
         guard let attributeKey = json["attributeKey"] as? String else {
             return nil

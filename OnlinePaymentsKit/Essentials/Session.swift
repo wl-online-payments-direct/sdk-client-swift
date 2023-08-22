@@ -9,26 +9,63 @@ import UIKit
 
 @objc(OPSession)
 public class Session: NSObject {
+    @available(*, deprecated, message: "In a future release, this property will become internal to the SDK.")
     @objc public var communicator: C2SCommunicator
+    @available(
+        *,
+         deprecated,
+         message:
+            """
+            In a future release this property will be removed.
+            Instead retrieve logos / tooltip images by accessing the PaymentItem.
+            """
+    )
     @objc public var assetManager: AssetManager
+    @available(*, deprecated, message: "In a future release, this property will become internal to the SDK.")
     @objc public var encryptor: Encryptor
-    @objc public var joseEncryptor: JOSEEncryptor
+    @available(*, deprecated, message: "In a future release, this property will become internal to the SDK.")
+    @objc(JOSEEncryptor)
+    public var joseEncryptor: JOSEEncryptor
+    @available(*, deprecated, message: "In a future release, this property will become internal to the SDK.")
     @objc public var stringFormatter: StringFormatter
 
+    @available(*, deprecated, message: "In a future release, this property will become internal to the SDK.")
     @objc public var paymentProducts = BasicPaymentProducts()
 
+    @available(*, deprecated, message: "In a future release, this property will become internal to the SDK.")
     @objc public var paymentProductMapping = [AnyHashable: Any]()
 
+    @available(*, deprecated, message: "In a future release, this property will become internal to the SDK.")
     @objc public var baseURL: String {
         return communicator.baseURL
     }
 
+    @available(*, deprecated, message: "In a future release, this property will become internal to the SDK.")
     @objc public var assetsBaseURL: String {
         return communicator.assetsBaseURL
     }
 
+    @available(*, deprecated, message: "In a future release, this property will become internal to the SDK.")
     @objc public var iinLookupPending = false
 
+    @objc public var loggingEnabled: Bool {
+        get {
+            return communicator.loggingEnabled
+        }
+        set {
+            communicator.configuration.loggingEnabled = newValue
+        }
+    }
+
+    @available(
+        *,
+        deprecated,
+        message:
+            """
+            In a future release, this initializer will be removed.
+            Use init(String:String:String:String:String:) or init(String:String:String:String:String:Bool:) instead
+            """
+    )
     @objc public init(
         communicator: C2SCommunicator,
         assetManager: AssetManager,
@@ -43,12 +80,35 @@ public class Session: NSObject {
         self.stringFormatter = stringFormatter
     }
 
+    @available(
+        *,
+        deprecated,
+        message:
+            """
+            In a future release, this initializer will become internal to the SDK.
+            Use init(String:String:String:String:String:) or init(String:String:String:String:String:Bool:) instead
+            """
+    )
+    @objc public init(
+        communicator: C2SCommunicator,
+        encryptor: Encryptor,
+        JOSEEncryptor: JOSEEncryptor,
+        stringFormatter: StringFormatter
+    ) {
+        self.communicator = communicator
+        self.assetManager = AssetManager()
+        self.encryptor = encryptor
+        self.joseEncryptor = JOSEEncryptor
+        self.stringFormatter = stringFormatter
+    }
+
     @objc public init(
         clientSessionId: String,
         customerId: String,
         baseURL: String,
         assetBaseURL: String,
-        appIdentifier: String
+        appIdentifier: String,
+        loggingEnabled: Bool = false
     ) {
         let assetManager = AssetManager()
         let stringFormatter = StringFormatter()
@@ -57,7 +117,8 @@ public class Session: NSObject {
                                                          customerId: customerId,
                                                          baseURL: baseURL,
                                                          assetBaseURL: assetBaseURL,
-                                                         appIdentifier: appIdentifier)
+                                                         appIdentifier: appIdentifier,
+                                                         loggingEnabled: loggingEnabled)
         let communicator = C2SCommunicator(configuration: configuration)
         let jsonEncryptor = JOSEEncryptor(encryptor: encryptor)
 
@@ -73,7 +134,8 @@ public class Session: NSObject {
         customerId: String,
         baseURL: String,
         assetBaseURL: String,
-        appIdentifier: String
+        appIdentifier: String,
+        loggingEnabled: Bool = false
     ) -> Session {
         return
             Session.init(
@@ -81,11 +143,13 @@ public class Session: NSObject {
                 customerId: customerId,
                 baseURL: baseURL,
                 assetBaseURL: assetBaseURL,
-                appIdentifier: appIdentifier
+                appIdentifier: appIdentifier,
+                loggingEnabled: loggingEnabled
             )
     }
 
-    @objc public func paymentProducts(
+    @objc(paymentProductsForContext:success:failure:)
+    public func paymentProducts(
         for context: PaymentContext,
         success: @escaping (_ paymentProducts: BasicPaymentProducts) -> Void,
         failure: @escaping (_ error: Error) -> Void
@@ -93,7 +157,6 @@ public class Session: NSObject {
         communicator.paymentProducts(forContext: context, success: { paymentProducts in
             self.paymentProducts = paymentProducts
             self.paymentProducts.stringFormatter = self.stringFormatter
-            self.assetManager.initializeImages(for: paymentProducts.paymentProducts)
             self.setLogoForPaymentItems(for: paymentProducts.paymentProducts) {
                 success(paymentProducts)
             }
@@ -133,7 +196,6 @@ public class Session: NSObject {
             }
             self.paymentProducts = paymentProducts
             self.paymentProducts.stringFormatter = self.stringFormatter
-            self.assetManager.initializeImages(for: paymentProducts.paymentProducts)
             self.setLogoForPaymentItems(for: paymentProducts.paymentProducts) {
                 let items = PaymentItems(products: paymentProducts, groups: nil)
                 success(items)
@@ -154,7 +216,7 @@ public class Session: NSObject {
         } else {
             communicator.paymentProduct(withIdentifier: paymentProductId, context: context, success: { paymentProduct in
                 self.paymentProductMapping[key] = paymentProduct
-                self.assetManager.initializeImages(for: paymentProduct)
+                self.setTooltipImages(for: paymentProduct) {}
                 self.setLogoForDisplayHints(for: paymentProduct.displayHints) {}
                 self.setLogoForDisplayHintsList(for: paymentProduct.displayHintsList) {
                     success(paymentProduct)
@@ -277,6 +339,7 @@ public class Session: NSObject {
         return communicator.clientSessionId
     }
 
+    @available(*, deprecated, message: "In a future release, this function will become internal to the SDK.")
     @objc public func keyValuePairs(from dictionary: [String: String]) -> [[String: String]] {
         var keyValuePairs = [[String: String]]()
         for (key, value) in  dictionary {
@@ -286,6 +349,7 @@ public class Session: NSObject {
         return keyValuePairs
     }
 
+    @available(*, deprecated, message: "In a future release, this function will become internal to the SDK.")
     @objc public func keyValueJSONFromDictionary(dictionary: [String: String]) -> String? {
         let keyValuePairs = self.keyValuePairs(from: dictionary)
         guard let JSONAsData = try? JSONSerialization.data(withJSONObject: keyValuePairs) else {
@@ -317,7 +381,7 @@ public class Session: NSObject {
     }
 
     internal func setLogoForDisplayHints(for displayHints: PaymentItemDisplayHints, completion: @escaping() -> Void) {
-        assetManager.getLogoByStringURL(from: displayHints.logoPath) { data, _, error in
+        self.getLogoByStringURL(from: displayHints.logoPath) { data, _, error in
             if let imageData = data, error == nil {
                 displayHints.logoImage = UIImage(data: imageData)
             }
@@ -331,7 +395,7 @@ public class Session: NSObject {
     ) {
         var counter = 0
         for displayHint in displayHints {
-            assetManager.getLogoByStringURL(from: displayHint.logoPath) { data, _, error in
+            self.getLogoByStringURL(from: displayHint.logoPath) { data, _, error in
                 counter += 1
                 if let imageData = data, error == nil {
                     displayHint.logoImage = UIImage(data: imageData)
@@ -341,5 +405,41 @@ public class Session: NSObject {
                 }
             }
         }
+    }
+
+    private func setTooltipImages(for paymentItem: PaymentItem, completion: @escaping() -> Void) {
+        for field in paymentItem.fields.paymentProductFields {
+            guard let tooltip = field.displayHints.tooltip,
+                  let imagePath = tooltip.imagePath else { return }
+
+            self.getLogoByStringURL(from: imagePath) { data, _, error in
+                if let imageData = data, error == nil {
+                    tooltip.image = UIImage(data: imageData)
+                }
+            }
+        }
+    }
+
+    internal func getLogoByStringURL(
+        from url: String,
+        completion: @escaping (Data?, URLResponse?, Error?) -> Void
+    ) {
+        guard let encodedUrlString = url.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) else {
+            Macros.DLog(message: "Unable to decode URL for url string: \(url)")
+            completion(nil, nil, nil)
+            return
+        }
+
+        guard let encodedUrl = URL(string: encodedUrlString) else {
+            Macros.DLog(message: "Unable to create URL for url string: \(encodedUrlString)")
+            completion(nil, nil, nil)
+            return
+        }
+
+        URLSession.shared.dataTask(with: encodedUrl, completionHandler: {data, response, error in
+            DispatchQueue.main.async {
+                completion(data, response, error)
+            }
+        }).resume()
     }
 }

@@ -18,6 +18,18 @@ extension UserDefaults {
     }
 }
 
+@available(
+    *,
+    deprecated,
+     message:
+        """
+        In a future release this class, its functions and its properties will be removed.
+        Instead please retrieve the logo / tooltip image directly from the PaymentItem.
+        If an image is not available, or you wish to retrieve it again, you can retrieve it
+        from the logo's / tooltip image's URL that is also stored in the PaymentItem.
+        """
+)
+
 @objc(OPAssetManager)
 public class AssetManager: NSObject {
     @objc public let logoFormat = "pp_logo_%@"
@@ -90,17 +102,17 @@ public class AssetManager: NSObject {
         }
     }
 
-    @objc(updateImagesAsyncForPaymentItems:baseUrl:)
+    @objc(updateImagesForPaymentItemsAsynchronously:baseUrl:)
     public func updateImagesAsync(for paymentItems: [BasicPaymentItem], baseURL: String) {
         updateImagesAsync(for: paymentItems, baseURL: baseURL, nil)
     }
 
-    @objc(updateImagesAsyncForPaymentItem:baseUrl:)
+    @objc(updateImagesForPaymentItemAsynchronously:baseUrl:)
     public func updateImagesAsync(for paymentItem: BasicPaymentItem, baseURL: String) {
         updateImagesAsync(for: paymentItem, baseURL: baseURL, nil)
     }
 
-    @objc(updateImagesAsyncForPaymentItems:baseUrl:callback:)
+    @objc(updateImagesForPaymentItemsAsynchronously:baseUrl:callback:)
     public func updateImagesAsync(for paymentItems: [BasicPaymentItem], baseURL: String, _ callback: (() -> Void)?) {
         DispatchQueue.global().async {
             self.updateImages(for: paymentItems, baseURL: baseURL)
@@ -113,7 +125,7 @@ public class AssetManager: NSObject {
         }
     }
 
-    @objc(updateImagesAsyncForPaymentItem:baseUrl:callback:)
+    @objc(updateImagesForPaymentItemAsynchronously:baseUrl:callback:)
     public func updateImagesAsync(for paymentItem: BasicPaymentItem, baseURL: String, _ callback: (() -> Void)?) {
         DispatchQueue.global().async {
             self.updateImages(for: paymentItem, baseURL: baseURL)
@@ -199,7 +211,8 @@ public class AssetManager: NSObject {
         return image(forIdentifier: identifier)
     }
 
-    @objc public func tooltipImage(forItem paymentItemId: String, field paymentProductFieldId: String) -> UIImage {
+    @objc(tooltipImageForPaymentItem:field:)
+    public func tooltipImage(forItem paymentItemId: String, field paymentProductFieldId: String) -> UIImage {
         let identifier = String(format: self.tooltipFormat, paymentItemId, paymentProductFieldId)
         return image(forIdentifier: identifier)
     }
@@ -228,7 +241,8 @@ public class AssetManager: NSObject {
         return UIImage()
     }
 
-    @objc public func getLogoByStringURL(
+    @objc(getLogoByStringURL:callback:)
+    public func getLogoByStringURL(
         from url: String,
         completion: @escaping (Data?, URLResponse?, Error?) -> Void
     ) {

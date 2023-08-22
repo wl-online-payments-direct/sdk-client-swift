@@ -9,7 +9,12 @@ import Foundation
 @objc(OPAccountOnFileAttributes)
 public class AccountOnFileAttributes: NSObject {
 
-    @objc  public var attributes = [AccountOnFileAttribute]()
+    @objc public var attributes = [AccountOnFileAttribute]()
+
+    @available(*, deprecated, message: "In a future release, this initializer will become internal to the SDK.")
+    @objc public override init() {
+        super.init()
+    }
 
     @objc public func value(forField paymentProductFieldId: String) -> String {
         for attribute in attributes {
@@ -30,7 +35,8 @@ public class AccountOnFileAttributes: NSObject {
         return false
     }
 
-    @objc public func isReadOnly(field paymentProductFieldId: String?) -> Bool {
+    @objc(fieldIsReadOnly:)
+    public func isReadOnly(field paymentProductFieldId: String?) -> Bool {
         guard let field = paymentProductFieldId else {
             return false
         }

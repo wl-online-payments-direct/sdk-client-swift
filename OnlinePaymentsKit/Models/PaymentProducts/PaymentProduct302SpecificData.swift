@@ -10,6 +10,7 @@ import Foundation
 public class PaymentProduct302SpecificData: NSObject {
     @objc public var networks: [String] = []
 
+    @available(*, deprecated, message: "In a future release, this initializer will become internal to the SDK.")
     @objc public required init?(json: [String: Any]) {
         if let networks = json["networks"] as? [String] {
             self.networks = networks

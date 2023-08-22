@@ -11,6 +11,7 @@ public class FormElement: NSObject, ResponseObjectSerializable {
     @objc public var type: FormElementType
     @objc public var valueMapping = [ValueMappingItem]()
 
+    @available(*, deprecated, message: "In a future release, this initializer will become internal to the SDK.")
     @objc required public init?(json: [String: Any]) {
         switch json["type"] as? String {
         case "text"?:

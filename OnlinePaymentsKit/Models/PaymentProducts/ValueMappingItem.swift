@@ -13,6 +13,7 @@ public class ValueMappingItem: NSObject, ResponseObjectSerializable {
     @objc public var displayElements: [DisplayElement]
     @objc public var value: String
 
+    @available(*, deprecated, message: "In a future release, this initializer will become internal to the SDK.")
     @objc required public init?(json: [String: Any]) {
         guard let value = json["value"] as? String else {
             return nil

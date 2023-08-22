@@ -9,6 +9,7 @@ import Foundation
 public class ValidatorEmailAddress: Validator {
     @objc public var expression: NSRegularExpression
 
+    @available(*, deprecated, message: "In a future release, this initializer will become internal to the SDK.")
     @objc public override init() {
         let regex = "^[^@\\.]+(\\.[^@\\.]+)*@([^@\\.]+\\.)*[^@\\.]+\\.[^@\\.][^@\\.]+$"
 
@@ -18,7 +19,8 @@ public class ValidatorEmailAddress: Validator {
         expression = regex
     }
 
-    @objc public override func validate(value: String, for request: PaymentRequest) {
+    @objc(validate:forPaymentRequest:)
+    public override func validate(value: String, for request: PaymentRequest) {
         super.validate(value: value, for: request)
 
         let numberOfMatches = expression.numberOfMatches(in: value, range: NSRange(location: 0, length: value.count))

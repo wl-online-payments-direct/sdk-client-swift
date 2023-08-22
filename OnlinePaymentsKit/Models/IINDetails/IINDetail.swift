@@ -11,6 +11,7 @@ public class IINDetail: NSObject, ResponseObjectSerializable {
     @objc public var paymentProductId: String
     @objc(isAllowedInContext) public var allowedInContext: Bool = false
 
+    @available(*, deprecated, message: "In a future release, this initializer will become internal to the SDK.")
     @objc required public init?(json: [String: Any]) {
         if let input = json["paymentProductId"] as? Int {
             paymentProductId = "\(input)"
@@ -22,6 +23,7 @@ public class IINDetail: NSObject, ResponseObjectSerializable {
         }
     }
 
+    @available(*, deprecated, message: "In a future release, this initializer will become internal to the SDK.")
     @objc public init(paymentProductId: String, allowedInContext: Bool) {
         self.paymentProductId = paymentProductId
         self.allowedInContext = allowedInContext

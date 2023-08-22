@@ -6,6 +6,7 @@
 
 import Foundation
 
+@available(*, deprecated, message: "In a future release, this class and its functions will become internal to the SDK.")
 @objc public class Macros: NSObject {
     @objc public static func DLog(message: String, functionName: String = #function, fileName: String = #file) {
         #if DEBUG

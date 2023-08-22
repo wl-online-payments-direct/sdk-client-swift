@@ -3,11 +3,18 @@
 // This software code is created for Online Payments on 16/07/2020
 // Copyright © 2020 Global Collect Services. All rights reserved.
 //
-// swiftlint:disable function_parameter_count
 
 import Alamofire
 import Foundation
 
+@available(
+    *,
+    deprecated,
+    message:
+        """
+        In a future release, this class, its functions and its properties will become internal to the SDK.
+        """
+)
 public class AlamofireWrapper: NSObject {
 
     static let shared = AlamofireWrapper()
@@ -21,6 +28,7 @@ public class AlamofireWrapper: NSObject {
         }
     }
 
+    // swiftlint:disable function_parameter_count
     public func getResponse(forURL URL: String,
                             withParameters parameters: Parameters? = nil,
                             headers: HTTPHeaders?,
@@ -43,7 +51,10 @@ public class AlamofireWrapper: NSObject {
                     )
                     failure(error)
                 } else {
-                    success(response.value as? [String: Any])
+                    var responseObject = response.value as? [String: Any]
+                    responseObject?["statusCode"] = response.response?.statusCode
+
+                    success(responseObject)
                 }
         }
     }
@@ -70,8 +81,12 @@ public class AlamofireWrapper: NSObject {
                     )
                     failure(error)
                 } else {
-                    success(response.value as? [String: Any])
+                    var responseObject = response.value as? [String: Any]
+                    responseObject?["statusCode"] = response.response?.statusCode
+
+                    success(responseObject)
                 }
         }
     }
+    // swiftlint:enable function_parameter_count
 }

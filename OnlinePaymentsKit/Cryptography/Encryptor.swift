@@ -3,12 +3,12 @@
 // This software code is created for Online Payments on 16/07/2020
 // Copyright © 2020 Global Collect Services. All rights reserved.
 //
-// swiftlint:disable identifier_name
 
 import Foundation
 import CryptoSwift
 import Security
 
+@available(*, deprecated, message: "In a future release, this class and its functions will become internal to the SDK.")
 @objc(OPEncryptor)
 public class Encryptor: NSObject {
 
@@ -77,7 +77,8 @@ public class Encryptor: NSObject {
         return Data(encryptRSA(plaintext: buffer, publicKey: publicKey))
     }
 
-    @objc public func encryptRSA(plaintext: [UInt8], publicKey: SecKey) -> [UInt8] {
+    @objc(encryptRSA:key:)
+    public func encryptRSA(plaintext: [UInt8], publicKey: SecKey) -> [UInt8] {
 
         var cipherBufferSize = SecKeyGetBlockSize(publicKey)
         var cipherBuffer = [UInt8](repeating: 0, count: cipherBufferSize)
@@ -97,7 +98,8 @@ public class Encryptor: NSObject {
         return Data(decryptRSA(ciphertext: buffer, privateKey: privateKey))
     }
 
-    @objc public func decryptRSA(ciphertext: [UInt8], privateKey: SecKey) -> [UInt8] {
+    @objc(decryptRSA:key:)
+    public func decryptRSA(ciphertext: [UInt8], privateKey: SecKey) -> [UInt8] {
 
         var plainBufferSize = SecKeyGetBlockSize(privateKey)
         var plainBuffer = [UInt8](repeating: 0, count: plainBufferSize)
@@ -115,7 +117,8 @@ public class Encryptor: NSObject {
     // A PFX file suited to test the following methods can be generated with the following commands:
     // - openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout privateKey.key -out certificate.crt
     // - openssl pkcs12 -export -out certificate.pfx -inkey privatekey.key -in certificate.crt
-    @objc public func storeRSAKeyPairFromPFXData(
+    @objc(storeRSAKeyPairFromPFXData:password:publicTag:privateTag:)
+    public func storeRSAKeyPairFromPFXData(
         PFXData: NSData,
         password: String,
         publicTag: String, privateTag: String
@@ -180,7 +183,8 @@ public class Encryptor: NSObject {
         }
     }
 
-    @objc public func storeRSAKey(key: SecKey, tag: String) {
+    @objc(storeRSAKey:tag:)
+    public func storeRSAKey(key: SecKey, tag: String) {
         let keyAttr: NSDictionary = [
             kSecClass: kSecClassKey,
             kSecAttrApplicationTag: tag,
@@ -194,7 +198,8 @@ public class Encryptor: NSObject {
         }
     }
 
-    @objc public func storePublicKey(publicKey: Data, tag: String) {
+    @objc(storePublicKey:tag:)
+    public func storePublicKey(publicKey: Data, tag: String) {
         let keyAttr: NSDictionary = [
             kSecClass: kSecClassKey,
             kSecAttrApplicationTag: tag,
@@ -208,7 +213,8 @@ public class Encryptor: NSObject {
         }
     }
 
-    @objc public func stripPublicKey(data: Data) -> (Data?) {
+    @objc(stripPublicKey:)
+    public func stripPublicKey(data: Data) -> (Data?) {
         let publicKey = convertDataToByteArray(data: data)
         if let result = stripPublicKey(publicKey: publicKey) {
             return Data(result)
@@ -233,7 +239,9 @@ public class Encryptor: NSObject {
         return Array(publicKey[prefixLength..<publicKey.count])
     }
 
-    @objc public func encryptAES(data: Data, key: Data, IV: Data) -> (Data?) {
+    // swiftlint:disable identifier_name
+    @objc(encryptAES:key:IV:)
+    public func encryptAES(data: Data, key: Data, IV: Data) -> (Data?) {
         let plaintext = convertDataToByteArray(data: data)
 
         if let result = encryptAES(plaintext: plaintext, key: key.bytes, IV: IV.bytes) {
@@ -260,7 +268,8 @@ public class Encryptor: NSObject {
         return ciphertext
     }
 
-    @objc public func decryptAES(data: Data, key: Data, IV: Data) -> (Data?) {
+    @objc(decryptAES:key:IV:)
+    public func decryptAES(data: Data, key: Data, IV: Data) -> (Data?) {
         let ciphertext = convertDataToByteArray(data: data)
 
         if let result = decryptAES(ciphertext: ciphertext, key: key.bytes, IV: IV.bytes) {
@@ -286,6 +295,7 @@ public class Encryptor: NSObject {
 
         return plaintext
     }
+    // swiftlint:enable identifier_name
 
     @objc public func generateHMAC(data: Data, key: Data) -> (Data?) {
         let input = convertDataToByteArray(data: data)
@@ -297,7 +307,8 @@ public class Encryptor: NSObject {
         }
     }
 
-    @objc public func generateHMAC(input: [UInt8], key: [UInt8]) -> ([UInt8]?) {
+    @objc(generateHMAC:key:)
+    public func generateHMAC(input: [UInt8], key: [UInt8]) -> ([UInt8]?) {
         guard let hmac = try? HMAC(key: key, variant: .sha512).authenticate(input) else {
             return nil
         }

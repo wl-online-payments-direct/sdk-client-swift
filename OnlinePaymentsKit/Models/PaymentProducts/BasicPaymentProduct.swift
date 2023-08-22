@@ -34,6 +34,7 @@ public class BasicPaymentProduct: NSObject, BasicPaymentItem, ResponseObjectSeri
         }
     }
 
+    @available(*, deprecated, message: "In a future release, this initializer will become internal to the SDK.")
     @objc public override init() {
         self.identifier = ""
         self.displayHints = PaymentItemDisplayHints()
@@ -43,6 +44,7 @@ public class BasicPaymentProduct: NSObject, BasicPaymentItem, ResponseObjectSeri
         super.init()
     }
 
+    @available(*, deprecated, message: "In a future release, this initializer will become internal to the SDK.")
     @objc public required init?(json: [String: Any]) {
         guard let identifier = json["id"] as? Int,
             let paymentMethod = json["paymentMethod"] as? String,

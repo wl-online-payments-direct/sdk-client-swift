@@ -3,8 +3,6 @@
 // This software code is created for Online Payments on 16/07/2020
 // Copyright © 2020 Global Collect Services. All rights reserved.
 //
-// swiftlint:disable function_parameter_count
-// swiftlint:disable cyclomatic_complexity
 
 import Foundation
 
@@ -26,7 +24,8 @@ public class StringFormatter: NSObject {
         self.upperAlphaRegex = upperAlphaRegex
     }
 
-    @objc public func formatString(string: String, mask: String) -> String {
+    @objc(formatString:withMask:)
+    public func formatString(string: String, mask: String) -> String {
         var cursorPosition = 0
         return formatString(string: string, mask: mask, cursorPosition: &cursorPosition)
     }
@@ -84,7 +83,10 @@ public class StringFormatter: NSObject {
         return result
     }
 
-    @objc public func processMatch(
+    // swiftlint:disable function_parameter_count
+    // swiftlint:disable cyclomatic_complexity
+    @objc(processMatch:string:stringIndex:mask:copyFromMask:appendRestOfMask:cursorPosition:)
+    public func processMatch(
         match: String,
         string: String,
         stringIndex: UnsafeMutablePointer<Int>,
@@ -156,8 +158,11 @@ public class StringFormatter: NSObject {
 
         return result
     }
+    // swiftlint:enable function_parameter_count
+    // swiftlint:enable cyclomatic_complexity
 
-    func parts(ofMask mask: String) -> [String] {
+    @objc(splitMask:)
+    public func parts(ofMask mask: String) -> [String] {
         guard let regex = try? NSRegularExpression(pattern: "\\{\\{|\\}\\}|([^\\{\\}]|\\{(?!\\{)|\\}(?!\\}))*") else {
             fatalError("Could not create Regular Expression")
         }
@@ -167,7 +172,8 @@ public class StringFormatter: NSObject {
         return results.map { (mask as NSString).substring(with: $0.range) }
     }
 
-    @objc public func relaxMask(mask: String) -> String {
+    @objc(relaxMask:)
+    public func relaxMask(mask: String) -> String {
         let matches = parts(ofMask: mask)
         var relaxedMask = mask
         var replaceCharacters = false

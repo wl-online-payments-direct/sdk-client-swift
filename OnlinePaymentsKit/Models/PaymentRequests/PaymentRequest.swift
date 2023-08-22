@@ -26,12 +26,13 @@ public class PaymentRequest: NSObject {
         self.tokenize = tokenize
     }
 
-    @objc(setValue:forField:)
+    @objc(setValueForField:value:)
     public func setValue(forField paymentProductFieldId: String, value: String) {
         fieldValues[paymentProductFieldId] = value
     }
 
-    @objc public func getValue(forField paymentProductFieldId: String) -> String? {
+    @objc(valueForField:)
+    public func getValue(forField paymentProductFieldId: String) -> String? {
         if let value = fieldValues[paymentProductFieldId] {
             return value
         }
@@ -72,11 +73,13 @@ public class PaymentRequest: NSObject {
         return value
     }
 
-    @objc public func isPartOfAccountOnFile(field paymentProductFieldId: String) -> Bool {
+    @objc(fieldIsPartOfAccountOnFile:)
+    public func isPartOfAccountOnFile(field paymentProductFieldId: String) -> Bool {
         return accountOnFile?.hasValue(forField: paymentProductFieldId) ?? false
     }
 
-    @objc public func isReadOnly(field paymentProductFieldId: String) -> Bool {
+    @objc(fieldIsReadOnly:)
+    public func isReadOnly(field paymentProductFieldId: String) -> Bool {
         if !isPartOfAccountOnFile(field: paymentProductFieldId) {
             return false
         } else if let accountOnFile = accountOnFile {
