@@ -24,7 +24,7 @@ class SessionTestCase: XCTestCase {
         )
     let context =
         PaymentContext(
-            amountOfMoney: PaymentAmountOfMoney(totalAmount: 3, currencyCode: "EUR"),
+            amountOfMoney: AmountOfMoney(totalAmount: 3, currencyCode: "EUR"),
             isRecurring: true,
             countryCode: "NL"
         )
@@ -492,7 +492,7 @@ class SessionTestCase: XCTestCase {
     }
 
     func testIinDetailsForPartialCreditCardNumber() {
-        _ = PaymentAmountOfMoney(totalAmount: 0, currencyCode: "EUR")
+        _ = AmountOfMoney(totalAmount: 0, currencyCode: "EUR")
 
         // Stub for IIN details "supported" status response
         stub(condition: isHost(host)) { _ in

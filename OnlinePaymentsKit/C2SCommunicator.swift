@@ -413,6 +413,55 @@ public class C2SCommunicator: NSObject {
             )
     }
 
+    internal func surchargeCalculation(
+        amountOfMoney: AmountOfMoney,
+        cardSource: CardSource,
+        success: @escaping (_ surchargeCalculationResponse: SurchargeCalculationResponse) -> Void,
+        failure: @escaping (_ error: Error) -> Void
+    ) {
+        let URL = "\(baseURL)/\(configuration.customerId)/services/surchargecalculation"
+
+        var parameters: [String: Any] = [:]
+
+        var amountOfMoneyParameter: [String: Any] = [:]
+        amountOfMoneyParameter["amount"] = amountOfMoney.totalAmount
+        amountOfMoneyParameter["currencyCode"] = amountOfMoney.currencyCodeString
+
+        var cardSourceParameter: [String: Any] = [:]
+
+        if let card = cardSource.card {
+            var cardParameter: [String: Any] = [:]
+            cardParameter["cardNumber"] = card.cardNumber
+            cardParameter["paymentProductId"] = card.paymentProductId
+
+            cardSourceParameter["card"] = cardParameter
+        }
+
+        if let token = cardSource.token {
+            cardSourceParameter["token"] = token
+        }
+
+        parameters["amountOfMoney"] = amountOfMoneyParameter
+        parameters["cardSource"] = cardSourceParameter
+
+        postResponse(
+            forURL: URL,
+            withParameters: parameters,
+            additionalAcceptableStatusCodes: nil,
+            success: {(responseObject) -> Void in
+                guard let json = responseObject as? [String: Any] else {
+                    failure(SessionError.RuntimeError("Response was not a dictionary. Raw response: \(responseObject)"))
+                    return
+                }
+                let response = SurchargeCalculationResponse(json: json)
+                success(response)
+            },
+            failure: { error in
+                failure(error)
+            }
+        )
+    }
+
     @objc public func getResponse(
         forURL URL: String,
         withParameters parameters: Parameters? = nil,
@@ -446,7 +495,7 @@ public class C2SCommunicator: NSObject {
     @objc public func postResponse(
         forURL URL: String,
         withParameters parameters: [AnyHashable: Any],
-        additionalAcceptableStatusCodes: IndexSet,
+        additionalAcceptableStatusCodes: IndexSet?,
         success: @escaping (_ responseObject: Any) -> Void,
         failure: @escaping (_ error: Error) -> Void
     ) {

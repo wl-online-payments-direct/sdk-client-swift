@@ -16,7 +16,7 @@ class C2SCommunicatorTestCase: XCTestCase {
     var configuration: C2SCommunicatorConfiguration!
     let context =
         PaymentContext(
-            amountOfMoney: PaymentAmountOfMoney(totalAmount: 3, currencyCode: "EUR"),
+            amountOfMoney: AmountOfMoney(totalAmount: 3, currencyCode: "EUR"),
             isRecurring: true,
             countryCode: "NL"
         )
@@ -159,7 +159,7 @@ class C2SCommunicatorTestCase: XCTestCase {
 
         let context =
             PaymentContext(
-                amountOfMoney: PaymentAmountOfMoney(totalAmount: 3, currencyCode: "EUR"),
+                amountOfMoney: AmountOfMoney(totalAmount: 3, currencyCode: "EUR"),
                 isRecurring: true,
                 countryCode: "NL"
             )

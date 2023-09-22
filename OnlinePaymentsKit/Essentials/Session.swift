@@ -335,6 +335,50 @@ public class Session: NSObject {
         return paymentRequestJSON
     }
 
+    @objc public func surchargeCalculation(
+        amountOfMoney: AmountOfMoney,
+        partialCreditCardNumber: String,
+        paymentProductId: NSNumber? = nil,
+        success: @escaping (_ surchargeCalculationResponse: SurchargeCalculationResponse) -> Void,
+        failure: @escaping (_ error: Error) -> Void
+    ) {
+        let card = Card(cardNumber: partialCreditCardNumber, paymentProductId: paymentProductId?.intValue)
+        let cardSource = CardSource(card: card)
+
+        communicator.surchargeCalculation(
+            amountOfMoney: amountOfMoney,
+            cardSource: cardSource,
+            success: { response in
+                success(response)
+
+            },
+            failure: { error in
+                failure(error)
+            }
+        )
+    }
+
+    @objc public func surchargeCalculation(
+        amountOfMoney: AmountOfMoney,
+        token: String,
+        success: @escaping (_ surchargeCalculationResponse: SurchargeCalculationResponse) -> Void,
+        failure: @escaping (_ error: Error) -> Void
+    ) {
+        let cardSource = CardSource(token: token)
+
+        communicator.surchargeCalculation(
+            amountOfMoney: amountOfMoney,
+            cardSource: cardSource,
+            success: { response in
+                success(response)
+
+            },
+            failure: { error in
+                failure(error)
+            }
+        )
+    }
+
     @objc public var clientSessionId: String {
         return communicator.clientSessionId
     }

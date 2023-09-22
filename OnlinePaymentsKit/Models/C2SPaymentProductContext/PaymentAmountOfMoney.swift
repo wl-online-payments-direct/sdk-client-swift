@@ -5,36 +5,15 @@
 //
 import Foundation
 
+@available(*, deprecated, message: "In a future release, this class will be removed. Use AmountOfMoney instead.")
 @objc(OPPaymentAmountOfMoney)
-public class PaymentAmountOfMoney: NSObject {
-    @objc public var totalAmount = 0
-    @available(
-        *,
-        deprecated,
-        message: "Use currencyCodeString instead. In a future release, this field will become 'String' type."
-    )
-    public var currencyCode: CurrencyCode
-    @objc public var currencyCodeString: String
+public class PaymentAmountOfMoney: AmountOfMoney {}
 
-    @available(*, deprecated, message: "Use init(Int, String) instead")
-    public convenience init(totalAmount: Int, currencyCode: CurrencyCode) {
-        self.init(totalAmount: totalAmount, currencyCode: currencyCode.rawValue)
-    }
-
-    /// PaymentAmountOfMoney, contains an amount and Currency Code.
-    /// - Parameters:
-    ///   - totalAmount: The amount, in the smallest possible denominator of the provided currency.
-    ///   - currencyCode: The ISO-4217 Currency Code.
-    ///                   See [ISO 4217 Currency Codes](https://www.iso.org/iso-4217-currency-codes.html) .
-    @objc(initWithTotalAmount:currencyCode:)
-    public init(totalAmount: Int, currencyCode: String) {
-        self.totalAmount = totalAmount
-        self.currencyCode = CurrencyCode.init(rawValue: currencyCode) ?? .UNKNOWN
-        self.currencyCodeString = currencyCode
-    }
-
-    @objc public override var description: String {
-        return "\(totalAmount)-\(currencyCodeString)"
-    }
-
-}
+internal extension AmountOfMoney {
+  func cloneToDeprecatedObject() -> PaymentAmountOfMoney {
+      PaymentAmountOfMoney(
+          totalAmount: self.totalAmount,
+          currencyCode: self.currencyCodeString
+      )
+  }
+ }
