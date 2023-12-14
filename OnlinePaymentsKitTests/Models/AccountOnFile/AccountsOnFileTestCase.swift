@@ -10,18 +10,37 @@ import XCTest
 class AccountsOnFileTestCase: XCTestCase {
 
     let accountsOnFile = AccountsOnFile()
-    let account1 = AccountOnFile(json: ["id": 1, "paymentProductId": 1])!
-    let account2 = AccountOnFile(json: ["id": 2, "paymentProductId": 2])!
+    var account1: AccountOnFile!
+    var account2: AccountOnFile!
 
     override func setUp() {
         super.setUp()
 
-        accountsOnFile.accountsOnFile.append(account1)
-        accountsOnFile.accountsOnFile.append(account2)
-    }
+        let account1JSON = Data("""
+        {
+            "id": 1,
+            "paymentProductId": 1
+        }
+        """.utf8)
 
-    override func tearDown() {
-        super.tearDown()
+        let account2JSON = Data("""
+        {
+            "id": 2,
+            "paymentProductId": 2
+        }
+        """.utf8)
+
+        guard let account1 = try? JSONDecoder().decode(AccountOnFile.self, from: account1JSON),
+              let account2 = try? JSONDecoder().decode(AccountOnFile.self, from: account2JSON) else {
+            XCTFail("Accounts are not a valid AccountOnFile")
+            return
+        }
+
+        self.account1 = account1
+        self.account2 = account2
+
+        accountsOnFile.accountsOnFile.append(self.account1)
+        accountsOnFile.accountsOnFile.append(self.account2)
     }
 
     func testAccountOnFileWithIdentifier() {
@@ -30,12 +49,19 @@ class AccountsOnFileTestCase: XCTestCase {
         XCTAssertNotNil(testAccount, "Account could not be found")
         XCTAssert(testAccount! === account1, "Incorrect account on file retrieved")
 
-        account1.displayHints = AccountOnFileDisplayHints()
-        account1.displayHints.labelTemplate = LabelTemplate()
-
         for index in 0...3 {
-            let tempItem = LabelTemplateItem(json: ["attributeKey": "attributeKey\(index)", "mask": "12345\(index)"])
-            account1.displayHints.labelTemplate.labelTemplateItems.append(tempItem!)
+            let templabelJSON = Data("""
+            {
+                "attributeKey": "attributeKey\(index)",
+                "mask": "12345\(index)"
+            }
+            """.utf8)
+
+            guard let tempItem = try? JSONDecoder().decode(LabelTemplateItem.self, from: templabelJSON) else {
+                XCTFail("Not a valid LabelTemplateItem")
+                return
+            }
+            account1.displayHints.labelTemplate.labelTemplateItems.append(tempItem)
         }
 
         XCTAssertTrue(
@@ -47,13 +73,27 @@ class AccountsOnFileTestCase: XCTestCase {
             "Mask was: \(account1.maskedValue(forField: "attributeKey1")) should have been nil."
         )
 
-        account1.attributes = AccountOnFileAttributes()
+        let attrJSON = Data("""
+        {
+            "key": "1",
+            "status": "READ_ONLY"
+        }
+        """.utf8)
 
-        let attr = AccountOnFileAttribute(json: ["key": "1", "status": "READ_ONLY"])!
-        let attr2 =
-            AccountOnFileAttribute(
-                json: ["key": "2", "value": "12345", "status": "MUST_WRITE", "mustWriteReason": "Must!"]
-            )!
+        let attr2JSON = Data("""
+        {
+            "key": "2",
+            "value": "12345",
+            "status": "MUST_WRITE",
+            "mustWriteReason": "Must!"
+        }
+        """.utf8)
+
+        guard let attr = try? JSONDecoder().decode(AccountOnFileAttribute.self, from: attrJSON),
+              let attr2 = try? JSONDecoder().decode(AccountOnFileAttribute.self, from: attr2JSON) else {
+            XCTFail("Not all attributes are a valid AccountOnFileAttribute object")
+            return
+        }
 
         XCTAssertTrue(!account1.hasValue(forField: "999"), "Should not have value.")
 

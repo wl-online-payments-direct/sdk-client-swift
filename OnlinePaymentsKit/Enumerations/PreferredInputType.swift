@@ -12,5 +12,6 @@ public enum PreferredInputType: Int {
     @objc(OPEmailAddressKeyboard) case emailAddressKeyboard
     @objc(OPPhoneNumberKeyboard) case phoneNumberKeyboard
     @objc(OPDateKeyboard) case dateKeyboard
+    @available(*, deprecated, message: "In a future release, this case will be removed.")
     @objc(OPNoKeyboard) case noKeyboard
 }

@@ -37,14 +37,12 @@ class IINDetailsResponseTestCase: XCTestCase {
                     [
                         "paymentProductId": 1,
                         "isAllowedInContext": true
-                    ],
-                    [
-                        "isAllowedInContext": true
                     ]
-                ]
-                ] as [String: Any]
+                ],
+                "cardType": "Debit"
+            ] as [String: Any]
             return
-                HTTPStubsResponse(jsonObject: response, statusCode: 200, headers: ["Content-Type": "application/json"])
+            HTTPStubsResponse(jsonObject: response, statusCode: 200, headers: ["Content-Type": "application/json"])
         }
     }
 
@@ -93,8 +91,9 @@ class IINDetailsResponseTestCase: XCTestCase {
                     "Payment product ID did not match."
                 )
                 XCTAssertTrue(details.allowedInContext, "allowedInContext was false.")
-                XCTAssertTrue(response.coBrands.count == 1, "Unexprected result. There should be one Co Brand.")
+                XCTAssertTrue(response.coBrands.count == 1, "Unexpected result. There should be one Co Brand.")
                 expectation.fulfill()
+                XCTAssert(response.cardType == .debit, "cardType should be Debit")
             },
             failure: { (error) in
                 XCTFail("Unexpected failure while getting IIN Details: \(error.localizedDescription)")

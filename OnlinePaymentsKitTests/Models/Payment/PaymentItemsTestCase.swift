@@ -23,16 +23,6 @@ class PaymentItemsTestCase: XCTestCase {
                                  isRecurring: true,
                                  countryCode: "NL")
 
-    override func setUp() {
-        super.setUp()
-
-    }
-
-    override func tearDown() {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
-        super.tearDown()
-    }
-
     func testPaymentItems() {
         stub(condition: isHost("example.com")) { _ in
             let response = [
@@ -50,6 +40,7 @@ class PaymentItemsTestCase: XCTestCase {
                             "label": "Visa",
                             "logo": "https://example.com/templates/master/global/css/img/ppimages/pp_logo_1_v1.png"
                         ]],
+                        "usesRedirectionTo3rdParty": false,
                         "id": 1,
                         "maxAmount": 1000000,
                         "mobileIntegrationLevel": "OPTIMISED_SUPPORT",
@@ -69,6 +60,7 @@ class PaymentItemsTestCase: XCTestCase {
                             "label": "American Express",
                             "logo": "https://example.com/templates/master/global/css/img/ppimages/pp_logo_2_v1.png"
                         ]],
+                        "usesRedirectionTo3rdParty": false,
                         "id": 2,
                         "maxAmount": 1000000,
                         "mobileIntegrationLevel": "OPTIMISED_SUPPORT",
@@ -88,6 +80,7 @@ class PaymentItemsTestCase: XCTestCase {
                             "label": "MasterCard",
                             "logo": "https://example.com/templates/master/global/css/img/ppimages/pp_logo_3_v1.png"
                         ]],
+                        "usesRedirectionTo3rdParty": false,
                         "id": 3,
                         "maxAmount": 1000000,
                         "mobileIntegrationLevel": "OPTIMISED_SUPPORT",
@@ -210,20 +203,21 @@ class PaymentItemsTestCase: XCTestCase {
             }
         }
 
-        XCTAssertTrue(AccountOnFile(json: ["": ""]) == nil, "Init of the account on file should have failed.")
-        XCTAssertTrue(
-            AccountOnFile(json: ["id": "string id"]) == nil,
-            "Init of the account on file should have failed."
-        )
-        XCTAssertTrue(
-            AccountOnFile(json: ["id": 1, "paymentProductId": ""]) == nil,
-            "Init of the account on file should have failed. Based on the payment product ID."
-        )
-        XCTAssertTrue(
-            AccountOnFile(json: ["id": 1, "paymentProductId": "string id"]) == nil,
-            "Init of the account on file should have failed. Based on the payment product ID."
-        )
+        let accountOnFileEmptyJSON = Data("""
+        {
+            "": ""
+        }
+        """.utf8)
+        let accountOnFileEmpty = try? JSONDecoder().decode(AccountOnFile.self, from: accountOnFileEmptyJSON)
+        XCTAssertTrue(accountOnFileEmpty == nil, "Init of the account on file should have failed.")
 
+        let accountOnFileIdStringIdJSON = Data("""
+        {
+            "id": "string id"
+        }
+        """.utf8)
+        let accountOnFileIdStringId = try? JSONDecoder().decode(AccountOnFile.self, from: accountOnFileIdStringIdJSON)
+        XCTAssertTrue(accountOnFileIdStringId == nil, "Init of the account on file should have failed.")
     }
 
     func allPaymentItems(basicItems: [BasicPaymentItem]) {

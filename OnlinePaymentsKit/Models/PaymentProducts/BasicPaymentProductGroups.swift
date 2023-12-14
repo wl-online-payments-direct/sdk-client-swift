@@ -7,7 +7,7 @@
 import Foundation
 
 @objc(OPBasicPaymentProductGroups)
-public class BasicPaymentProductGroups: NSObject, ResponseObjectSerializable {
+public class BasicPaymentProductGroups: NSObject, Codable, ResponseObjectSerializable {
 
     @objc public var paymentProductGroups = [BasicPaymentProductGroup]()
 
@@ -43,7 +43,7 @@ public class BasicPaymentProductGroups: NSObject, ResponseObjectSerializable {
     @available(*, deprecated, message: "In a future release, this initializer will become internal to the SDK.")
     @objc public override init() {}
 
-    @available(*, deprecated, message: "In a future release, this initializer will become internal to the SDK.")
+    @available(*, deprecated, message: "In a future release, this initializer will be removed.")
     @objc required public init(json: [String: Any]) {
         super.init()
         if let input = json["paymentProductGroups"] as? [[String: Any]] {
@@ -54,6 +54,18 @@ public class BasicPaymentProductGroups: NSObject, ResponseObjectSerializable {
             }
 
             sort()
+        }
+    }
+
+    enum CodingKeys: CodingKey {
+        case paymentProductGroups
+    }
+
+    public required init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        if let paymentProductGroups =
+            try? container.decode([BasicPaymentProductGroup].self, forKey: .paymentProductGroups) {
+                self.paymentProductGroups = paymentProductGroups
         }
     }
 

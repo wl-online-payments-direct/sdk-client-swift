@@ -14,7 +14,7 @@ class BasicPaymentProductGroupsTestCase: XCTestCase {
         super.setUp()
 
         for index in 1..<6 {
-            let basicPaymentProductGroup = BasicPaymentProductGroup(json: [
+            let basicPaymentProductGroupDictionary = [
                 "id": "\(index)",
                 "displayHints": [
                     "displayOrder": 20,
@@ -29,8 +29,19 @@ class BasicPaymentProductGroupsTestCase: XCTestCase {
                 "accountsOnFile": [[
                     "id": index,
                     "paymentProductId": index
-                    ]
-                ]])!
+                ]]
+            ] as [String: Any]
+
+            guard let basicPaymentProductGroupJSON =
+                    try? JSONSerialization.data(withJSONObject: basicPaymentProductGroupDictionary) else {
+                XCTFail("Not a valid Dictionary")
+                return
+            }
+            guard let basicPaymentProductGroup =
+                    try? JSONDecoder().decode(BasicPaymentProductGroup.self, from: basicPaymentProductGroupJSON) else {
+                XCTFail("Not a valid BasicPaymentProductGroup")
+                return
+            }
 
             basicPaymentProductGroups.paymentProductGroups.append(basicPaymentProductGroup)
         }
@@ -45,7 +56,16 @@ class BasicPaymentProductGroupsTestCase: XCTestCase {
             return
         }
 
-        let testAccountOnFile = AccountOnFile(json: ["id": 1, "paymentProductId": 1])!
+        let testAccountOnFileJSON = Data("""
+        {
+            "id": 1,
+            "paymentProductId": 1
+        }
+        """.utf8)
+        guard let testAccountOnFile = try? JSONDecoder().decode(AccountOnFile.self, from: testAccountOnFileJSON) else {
+            XCTFail("Not a valid AccountOnFile")
+            return
+        }
         let foundAccountOnFile = paymentGroup.accountOnFile(withIdentifier: testAccountOnFile.identifier)
         XCTAssertTrue(foundAccountOnFile != nil, "Account on file identifier didn't match.")
 
@@ -76,7 +96,21 @@ class BasicPaymentProductGroupsTestCase: XCTestCase {
             XCTFail("Did not find group.")
             return
         }
-        group.displayHintsList = [PaymentItemDisplayHints(json: ["logo": "logoPath", "displayOrder": 0])!]
+        let displayHintsListJSON = Data("""
+        [
+            {
+                "logo": "logoPath",
+                "displayOrder": 0
+            }
+        ]
+        """.utf8)
+
+        guard let displayHintsList =
+                try? JSONDecoder().decode([PaymentItemDisplayHints].self, from: displayHintsListJSON) else {
+            XCTFail("Not a valid array of PaymentItemDisplayHints")
+            return
+        }
+        group.displayHintsList = displayHintsList
 
         XCTAssertTrue(basicPaymentProductGroups.logoPath(forProductGroup: "1") != nil, "Logo path was nil.")
         XCTAssertTrue(basicPaymentProductGroups.logoPath(forProductGroup: "999") == nil, "Logo path was not nil.")

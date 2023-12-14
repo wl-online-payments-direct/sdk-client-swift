@@ -7,7 +7,7 @@
 import Foundation
 
 @objc(OPBasicPaymentProducts)
-public class BasicPaymentProducts: NSObject, ResponseObjectSerializable {
+public class BasicPaymentProducts: NSObject, Codable, ResponseObjectSerializable {
 
     @objc public var paymentProducts = [BasicPaymentProduct]()
     @objc public var stringFormatter: StringFormatter? {
@@ -42,7 +42,7 @@ public class BasicPaymentProducts: NSObject, ResponseObjectSerializable {
     @available(*, deprecated, message: "In a future release, this initializer will become internal to the SDK.")
     @objc public override init() {}
 
-    @available(*, deprecated, message: "In a future release, this initializer will become internal to the SDK.")
+    @available(*, deprecated, message: "In a future release, this initializer will be removed.")
     @objc required public init(json: [String: Any]) {
         guard let paymentProductsInput = json["paymentProducts"] as? [[String: Any]] else {
             return
@@ -52,6 +52,17 @@ public class BasicPaymentProducts: NSObject, ResponseObjectSerializable {
             if let paymentProduct = BasicPaymentProduct(json: product) {
                 paymentProducts.append(paymentProduct)
             }
+        }
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case paymentProducts
+    }
+
+    public required init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        if let paymentProducts = try? container.decode([BasicPaymentProduct].self, forKey: .paymentProducts) {
+            self.paymentProducts = paymentProducts
         }
     }
 

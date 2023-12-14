@@ -6,6 +6,11 @@
 
 import Foundation
 
+@available(
+    *,
+    deprecated,
+    message: "In a future release, this enum will be removed since it is not returned from the API."
+)
 @objc public enum DisplayElementType: Int {
     @objc(OPDisplayElementTypeString) case string
     @objc(OPDisplayElementTypeInteger) case integer
@@ -29,6 +34,7 @@ import Foundation
     }
 }
 
+@available(*, deprecated, message: "In a future release, this class will be removed.")
 @objc public class DisplayElementTypeEnumHandler: NSObject {
     @objc public func displayElementTypeFor(type: String) -> DisplayElementType {
         switch type {

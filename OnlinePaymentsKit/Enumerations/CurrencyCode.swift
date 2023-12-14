@@ -13,7 +13,7 @@
         adhering to the ISO 4217 standard. See https://www.iso.org/iso-4217-currency-codes.html .
         """
 )
-public enum CurrencyCode: String {
+public enum CurrencyCode: String, Codable {
     case AED
     case AFN
     case ALL

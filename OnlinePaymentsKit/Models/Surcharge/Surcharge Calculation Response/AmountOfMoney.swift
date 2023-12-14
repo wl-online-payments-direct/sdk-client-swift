@@ -7,7 +7,7 @@
 import Foundation
 
 @objc(OPAmountOfMoney)
-public class AmountOfMoney: NSObject, ResponseObjectSerializable {
+public class AmountOfMoney: NSObject, Codable {
     @objc public var totalAmount = 0
     @available(
         *,
@@ -17,7 +17,12 @@ public class AmountOfMoney: NSObject, ResponseObjectSerializable {
     public var currencyCode: CurrencyCode
     @objc public var currencyCodeString: String
 
-    public required init?(json: [String : Any]) {
+    @available(
+        *,
+        deprecated,
+        message: "Do not use this initializer, it is only for internal SDK use and will be removed in a future release."
+    )
+    public required init?(json: [String: Any]) {
         guard let totalAmount = json["amount"] as? Int,
             let currencyCode = json["currencyCode"] as? String else {
             return nil
@@ -43,6 +48,30 @@ public class AmountOfMoney: NSObject, ResponseObjectSerializable {
         self.totalAmount = totalAmount
         self.currencyCode = CurrencyCode.init(rawValue: currencyCode) ?? .UNKNOWN
         self.currencyCodeString = currencyCode
+    }
+
+    enum CodingKeys: CodingKey {
+        case amount, currencyCode
+    }
+
+    public required init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+
+        self.totalAmount = try container.decode(Int.self, forKey: .amount)
+
+        if let currencyCodeString = try? container.decodeIfPresent(String.self, forKey: .currencyCode) {
+            self.currencyCodeString = currencyCodeString
+            self.currencyCode = CurrencyCode.init(rawValue: currencyCodeString) ?? .UNKNOWN
+        } else {
+            self.currencyCodeString = "UNKNOWN"
+            self.currencyCode = .UNKNOWN
+        }
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try? container.encode(totalAmount, forKey: .amount)
+        try? container.encode(currencyCodeString, forKey: .currencyCode)
     }
 
     @objc public override var description: String {

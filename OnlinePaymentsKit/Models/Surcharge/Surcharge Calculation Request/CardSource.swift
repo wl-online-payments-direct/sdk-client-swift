@@ -6,7 +6,7 @@
 
 import Foundation
 
-internal class CardSource: NSObject {
+internal class CardSource: NSObject, Codable {
     var card: Card?
     var token: String?
 

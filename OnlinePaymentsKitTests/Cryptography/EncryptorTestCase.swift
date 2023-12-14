@@ -12,14 +12,6 @@ class EncryptorTestCase: XCTestCase {
     let publicTag = "test-public-tag"
     let privateTag = "test-private-tag"
 
-    override func setUp() {
-        super.setUp()
-    }
-
-    override func tearDown() {
-        super.tearDown()
-    }
-
     func testGenerateRandomByteWithLength() {
         var dataCollection = [Data?]()
         for _ in 0..<10 {

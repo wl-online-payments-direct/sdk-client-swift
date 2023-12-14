@@ -19,7 +19,8 @@ class BasicPaymentProductsTestCase: XCTestCase {
                     "displayOrder": 20,
                     "label": "Visa",
                     "logo": "/templates/master/global/css/img/ppimages/pp_logo_1_v1.png"
-                ]
+                ],
+                "usesRedirectionTo3rdParty": false
             ],
             [
                 "fields": [[:]],
@@ -29,7 +30,8 @@ class BasicPaymentProductsTestCase: XCTestCase {
                     "displayOrder": 21,
                     "label": "MasterCard",
                     "logo": "/templates/master/global/css/img/ppimages/pp_logo_2_v1.png"
-                ]
+                ],
+                "usesRedirectionTo3rdParty": false
             ]
         ],
         "hasAccountsOnFile": false
@@ -51,7 +53,8 @@ class BasicPaymentProductsTestCase: XCTestCase {
                         "displayOrder": 20,
                         "label": "Visa",
                         "logo": "/templates/master/global/css/img/ppimages/pp_logo_1_v1.png"
-                    ]
+                    ],
+                    "usesRedirectionTo3rdParty": false
                 ],
                 [
                     "fields": [[:]],
@@ -61,7 +64,8 @@ class BasicPaymentProductsTestCase: XCTestCase {
                         "displayOrder": 21,
                         "label": "MasterCard",
                         "logo": "/templates/master/global/css/img/ppimages/pp_logo_2_v1.png"
-                    ]
+                    ],
+                    "usesRedirectionTo3rdParty": false
                 ]
             ],
             "hasAccountsOnFile": false
@@ -82,7 +86,8 @@ class BasicPaymentProductsTestCase: XCTestCase {
                         "displayOrder": 20,
                         "label": "Visa",
                         "logo": "/templates/master/global/css/img/ppimages/pp_logo_1_v1.png"
-                    ]
+                    ],
+                    "usesRedirectionTo3rdParty": false
                 ],
                 [
                     "fields": [[:]],
@@ -92,7 +97,8 @@ class BasicPaymentProductsTestCase: XCTestCase {
                         "displayOrder": 22,
                         "label": "Maestro",
                         "logo": "/templates/master/global/css/img/ppimages/pp_logo_3_v1.png"
-                    ]
+                    ],
+                    "usesRedirectionTo3rdParty": false
                 ]
             ],
             "hasAccountsOnFile": false

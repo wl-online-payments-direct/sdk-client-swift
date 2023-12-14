@@ -10,50 +10,97 @@ import XCTest
 class ValidatorExpirationDateTestCase: XCTestCase {
 
     var validator: ValidatorExpirationDate!
-    let request = PaymentRequest(paymentProduct: PaymentProduct(json: [
-        "fields": [[:]],
-        "id": 1,
-        "paymentMethod": "card",
-        "displayHints": [
-            "displayOrder": 20,
-            "label": "Visa",
-            "logo": "/this/is_a_test.png"
-        ]
-    ])!)
+    var request: PaymentRequest!
 
     override func setUp() {
         super.setUp()
         validator = ValidatorExpirationDate()
+
+        let paymentProductJSON = Data("""
+        {
+            "fields": [
+                {
+                    "id": "expiryDate",
+                    "type": "expirydate",
+                    "displayHints": {
+                        "displayOrder": 0,
+                        "formElement": {}
+                    }
+                }
+            ],
+            "id": 1,
+            "paymentMethod": "card",
+            "displayHints": {
+                "displayOrder": 20,
+                "label": "Visa",
+                "logo": "/templates/master/global/css/img/ppimages/pp_logo_1_v1.png"
+            },
+            "usesRedirectionTo3rdParty": false
+        }
+        """.utf8)
+
+        guard let paymentProduct = try? JSONDecoder().decode(PaymentProduct.self, from: paymentProductJSON) else {
+            XCTFail("Not a valid PaymentProduct")
+            return
+        }
+
+        request = PaymentRequest(paymentProduct: paymentProduct)
     }
 
     func testValid() {
-        validator.validate(value: "1244", for: request)
+        request.setValue(forField: "expiryDate", value: "1244")
+        _ = validator.validate(field: "expiryDate", in: request)
         XCTAssertEqual(validator.errors.count, 0, "Valid expiration date considered invalid")
     }
 
     func testInvalidNonNumerical() {
-        validator.validate(value: "aaaa", for: request)
-        XCTAssertNotEqual(validator.errors.count, 0, "Invalid expiration date considered valid")
+        request.setValue(forField: "expiryDate", value: "aaaa")
+        _ = validator.validate(field: "expiryDate", in: request)
+
+        XCTAssertEqual(validator.errors.count, 1, "Invalid expiration date considered valid")
+        XCTAssertEqual(validator.errors[0].errorMessage, "expirationDate")
+        XCTAssertEqual(validator.errors[0].paymentProductFieldId, "expiryDate")
+        XCTAssertEqual(validator.errors[0].rule?.validationType, .expirationDate)
     }
 
     func testInvalidMonth() {
-        validator.validate(value: "1350", for: request)
-        XCTAssertNotEqual(validator.errors.count, 0, "Invalid expiration date considered valid")
+        request.setValue(forField: "expiryDate", value: "1350")
+        _ = validator.validate(field: "expiryDate", in: request)
+
+        XCTAssertEqual(validator.errors.count, 1, "Invalid expiration date considered valid")
+        XCTAssertEqual(validator.errors[0].errorMessage, "expirationDate")
+        XCTAssertEqual(validator.errors[0].paymentProductFieldId, "expiryDate")
+        XCTAssertEqual(validator.errors[0].rule?.validationType, .expirationDate)
     }
 
     func testInvalidYearTooEarly() {
-        validator.validate(value: "0112", for: request)
-        XCTAssertNotEqual(validator.errors.count, 0, "Invalid expiration date considered valid")
+        request.setValue(forField: "expiryDate", value: "0112")
+        _ = validator.validate(field: "expiryDate", in: request)
+
+        XCTAssertEqual(validator.errors.count, 1, "Invalid expiration date considered valid")
+        XCTAssertEqual(validator.errors[0].errorMessage, "expirationDate")
+        XCTAssertEqual(validator.errors[0].paymentProductFieldId, "expiryDate")
+        XCTAssertEqual(validator.errors[0].rule?.validationType, .expirationDate)
     }
 
     func testInvalidYearTooLate() {
-        validator.validate(value: "1299", for: request)
-        XCTAssertNotEqual(validator.errors.count, 0, "Invalid expiration date considered valid")
+        request.setValue(forField: "expiryDate", value: "1299")
+        _ = validator.validate(field: "expiryDate", in: request)
+
+        XCTAssertEqual(validator.errors.count, 1, "Invalid expiration date considered valid")
+        XCTAssertEqual(validator.errors[0].errorMessage, "expirationDate")
+        XCTAssertEqual(validator.errors[0].paymentProductFieldId, "expiryDate")
+        XCTAssertEqual(validator.errors[0].rule?.validationType, .expirationDate)
     }
 
     func testInvalidInputTooLong() {
-        validator.validate(value: "122044", for: request)
-        XCTAssertNotEqual(validator.errors.count, 0, "Invalid expiration date considered valid")
+        request.setValue(forField: "expiryDate", value: "122044")
+        _ = validator.validate(field: "expiryDate", in: request)
+
+        XCTAssertEqual(validator.errors.count, 1, "Invalid expiration date considered valid")
+        XCTAssertEqual(validator.errors[0].errorMessage, "expirationDate")
+        XCTAssertEqual(validator.errors[0].paymentProductFieldId, "expiryDate")
+        XCTAssertEqual(validator.errors[0].rule?.validationType, .expirationDate)
     }
 
     private var now: Date {

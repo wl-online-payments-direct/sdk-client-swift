@@ -6,10 +6,25 @@
 
 import Foundation
 
+@available(
+    *,
+    deprecated,
+    message: "In a future release, this class will be removed since it is not returned from the API."
+)
 @objc(OPDisplayElement)
-public class DisplayElement: NSObject, ResponseObjectSerializable {
+public class DisplayElement: NSObject, Codable, ResponseObjectSerializable {
 
-    @available(*, deprecated, message: "In a future release, this initializer will become internal to the SDK.")
+    @objc(identifier) public var id: String
+    @objc public var type: DisplayElementType
+    @objc public var value: String
+
+    @objc init(id: String, type: DisplayElementType, value: String) {
+        self.id = id
+        self.type = type
+        self.value = value
+    }
+
+    @available(*, deprecated, message: "In a future release, this initializer will be removed.")
     @objc public required init?(json: [String: Any]) {
 
         guard let id = json["id"]  as? String else {
@@ -27,13 +42,24 @@ public class DisplayElement: NSObject, ResponseObjectSerializable {
         self.type = type
     }
 
-    @objc(identifier) public var id: String
-    @objc public var type: DisplayElementType
-    @objc public var value: String
+    private enum CodingKeys: String, CodingKey {
+        case id, type, value
+    }
 
-    @objc init(id: String, type: DisplayElementType, value: String) {
-        self.id = id
-        self.type = type
-        self.value = value
+    public required init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.id = try container.decode(String.self, forKey: .id)
+
+        let typeAsString = try? container.decodeIfPresent(String.self, forKey: .type)
+        self.type = DisplayElementTypeEnumHandler().displayElementTypeFor(type: typeAsString ?? "")
+
+        self.value = try container.decode(String.self, forKey: .value)
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try? container.encode(id, forKey: .id)
+        try? container.encode(type.text(), forKey: .type)
+        try? container.encode(value, forKey: .value)
     }
 }

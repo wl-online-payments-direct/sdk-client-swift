@@ -10,44 +10,87 @@ import XCTest
 class ValidatorRangeTestCase: XCTestCase {
 
     let validator = ValidatorRange(minValue: 40, maxValue: 50)
-    let request = PaymentRequest(paymentProduct: PaymentProduct(json: [
-        "fields": [[:]],
-        "id": 1,
-        "paymentMethod": "card",
-        "displayHints": [
-            "displayOrder": 20,
-            "label": "Visa",
-            "logo": "/this/is_a_test.png"
-        ]
-    ])!)
+    var request: PaymentRequest!
+
+    override func setUp() {
+        super.setUp()
+
+        let paymentProductJSON = Data("""
+        {
+            "fields": [
+                {
+                    "id": "ccv",
+                    "type": "numericstring",
+                    "displayHints": {
+                        "displayOrder": 0,
+                        "formElement": {}
+                    }
+                }
+            ],
+            "id": 1,
+            "paymentMethod": "card",
+            "displayHints": {
+                "displayOrder": 20,
+                "label": "Visa",
+                "logo": "/templates/master/global/css/img/ppimages/pp_logo_1_v1.png"
+            },
+            "usesRedirectionTo3rdParty": false
+        }
+        """.utf8)
+
+        guard let paymentProduct = try? JSONDecoder().decode(PaymentProduct.self, from: paymentProductJSON) else {
+            XCTFail("Not a valid PaymentProduct")
+            return
+        }
+
+        request = PaymentRequest(paymentProduct: paymentProduct)
+    }
 
     func testValidateCorrect1() {
-        validator.validate(value: "40", for: request)
+        request.setValue(forField: "ccv", value: "40")
+        _ = validator.validate(field: "ccv", in: request)
         XCTAssertEqual(validator.errors.count, 0, "Valid value considered invalid")
     }
 
     func testValidateCorrect2() {
-        validator.validate(value: "45", for: request)
+        request.setValue(forField: "ccv", value: "45")
+        _ = validator.validate(field: "ccv", in: request)
         XCTAssertEqual(validator.errors.count, 0, "Valid value considered invalid")
     }
 
     func testValidateCorrect3() {
-        validator.validate(value: "50", for: request)
+        request.setValue(forField: "ccv", value: "50")
+        _ = validator.validate(field: "ccv", in: request)
         XCTAssertEqual(validator.errors.count, 0, "Valid value considered invalid")
     }
 
     func testValidateIncorrect1() {
-        validator.validate(value: "aaa", for: request)
-        XCTAssertNotEqual(validator.errors.count, 0, "Invalid value considered valid")
+        request.setValue(forField: "ccv", value: "aaa")
+        _ = validator.validate(field: "ccv", in: request)
+
+        XCTAssertEqual(validator.errors.count, 1, "Invalid value considered valid")
+        XCTAssertEqual(validator.errors[0].errorMessage, "range")
+        XCTAssertEqual(validator.errors[0].paymentProductFieldId, "ccv")
+        XCTAssertEqual(validator.errors[0].rule?.validationType, .range)
     }
 
     func testValidateIncorrect2() {
-        validator.validate(value: "39", for: request)
-        XCTAssertNotEqual(validator.errors.count, 0, "Invalid value considered valid")
+        request.setValue(forField: "ccv", value: "39")
+        _ = validator.validate(field: "ccv", in: request)
+
+        XCTAssertEqual(validator.errors.count, 1, "Invalid value considered valid")
+        XCTAssertEqual(validator.errors[0].errorMessage, "range")
+        XCTAssertEqual(validator.errors[0].paymentProductFieldId, "ccv")
+        XCTAssertEqual(validator.errors[0].rule?.validationType, .range)
     }
 
     func testValidateIncorrect3() {
-        validator.validate(value: "51", for: request)
-        XCTAssertNotEqual(validator.errors.count, 0, "Invalid value considered valid")
+        request.setValue(forField: "ccv", value: "51")
+        _ = validator.validate(field: "ccv", in: request)
+
+        XCTAssertEqual(validator.errors.count, 1, "Invalid value considered valid")
+        XCTAssertEqual(validator.errors[0].errorMessage, "range")
+        XCTAssertEqual(validator.errors[0].paymentProductFieldId, "ccv")
+        XCTAssertEqual(validator.errors[0].rule?.validationType, .range)
     }
 }

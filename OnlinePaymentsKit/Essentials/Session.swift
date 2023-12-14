@@ -10,6 +10,10 @@ import UIKit
 @objc(OPSession)
 public class Session: NSObject {
     @available(*, deprecated, message: "In a future release, this property will become internal to the SDK.")
+    @objc public var clientSessionId: String {
+        return communicator.clientSessionId
+    }
+    @available(*, deprecated, message: "In a future release, this property will become internal to the SDK.")
     @objc public var communicator: C2SCommunicator
     @available(
         *,
@@ -148,91 +152,128 @@ public class Session: NSObject {
             )
     }
 
-    @objc(paymentProductsForContext:success:failure:)
+    @objc(paymentProductsForContext:success:failure:apiFailure:)
     public func paymentProducts(
         for context: PaymentContext,
-        success: @escaping (_ paymentProducts: BasicPaymentProducts) -> Void,
-        failure: @escaping (_ error: Error) -> Void
+        success: ((_ paymentProducts: BasicPaymentProducts) -> Void)? = nil,
+        failure: ((_ error: Error) -> Void)? = nil,
+        apiFailure: ((_ errorResponse: ErrorResponse) -> Void)? = nil
     ) {
-        communicator.paymentProducts(forContext: context, success: { paymentProducts in
-            self.paymentProducts = paymentProducts
-            self.paymentProducts.stringFormatter = self.stringFormatter
-            self.setLogoForPaymentItems(for: paymentProducts.paymentProducts) {
-                success(paymentProducts)
+        communicator.paymentProducts(
+            forContext: context,
+            success: { paymentProducts in
+                self.paymentProducts = paymentProducts
+                self.paymentProducts.stringFormatter = self.stringFormatter
+                self.setLogoForPaymentItems(for: paymentProducts.paymentProducts) {
+                    success?(paymentProducts)
+                }
+            },
+            failure: { error in
+                failure?(error)
+            },
+            apiFailure: { errorResponse in
+                apiFailure?(errorResponse)
             }
-        }, failure: failure)
+        )
     }
 
     @objc public func paymentProductNetworks(
         forProductId paymentProductId: String,
         context: PaymentContext,
-        success: @escaping (_ paymentProductNetworks: PaymentProductNetworks) -> Void,
-        failure: @escaping (_ error: Error) -> Void
+        success: ((_ paymentProductNetworks: PaymentProductNetworks) -> Void)? = nil,
+        failure: ((_ error: Error) -> Void)? = nil,
+        apiFailure: ((_ errorResponse: ErrorResponse) -> Void)? = nil
     ) {
         communicator.paymentProductNetworks(
             forProduct: paymentProductId,
             context: context,
             success: { paymentProductNetworks in
-                success(paymentProductNetworks)
+                success?(paymentProductNetworks)
             },
             failure: { error in
-                failure(error)
+                failure?(error)
+            },
+            apiFailure: { errorResponse in
+                apiFailure?(errorResponse)
             }
         )
     }
 
     // TODO: SMBO-96367 - Parameter 'groupPaymentProducts' is unused
-    @objc(paymentItemsForContext:groupPaymentProducts:success:failure:)
+    @objc(paymentItemsForContext:groupPaymentProducts:success:failure:apiFailure:)
     public func paymentItems(
         for context: PaymentContext,
         groupPaymentProducts: Bool,
-        success: @escaping (_ paymentItems: PaymentItems) -> Void,
-        failure: @escaping (_ error: Error) -> Void
+        success: ((_ paymentItems: PaymentItems) -> Void)? = nil,
+        failure: ((_ error: Error) -> Void)? = nil,
+        apiFailure: ((_ errorResponse: ErrorResponse) -> Void)? = nil
     ) {
-        communicator.paymentProducts(forContext: context, success: { paymentProducts in
-            if paymentProducts.paymentProducts.isEmpty {
-                let items = PaymentItems(products: paymentProducts, groups: nil)
-                success(items)
+        communicator.paymentProducts(
+            forContext: context,
+            success: { paymentProducts in
+                if paymentProducts.paymentProducts.isEmpty {
+                    let items = PaymentItems(products: paymentProducts, groups: nil)
+                    success?(items)
+                }
+                self.paymentProducts = paymentProducts
+                self.paymentProducts.stringFormatter = self.stringFormatter
+                self.setLogoForPaymentItems(for: paymentProducts.paymentProducts) {
+                    let items = PaymentItems(products: paymentProducts, groups: nil)
+                    success?(items)
+                }
+            },
+            failure: { error in
+                failure?(error)
+            },
+            apiFailure: { errorResponse in
+                apiFailure?(errorResponse)
             }
-            self.paymentProducts = paymentProducts
-            self.paymentProducts.stringFormatter = self.stringFormatter
-            self.setLogoForPaymentItems(for: paymentProducts.paymentProducts) {
-                let items = PaymentItems(products: paymentProducts, groups: nil)
-                success(items)
-            }
-        }, failure: failure)
+        )
     }
 
     @objc public func paymentProduct(
         withId paymentProductId: String,
         context: PaymentContext,
-        success: @escaping (_ paymentProduct: PaymentProduct) -> Void,
-        failure: @escaping (_ error: Error) -> Void
+        success: ((_ paymentProduct: PaymentProduct) -> Void)? = nil,
+        failure: ((_ error: Error) -> Void)? = nil,
+        apiFailure: ((_ errorResponse: ErrorResponse) -> Void)? = nil
     ) {
         let key = "\(paymentProductId)-\(context.description)"
 
         if let paymentProduct = paymentProductMapping[key] as? PaymentProduct {
-            success(paymentProduct)
+            success?(paymentProduct)
         } else {
-            communicator.paymentProduct(withIdentifier: paymentProductId, context: context, success: { paymentProduct in
-                self.paymentProductMapping[key] = paymentProduct
-                self.setTooltipImages(for: paymentProduct) {}
-                self.setLogoForDisplayHints(for: paymentProduct.displayHints) {}
-                self.setLogoForDisplayHintsList(for: paymentProduct.displayHintsList) {
-                    success(paymentProduct)
+            communicator.paymentProduct(
+                withIdentifier: paymentProductId,
+                context: context,
+                success: { paymentProduct in
+                    self.paymentProductMapping[key] = paymentProduct
+                    self.setTooltipImages(for: paymentProduct) {}
+                    self.setLogoForDisplayHints(for: paymentProduct.displayHints) {}
+                    self.setLogoForDisplayHintsList(for: paymentProduct.displayHintsList) {
+                        success?(paymentProduct)
+                    }
+                },
+                failure: { error in
+                    failure?(error)
+                },
+                apiFailure: { errorResponse in
+                    apiFailure?(errorResponse)
                 }
-            }, failure: failure)
+            )
         }
     }
 
-    @objc(IINDetailsForPartialCreditCardNumber:context:success:failure:)
+    @objc(IINDetailsForPartialCreditCardNumber:context:success:failure:apiFailure:)
     public func iinDetails(forPartialCreditCardNumber partialCreditCardNumber: String,
                            context: PaymentContext?,
-                           success: @escaping (_ iinDetailsResponse: IINDetailsResponse) -> Void,
-                           failure: @escaping (_ error: Error) -> Void) {
+                           success: ((_ iinDetailsResponse: IINDetailsResponse) -> Void)? = nil,
+                           failure: ((_ error: Error) -> Void)? = nil,
+                           apiFailure: ((_ errorResponse: ErrorResponse) -> Void)? = nil
+    ) {
         if partialCreditCardNumber.count < 6 {
             let response = IINDetailsResponse(status: .notEnoughDigits)
-            success(response)
+            success?(response)
         } else {
             iinLookupPending = true
             communicator.paymentProductId(
@@ -240,61 +281,91 @@ public class Session: NSObject {
                 context: context,
                 success: { response in
                     self.iinLookupPending = false
-                    success(response)
+                    success?(response)
                 },
                 failure: { error in
                     self.iinLookupPending = false
-                    failure(error)
+                    failure?(error)
+                },
+                apiFailure: { errorResponse in
+                    apiFailure?(errorResponse)
                 }
             )
         }
 
     }
 
-    @objc(preparePaymentRequest:success:failure:)
+    @objc(publicKeyWithSuccess:failure:apiFailure:)
+    public func publicKey(
+        success: ((_ publicKeyResponse: PublicKeyResponse) -> Void)? = nil,
+        failure: ((_ error: Error) -> Void)? = nil,
+        apiFailure: ((_ errorResponse: ErrorResponse) -> Void)? = nil
+    ) {
+        communicator.publicKey(
+            success: { publicKeyResponse in
+                success?(publicKeyResponse)
+            },
+            failure: { error in
+                failure?(error)
+            },
+            apiFailure: { errorResponse in
+                apiFailure?(errorResponse)
+            }
+        )
+
+    }
+
+    @objc(preparePaymentRequest:success:failure:apiFailure:)
     public func prepare(
         _ paymentRequest: PaymentRequest,
-        success: @escaping (_ preparedPaymentRequest: PreparedPaymentRequest) -> Void,
-        failure: @escaping (_ error: Error) -> Void
+        success: ((_ preparedPaymentRequest: PreparedPaymentRequest) -> Void)? = nil,
+        failure: ((_ error: Error) -> Void)? = nil,
+        apiFailure: ((_ errorResponse: ErrorResponse) -> Void)? = nil
     ) {
-        communicator.publicKey(success: { publicKeyResponse in
-            let publicKeyAsData = publicKeyResponse.encodedPublicKey.decode()
-            guard let strippedPublicKeyAsData = self.encryptor.stripPublicKey(data: publicKeyAsData) else {
-                failure(SessionError.RuntimeError("Failed to decode Public key."))
-                return
+        self.publicKey(
+            success: { publicKeyResponse in
+                let publicKeyAsData = publicKeyResponse.encodedPublicKey.decode()
+                guard let strippedPublicKeyAsData = self.encryptor.stripPublicKey(data: publicKeyAsData) else {
+                    failure?(EncryptDataError.publicKeyDecodeError)
+                    return
+                }
+                let tag = "globalcollect-sdk-public-key-swift"
+
+                self.encryptor.deleteRSAKey(withTag: tag)
+                self.encryptor.storePublicKey(publicKey: strippedPublicKeyAsData, tag: tag)
+
+                guard let publicKey = self.encryptor.RSAKey(withTag: tag) else {
+                    failure?(EncryptDataError.rsaKeyNotFound)
+                    return
+                }
+
+                let paymentRequestJSON =
+                    self.preparePaymentRequestJSON(
+                        forClientSessionId: self.clientSessionId,
+                        paymentRequest: paymentRequest
+                    )
+                let encryptedFields =
+                    self.joseEncryptor.encryptToCompactSerialization(
+                        JSON: paymentRequestJSON,
+                        withPublicKey: publicKey,
+                        keyId: publicKeyResponse.keyId
+                    )
+                let encodedClientMetaInfo = self.communicator.base64EncodedClientMetaInfo
+                let preparedRequest =
+                    PreparedPaymentRequest(
+                        encryptedFields: encryptedFields,
+                        encodedClientMetaInfo: encodedClientMetaInfo
+                    )
+
+                success?(preparedRequest)
+            },
+            failure: { error in
+                failure?(error)
+            },
+            apiFailure: { errorResponse in
+                apiFailure?(errorResponse)
             }
-            let tag = "globalcollect-sdk-public-key-swift"
-
-            self.encryptor.deleteRSAKey(withTag: tag)
-            self.encryptor.storePublicKey(publicKey: strippedPublicKeyAsData, tag: tag)
-
-            guard let publicKey = self.encryptor.RSAKey(withTag: tag) else {
-                failure(SessionError.RuntimeError("Failed to find RSA Key."))
-                return
-            }
-
-            let paymentRequestJSON =
-                self.preparePaymentRequestJSON(
-                    forClientSessionId: self.clientSessionId,
-                    paymentRequest: paymentRequest
-                )
-            let encryptedFields =
-                self.joseEncryptor.encryptToCompactSerialization(
-                    JSON: paymentRequestJSON,
-                    withPublicKey: publicKey,
-                    keyId: publicKeyResponse.keyId
-                )
-            let encodedClientMetaInfo = self.communicator.base64EncodedClientMetaInfo
-            let preparedRequest =
-                PreparedPaymentRequest(
-                    encryptedFields: encryptedFields,
-                    encodedClientMetaInfo: encodedClientMetaInfo
-                )
-
-            success(preparedRequest)
-        }, failure: { error in
-            failure(error)
-        })
+        )
     }
 
     private func preparePaymentRequestJSON(
@@ -339,8 +410,9 @@ public class Session: NSObject {
         amountOfMoney: AmountOfMoney,
         partialCreditCardNumber: String,
         paymentProductId: NSNumber? = nil,
-        success: @escaping (_ surchargeCalculationResponse: SurchargeCalculationResponse) -> Void,
-        failure: @escaping (_ error: Error) -> Void
+        success: ((_ surchargeCalculationResponse: SurchargeCalculationResponse) -> Void)? = nil,
+        failure: ((_ error: Error) -> Void)? = nil,
+        apiFailure: ((_ errorResponse: ErrorResponse) -> Void)? = nil
     ) {
         let card = Card(cardNumber: partialCreditCardNumber, paymentProductId: paymentProductId?.intValue)
         let cardSource = CardSource(card: card)
@@ -349,11 +421,14 @@ public class Session: NSObject {
             amountOfMoney: amountOfMoney,
             cardSource: cardSource,
             success: { response in
-                success(response)
+                success?(response)
 
             },
             failure: { error in
-                failure(error)
+                failure?(error)
+            },
+            apiFailure: { errorResponse in
+                apiFailure?(errorResponse)
             }
         )
     }
@@ -361,8 +436,9 @@ public class Session: NSObject {
     @objc public func surchargeCalculation(
         amountOfMoney: AmountOfMoney,
         token: String,
-        success: @escaping (_ surchargeCalculationResponse: SurchargeCalculationResponse) -> Void,
-        failure: @escaping (_ error: Error) -> Void
+        success: ((_ surchargeCalculationResponse: SurchargeCalculationResponse) -> Void)? = nil,
+        failure: ((_ error: Error) -> Void)? = nil,
+        apiFailure: ((_ errorResponse: ErrorResponse) -> Void)? = nil
     ) {
         let cardSource = CardSource(token: token)
 
@@ -370,17 +446,16 @@ public class Session: NSObject {
             amountOfMoney: amountOfMoney,
             cardSource: cardSource,
             success: { response in
-                success(response)
+                success?(response)
 
             },
             failure: { error in
-                failure(error)
+                failure?(error)
+            },
+            apiFailure: { errorResponse in
+                apiFailure?(errorResponse)
             }
         )
-    }
-
-    @objc public var clientSessionId: String {
-        return communicator.clientSessionId
     }
 
     @available(*, deprecated, message: "In a future release, this function will become internal to the SDK.")
@@ -485,5 +560,165 @@ public class Session: NSObject {
                 completion(data, response, error)
             }
         }).resume()
+    }
+
+    // MARK: Functions only available for Objective-C
+
+    @available(swift, obsoleted: 1.0)
+    @available(*, deprecated, message: "Use paymentProductsForContext:success:failure:apiFailure: instead.")
+    @objc
+    public func paymentProducts(
+        for context: PaymentContext,
+        success: @escaping (_ paymentProducts: BasicPaymentProducts) -> Void,
+        failure: @escaping (_ error: Error) -> Void
+    ) {
+        self.paymentProducts(for: context, success: success, failure: failure, apiFailure: nil)
+    }
+
+    @available(swift, obsoleted: 1.0)
+    @available(
+        *,
+        deprecated,
+        message: "Use paymentProductNetworksForProductId:context:success:failure:apiFailure: instead."
+    )
+    @objc
+    public func paymentProductNetworks(
+        forProductId paymentProductId: String,
+        context: PaymentContext,
+        success: @escaping (_ paymentProductNetworks: PaymentProductNetworks) -> Void,
+        failure: @escaping (_ error: Error) -> Void
+    ) {
+        self.paymentProductNetworks(
+            forProductId: paymentProductId,
+            context: context,
+            success: success,
+            failure: failure,
+            apiFailure: nil
+        )
+    }
+
+    @available(swift, obsoleted: 1.0)
+    @available(
+        *,
+        deprecated,
+        message: "paymentItemsForContext:groupPaymentProducts:success:failure:apiFailure: instead."
+    )
+    @objc(paymentItemsForContext:groupPaymentProducts:success:failure:)
+    public func paymentItems(
+        for context: PaymentContext,
+        groupPaymentProducts: Bool,
+        success: @escaping (_ paymentItems: PaymentItems) -> Void,
+        failure: @escaping (_ error: Error) -> Void
+    ) {
+        self.paymentItems(for: context, groupPaymentProducts: groupPaymentProducts, success: success, failure: failure)
+    }
+
+    @available(swift, obsoleted: 1.0)
+    @available(*, deprecated, message: "Use paymentProductWithId:context:success:failure:apiFailure: instead.")
+    @objc
+    public func paymentProduct(
+        withId paymentProductId: String,
+        context: PaymentContext,
+        success: @escaping (_ paymentProduct: PaymentProduct) -> Void,
+        failure: @escaping (_ error: Error) -> Void
+    ) {
+        self.paymentProduct(
+            withId: paymentProductId,
+            context: context,
+            success: success,
+            failure: failure,
+            apiFailure: nil
+        )
+    }
+
+    @available(swift, obsoleted: 1.0)
+    @available(
+        *,
+        deprecated,
+        message: "Use IINDetailsForPartialCreditCardNumber:context:success:failure:apiFailure: instead."
+    )
+    @objc(IINDetailsForPartialCreditCardNumber:context:success:failure:)
+    public func iinDetails(forPartialCreditCardNumber partialCreditCardNumber: String,
+                           context: PaymentContext?,
+                           success: @escaping (_ iinDetailsResponse: IINDetailsResponse) -> Void,
+                           failure: @escaping (_ error: Error) -> Void
+    ) {
+        self.iinDetails(
+            forPartialCreditCardNumber: partialCreditCardNumber,
+            context: context,
+            success: success,
+            failure: failure,
+            apiFailure: nil
+        )
+    }
+
+    @available(swift, obsoleted: 1.0)
+    @available(*, deprecated, message: "Use publicKeyWithSuccess:failure:apiFailure: instead.")
+    @objc(publicKeyWithSuccess:failure:)
+    public func publicKey(
+        success: @escaping (_ publicKeyResponse: PublicKeyResponse) -> Void,
+        failure: @escaping (_ error: Error) -> Void
+    ) {
+        self.publicKey(success: success, failure: failure, apiFailure: nil)
+    }
+
+    @available(swift, obsoleted: 1.0)
+    @available(*, deprecated, message: "Use preparePaymentRequest:success:failure:apiFailure: instead.")
+    @objc(preparePaymentRequest:success:failure:)
+    public func prepare(
+        _ paymentRequest: PaymentRequest,
+        success: @escaping (_ preparedPaymentRequest: PreparedPaymentRequest) -> Void,
+        failure: @escaping (_ error: Error) -> Void
+    ) {
+        self.prepare(paymentRequest, success: success, failure: failure, apiFailure: nil)
+    }
+
+    @available(swift, obsoleted: 1.0)
+    @available(
+        *,
+        deprecated,
+        message: """
+        Use
+        surchargeCalculation:amountOfMoney:partialCreditCardNumber:paymentProductId:success:failure:apiFailure:
+        instead.
+        """
+    )
+    @objc
+    public func surchargeCalculation(
+        amountOfMoney: AmountOfMoney,
+        partialCreditCardNumber: String,
+        paymentProductId: NSNumber? = nil,
+        success: @escaping (_ surchargeCalculationResponse: SurchargeCalculationResponse) -> Void,
+        failure: @escaping (_ error: Error) -> Void
+    ) {
+        self.surchargeCalculation(
+            amountOfMoney: amountOfMoney,
+            partialCreditCardNumber: partialCreditCardNumber,
+            success: success,
+            failure: failure,
+            apiFailure: nil
+        )
+    }
+
+    @available(swift, obsoleted: 1.0)
+    @available(
+        *,
+        deprecated,
+        message: "Use surchargeCalculation:amountOfMoney:token:success:failure:apiFailure: instead."
+    )
+    @objc
+    public func surchargeCalculation(
+        amountOfMoney: AmountOfMoney,
+        token: String,
+        success: @escaping (_ surchargeCalculationResponse: SurchargeCalculationResponse) -> Void,
+        failure: @escaping (_ error: Error) -> Void
+    ) {
+        self.surchargeCalculation(
+            amountOfMoney: amountOfMoney,
+            token: token,
+            success: success,
+            failure: failure,
+            apiFailure: nil
+        )
     }
 }

@@ -7,7 +7,7 @@
 import Foundation
 
 @objc(OPValidatorExpirationDate)
-public class ValidatorExpirationDate: Validator {
+public class ValidatorExpirationDate: Validator, ValidationRule {
     @objc public var dateFormatter = DateFormatter()
     private var fullYearDateFormatter = DateFormatter()
     private var monthAndFullYearDateFormatter = DateFormatter()
@@ -17,47 +17,92 @@ public class ValidatorExpirationDate: Validator {
         dateFormatter.dateFormat = "MMyy"
         fullYearDateFormatter.dateFormat = "yyyy"
         monthAndFullYearDateFormatter.dateFormat = "MMyyyy"
+
+        super.init(messageId: "expirationDate", validationType: .expirationDate)
     }
 
+    public required init(from decoder: Decoder) throws {
+        dateFormatter.dateFormat = "MMyy"
+        fullYearDateFormatter.dateFormat = "yyyy"
+        monthAndFullYearDateFormatter.dateFormat = "MMyyyy"
+
+        super.init(messageId: "expirationDate", validationType: .expirationDate)
+    }
+
+    @available(
+        *,
+        deprecated,
+        message: "In a future release, this function will be removed. Please use validate(field:in:) instead."
+    )
     @objc(validate:forPaymentRequest:)
     public override func validate(value: String, for request: PaymentRequest) {
-        super.validate(value: value, for: request)
+        _ = validate(value: value)
+    }
+
+    @objc public func validate(field fieldId: String, in request: PaymentRequest) -> Bool {
+        guard let fieldValue = request.getValue(forField: fieldId) else {
+            return false
+        }
+
+        return validate(value: fieldValue, for: fieldId)
+    }
+
+    @objc public func validate(value: String) -> Bool {
+        validate(value: value, for: nil)
+    }
+
+    internal override func validate(value: String, for fieldId: String?) -> Bool {
+        self.clearErrors()
 
         // Test whether the date can be parsed normally
         guard dateFormatter.date(from: value) != nil else {
-            let error = ValidationErrorExpirationDate()
-            errors.append(error)
-            return
+            addExpirationDateError(fieldId: fieldId)
+            return false
         }
 
-        let gregorianCalendar = Calendar(identifier: .gregorian)
+        let enteredDate = obtainEnteredDateFromValue(value: value, fieldId: fieldId)
 
-        let enteredDate = obtainEnteredDateFromValue(value: value)
-
-        var componentsForFutureDate = DateComponents()
-        componentsForFutureDate.year = gregorianCalendar.component(.year, from: Date()) + 25
-        guard let futureDate = gregorianCalendar.date(from: componentsForFutureDate) else {
-            let error = ValidationErrorExpirationDate()
-            errors.append(error)
-            return
+        guard let futureDate = obtainFutureDate() else {
+            addExpirationDateError(fieldId: fieldId)
+            return false
         }
 
         if !validateDateIsBetween(now: Date(), futureDate: futureDate, dateToValidate: enteredDate) {
-            let error = ValidationErrorExpirationDate()
-            errors.append(error)
+            addExpirationDateError(fieldId: fieldId)
+            return false
         }
+
+        return true
     }
 
-    internal func obtainEnteredDateFromValue(value: String) -> Date {
+    private func addExpirationDateError(fieldId: String?) {
+        let error =
+            ValidationErrorExpirationDate(
+                errorMessage: self.messageId,
+                paymentProductFieldId: fieldId,
+                rule: self
+            )
+        errors.append(error)
+    }
+
+    internal func obtainEnteredDateFromValue(value: String, fieldId: String?) -> Date {
         let year = fullYearDateFormatter.string(from: Date())
         let valueWithCentury = value.substring(to: 2) + year.substring(to: 2) + value.substring(from: 2)
         guard let dateMonthAndFullYear = monthAndFullYearDateFormatter.date(from: valueWithCentury) else {
-            let error = ValidationErrorExpirationDate()
-            errors.append(error)
+            addExpirationDateError(fieldId: fieldId)
             return Date()
         }
 
         return dateMonthAndFullYear
+    }
+
+    private func obtainFutureDate() -> Date? {
+        let gregorianCalendar = Calendar(identifier: .gregorian)
+
+        var componentsForFutureDate = DateComponents()
+        componentsForFutureDate.year = gregorianCalendar.component(.year, from: Date()) + 25
+
+        return gregorianCalendar.date(from: componentsForFutureDate)
     }
 
     internal func validateDateIsBetween(now: Date, futureDate: Date, dateToValidate: Date) -> Bool {

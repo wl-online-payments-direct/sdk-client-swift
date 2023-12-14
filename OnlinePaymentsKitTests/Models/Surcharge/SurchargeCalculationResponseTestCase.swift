@@ -21,10 +21,6 @@ class SurchargeCalculationResponseTestCase: XCTestCase {
                           appIdentifier: "")
     let amountOfMoney = AmountOfMoney(totalAmount: 1000, currencyCode: "EUR")
 
-    override func setUp() {
-        super.setUp()
-    }
-
     private func setupStubSurchargeResponse() {
         stub(
             condition: isHost("\(host)") &&

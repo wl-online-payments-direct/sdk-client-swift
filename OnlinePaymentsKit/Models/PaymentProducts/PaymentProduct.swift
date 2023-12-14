@@ -16,7 +16,7 @@ public class PaymentProduct: BasicPaymentProduct, PaymentItem {
         super.init()
     }
 
-    @available(*, deprecated, message: "In a future release, this initializer will become internal to the SDK.")
+    @available(*, deprecated, message: "In a future release, this initializer will be removed.")
     @objc public required init?(json: [String: Any]) {
         super.init(json: json)
 
@@ -29,6 +29,27 @@ public class PaymentProduct: BasicPaymentProduct, PaymentItem {
                 fields.paymentProductFields.append(field)
             }
         }
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case fields
+    }
+
+    public required init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        if let fieldsInput = try container.decodeIfPresent([PaymentProductField].self, forKey: .fields) {
+            for field in fieldsInput {
+                self.fields.paymentProductFields.append(field)
+            }
+        }
+
+        try super.init(from: decoder)
+    }
+
+    public override func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try super.encode(to: encoder)
+        try? container.encode(fields.paymentProductFields, forKey: .fields)
     }
 
     @objc public func paymentProductField(withId: String) -> PaymentProductField? {

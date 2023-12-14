@@ -7,9 +7,15 @@
 import Foundation
 
 @objc(OPPaymentRequest)
-public class PaymentRequest: NSObject {
+public class PaymentRequest: NSObject, Codable {
 
     @objc public var paymentProduct: PaymentProduct?
+    @objc public var errorMessageIds: [ValidationError] = []
+    @available(
+        *,
+        deprecated,
+        message: "In a future release, this property will be removed. Use errorMessageIds instead."
+    )
     @objc public var errors: [ValidationError] = []
     @objc public var tokenize = false
 
@@ -24,6 +30,31 @@ public class PaymentRequest: NSObject {
         self.paymentProduct = paymentProduct
         self.accountOnFile = accountOnFile
         self.tokenize = tokenize
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case paymentProduct, errorMessageIds, tokenize, fieldValues, accountOnFile
+    }
+
+    public required init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+
+        self.paymentProduct = try container.decodeIfPresent(PaymentProduct.self, forKey: .paymentProduct)
+        self.errorMessageIds = try container.decodeIfPresent([ValidationError].self, forKey: .errorMessageIds) ?? []
+        self.errors = try container.decodeIfPresent([ValidationError].self, forKey: .errorMessageIds) ?? []
+        self.tokenize = try container.decode(Bool.self, forKey: .tokenize)
+        self.fieldValues =
+            try container.decodeIfPresent([String: String].self, forKey: .fieldValues) ?? [String: String]()
+        self.accountOnFile = try? container.decodeIfPresent(AccountOnFile.self, forKey: .accountOnFile)
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try? container.encodeIfPresent(paymentProduct, forKey: .paymentProduct)
+        try? container.encode(errorMessageIds, forKey: .errorMessageIds)
+        try? container.encode(tokenize, forKey: .tokenize)
+        try? container.encode(fieldValues, forKey: .fieldValues)
+        try? container.encodeIfPresent(accountOnFile, forKey: .accountOnFile)
     }
 
     @objc(setValueForField:value:)
@@ -63,7 +94,7 @@ public class PaymentRequest: NSObject {
     }
 
     @objc public func unmaskedValue(forField paymentProductFieldId: String) -> String? {
-        guard  let value = getValue(forField: paymentProductFieldId) else {
+        guard let value = getValue(forField: paymentProductFieldId) else {
             return nil
         }
         if let mask = mask(forField: paymentProductFieldId) {
@@ -98,24 +129,54 @@ public class PaymentRequest: NSObject {
         return mask
     }
 
-    @objc public func validate() {
+    @objc public func validate() -> [ValidationError] {
+        errors.removeAll()
+        errorMessageIds.removeAll()
+
+        guard let paymentProduct = paymentProduct else {
+            errors.append(ValidationErrorInvalidPaymentProduct())
+            errorMessageIds.append(ValidationErrorInvalidPaymentProduct())
+            return errorMessageIds
+        }
+
+        for field in paymentProduct.fields.paymentProductFields {
+            if let fieldValue = unmaskedValue(forField: field.identifier) {
+                if !isPartOfAccountOnFile(field: field.identifier) {
+                    let fieldErrors = field.validateValue(value: fieldValue, for: self)
+                    errors.append(contentsOf: fieldErrors)
+                    errorMessageIds.append(contentsOf: fieldErrors)
+                }
+            } else {
+                let error =
+                    ValidationErrorIsRequired(
+                        errorMessage: "required",
+                        paymentProductFieldId: field.identifier,
+                        rule: nil
+                    )
+                errors.append(error)
+                errorMessageIds.append(error)
+            }
+        }
+        return errorMessageIds
+    }
+
+    @objc public var maskedFieldValues: [String: String]? {
         guard let paymentProduct = paymentProduct else {
             NSException(
                 name: NSExceptionName(rawValue: "Invalid payment product"),
                 reason: "Payment product is invalid"
             ).raise()
-            return
+            return nil
         }
 
-        errors.removeAll()
+        var maskedFieldValues = [String: String]()
 
         for field in paymentProduct.fields.paymentProductFields {
-            if let fieldValue = unmaskedValue(forField: field.identifier),
-                !isPartOfAccountOnFile(field: field.identifier) {
-                field.validateValue(value: fieldValue, for: self)
-                errors.append(contentsOf: field.errors)
-            }
+            let masked = maskedValue(forField: field.identifier)
+            maskedFieldValues[field.identifier] = masked
         }
+
+        return maskedFieldValues
     }
 
     @objc public var unmaskedFieldValues: [String: String]? {
@@ -129,11 +190,23 @@ public class PaymentRequest: NSObject {
 
         var unmaskedFieldValues = [String: String]()
 
-        for field in paymentProduct.fields.paymentProductFields where !isReadOnly(field: field.identifier) {
+        for field in paymentProduct.fields.paymentProductFields {
             let unmasked = unmaskedValue(forField: field.identifier)
             unmaskedFieldValues[field.identifier] = unmasked
         }
 
         return unmaskedFieldValues
+    }
+
+    @objc public func removeValue(forField paymentProductFieldId: String) {
+        guard let paymentProduct = paymentProduct else {
+            NSException(
+                name: NSExceptionName(rawValue: "Cannot remove value from PaymentRequest"),
+                reason: "Payment product is invalid"
+            ).raise()
+            return
+        }
+
+        fieldValues.removeValue(forKey: paymentProductFieldId)
     }
 }

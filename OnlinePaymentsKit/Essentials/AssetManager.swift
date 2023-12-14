@@ -212,6 +212,11 @@ public class AssetManager: NSObject {
     }
 
     @objc(tooltipImageForPaymentItem:field:)
+    @available(
+        *,
+        deprecated,
+        message: "In a future release, this function will be removed since Tooltips no longer have images."
+    )
     public func tooltipImage(forItem paymentItemId: String, field paymentProductFieldId: String) -> UIImage {
         let identifier = String(format: self.tooltipFormat, paymentItemId, paymentProductFieldId)
         return image(forIdentifier: identifier)

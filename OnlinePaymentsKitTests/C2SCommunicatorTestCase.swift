@@ -21,21 +21,26 @@ class C2SCommunicatorTestCase: XCTestCase {
             countryCode: "NL"
         )
 
-    var applePaymentProduct: BasicPaymentProduct!
+    var applePaymentProduct: BasicPaymentProduct?
 
     override func setUp() {
         super.setUp()
 
-        applePaymentProduct = BasicPaymentProduct(json: [
-            "fields": [[:]],
-            "id": Int(SDKConstants.kApplePayIdentifier)!,
+        let applePaymentProductJSON = Data("""
+        {
+            "fields": [],
+            "id": \(Int(SDKConstants.kApplePayIdentifier)!),
             "paymentMethod": "card",
-            "displayHints": [
+            "displayHints": {
                 "displayOrder": 20,
                 "label": "Visa",
                 "logo": "/templates/master/global/css/img/ppimages/pp_logo_1_v1.png"
-            ]
-        ])!
+            },
+            "usesRedirectionTo3rdParty": false
+        }
+        """.utf8)
+
+        applePaymentProduct = try? JSONDecoder().decode(BasicPaymentProduct.self, from: applePaymentProductJSON)
 
         configuration =
             C2SCommunicatorConfiguration(
@@ -82,6 +87,11 @@ class C2SCommunicatorTestCase: XCTestCase {
         }
 
         let paymentProducts = BasicPaymentProducts()
+
+        guard let applePaymentProduct else {
+            XCTFail("Not a valid BasicPaymentProduct")
+            return
+        }
         paymentProducts.paymentProducts.append(applePaymentProduct)
 
         let expectation = self.expectation(description: "Response provided")
@@ -117,6 +127,7 @@ class C2SCommunicatorTestCase: XCTestCase {
                             "label": "Visa",
                             "logo": "/templates/master/global/css/img/ppimages/pp_logo_1_v1.png"
                         ],
+                        "usesRedirectionTo3rdParty": false,
                         "id": 1,
                         "maxAmount": 1000000,
                         "mobileIntegrationLevel": "OPTIMISED_SUPPORT",
@@ -131,6 +142,7 @@ class C2SCommunicatorTestCase: XCTestCase {
                             "label": "American Express",
                             "logo": "/templates/master/global/css/img/ppimages/pp_logo_2_v1.png"
                         ],
+                        "usesRedirectionTo3rdParty": false,
                         "id": 2,
                         "maxAmount": 1000000,
                         "mobileIntegrationLevel": "OPTIMISED_SUPPORT",
@@ -145,6 +157,7 @@ class C2SCommunicatorTestCase: XCTestCase {
                             "label": "MasterCard",
                             "logo": "/templates/master/global/css/img/ppimages/pp_logo_3_v1.png"
                         ],
+                        "usesRedirectionTo3rdParty": false,
                         "id": 3,
                         "maxAmount": 1000000,
                         "mobileIntegrationLevel": "OPTIMISED_SUPPORT",
@@ -232,6 +245,7 @@ class C2SCommunicatorTestCase: XCTestCase {
                     "label": "Visa",
                     "logo": "/templates/master/global/css/img/ppimages/pp_logo_1_v1.png"
                 ]],
+                "usesRedirectionTo3rdParty": false,
                 "fields": [
                     [
                         "dataRestrictions": [
@@ -254,17 +268,7 @@ class C2SCommunicatorTestCase: XCTestCase {
                         "displayHints": [
                             "displayOrder": 10,
                             "formElement": [
-                                "type": "text",
-                                "valueMapping": [
-                                    [
-                                        "displayName": "Value map display",
-                                        "value": "Value map value"
-                                    ],
-                                    [
-                                        "displayName": "Value map display 2",
-                                        "value": "Value map value 2"
-                                    ]
-                                ]
+                                "type": "text"
                             ],
                             "label": "Card number:",
                             "mask": "{{9999}} {{9999}} {{9999}} {{9999}} {{999}}",
@@ -364,8 +368,6 @@ class C2SCommunicatorTestCase: XCTestCase {
                     FormElementType.textType,
                     "Received product field displayHints formElement type not as expected"
                 )
-                XCTAssertTrue(field.displayHints.formElement.valueMapping.count > 0, "No Value map found.")
-
             },
             failure: { (error) in
                 XCTFail("Unexpected failure while testing paymentProductWithId: \(error.localizedDescription)")

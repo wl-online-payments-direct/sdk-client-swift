@@ -54,7 +54,8 @@ public class C2SCommunicator: NSObject {
     @objc public func paymentProducts(
         forContext context: PaymentContext,
         success: @escaping (_ paymentProducts: BasicPaymentProducts) -> Void,
-        failure: @escaping (_ error: Error) -> Void
+        failure: @escaping (_ error: Error) -> Void,
+        apiFailure: ((_ errorResponse: ErrorResponse) -> Void)? = nil
     ) {
         let isRecurring = context.isRecurring ? "true" : "false"
         let URL = "\(baseURL)/\(configuration.customerId)/products"
@@ -73,32 +74,40 @@ public class C2SCommunicator: NSObject {
         getResponse(
             forURL: URL,
             withParameters: params,
-            success: { (responseObject) in
-                guard let responseDic = responseObject as? [String: Any] else {
-                    failure(SessionError.RuntimeError("Response was not a dictionary. Raw response: \(responseObject)"))
+            success: { (responseObject: BasicPaymentProducts?) in
+                guard var paymentProductsResponse = responseObject else {
+                    failure(SessionError.RuntimeError("Response was empty."))
                     return
                 }
-                var paymentProducts = BasicPaymentProducts(json: responseDic)
 
-                paymentProducts = self.checkApplePayAvailability(with: paymentProducts, for: context, success: {
-                    success(paymentProducts)
-                }, failure: { error in
-                    failure(error)
-                })
-                paymentProducts = self.removeGooglePayProduct(with: paymentProducts)
+                paymentProductsResponse = self.checkApplePayAvailability(
+                    with: paymentProductsResponse,
+                    for: context,
+                    success: {
+                        success(paymentProductsResponse)
+                    }, failure: { error in
+                        failure(error)
+                    }, apiFailure: { errorResponse in
+                        apiFailure?(errorResponse)
+                    }
+                )
             },
             failure: { error in
                 failure(error)
+            },
+            apiFailure: { errorResponse in
+                apiFailure?(errorResponse)
             }
         )
     }
 
-    @objc(checkApplePayAvailabilityWithPaymentProducts:forContext:success:failure:)
+    @objc(checkApplePayAvailabilityWithPaymentProducts:forContext:success:failure:apiFailure:)
     public func checkApplePayAvailability(
         with paymentProducts: BasicPaymentProducts,
         for context: PaymentContext,
         success: @escaping () -> Void,
-        failure: @escaping (_ error: Error) -> Void
+        failure: @escaping (_ error: Error) -> Void,
+        apiFailure: ((_ errorResponse: ErrorResponse) -> Void)? = nil
     ) -> BasicPaymentProducts {
         if let applePayPaymentProduct =
             paymentProducts.paymentProduct(withIdentifier: SDKConstants.kApplePayIdentifier) {
@@ -118,6 +127,9 @@ public class C2SCommunicator: NSObject {
                     },
                     failure: { error in
                         failure(error)
+                    },
+                    apiFailure: { errorResponse in
+                        apiFailure?(errorResponse)
                     }
                 )
             } else {
@@ -134,23 +146,13 @@ public class C2SCommunicator: NSObject {
         return paymentProducts
     }
 
-    private func removeGooglePayProduct(with paymentProducts: BasicPaymentProducts) -> BasicPaymentProducts {
-        if let googlePayPaymentProduct =
-                paymentProducts.paymentProduct(withIdentifier: SDKConstants.kGooglePayIdentifier) {
-            if let product = paymentProducts.paymentProducts.firstIndex(of: googlePayPaymentProduct) {
-                paymentProducts.paymentProducts.remove(at: product)
-            }
-        }
-
-        return paymentProducts
-    }
-
-    @objc(paymentProductNetworksForProductId:context:success:failure:)
+    @objc(paymentProductNetworksForProductId:context:success:failure:apiFailure:)
     public func paymentProductNetworks(
         forProduct paymentProductId: String,
         context: PaymentContext,
         success: @escaping (_ paymentProductNetworks: PaymentProductNetworks) -> Void,
-        failure: @escaping (_ error: Error) -> Void
+        failure: @escaping (_ error: Error) -> Void,
+        apiFailure: ((_ errorResponse: ErrorResponse) -> Void)? = nil
     ) {
         let isRecurring = context.isRecurring ? "true" : "false"
         if context.locale.isEmpty {
@@ -171,34 +173,32 @@ public class C2SCommunicator: NSObject {
         getResponse(
             forURL: URL,
             withParameters: params,
-            success: { (responseObject) in
-                guard let response = responseObject as? [String: Any] else {
-                    failure(SessionError.RuntimeError("Response was not a dictionary. Raw response: \(responseObject)"))
+            success: { (responseObject: PaymentProductNetworks?) in
+                guard let productNetworksResponse = responseObject else {
+                    failure(SessionError.RuntimeError("Response was empty."))
                     return
                 }
-                let rawProductNetworks = response["networks"]
-                let paymentProductNetworks = PaymentProductNetworks()
-                if let productNetworks = rawProductNetworks as? [PKPaymentNetwork] {
-                    paymentProductNetworks.paymentProductNetworks.append(contentsOf: productNetworks)
-                }
-                success(paymentProductNetworks)
+                success(productNetworksResponse)
             },
             failure: { error in
                 failure(error)
+            },
+            apiFailure: { errorResponse in
+                apiFailure?(errorResponse)
             }
         )
     }
 
-    @objc(paymentProductWithId:context:success:failure:)
+    @objc(paymentProductWithId:context:success:failure:apiFailure:)
     public func paymentProduct(
         withIdentifier paymentProductId: String,
         context: PaymentContext,
         success: @escaping (_ paymentProduct: PaymentProduct) -> Void,
-        failure: @escaping (_ error: Error) -> Void
+        failure: @escaping (_ error: Error) -> Void,
+        apiFailure: ((_ errorResponse: ErrorResponse) -> Void)? = nil
     ) {
         checkAvailability(forProduct: paymentProductId, context: context, success: {() -> Void in
             let isRecurring = context.isRecurring ? "true" : "false"
-
             let URL = "\(self.baseURL)/\(self.configuration.customerId)/products/\(paymentProductId)/"
             var params: [String: Any] =
             [
@@ -212,21 +212,24 @@ public class C2SCommunicator: NSObject {
                 params["locale"] = context.locale
             }
 
-            self.getResponse(forURL: URL, withParameters: params, success: { (responseObject) in
-                guard let responseDic = responseObject as? [String: Any],
-                      let paymentProduct = PaymentProduct(json: responseDic) else {
-                    failure(SessionError.RuntimeError("Response was not a dictionary. Raw response: \(responseObject)"))
+            self.getResponse(forURL: URL, withParameters: params, success: { (responseObject: PaymentProduct?) in
+                guard let paymentProductResponse = responseObject else {
+                    failure(SessionError.RuntimeError("Response was empty."))
                     return
                 }
 
-                self.fixProductParametersIfRequired(forProduct: paymentProduct)
+                self.fixProductParametersIfRequired(forProduct: paymentProductResponse)
 
-                success(paymentProduct)
+                success(paymentProductResponse)
             }, failure: { error in
                 failure(error)
+            }, apiFailure: { errorResponse in
+                apiFailure?(errorResponse)
             })
         }, failure: { error in
             failure(error)
+        }, apiFailure: { errorResponse in
+            apiFailure?(errorResponse)
         })
     }
 
@@ -268,12 +271,13 @@ public class C2SCommunicator: NSObject {
         }
     }
 
-    @objc(checkAvailabilityForPaymentProductWithId:context:success:failure:)
+    @objc(checkAvailabilityForPaymentProductWithId:context:success:failure:apiFailure:)
     public func checkAvailability(
         forProduct paymentProductId: String,
         context: PaymentContext,
         success: @escaping () -> Void,
-        failure: @escaping (_ error: Error) -> Void
+        failure: @escaping (_ error: Error) -> Void,
+        apiFailure: ((_ errorResponse: ErrorResponse) -> Void)? = nil
     ) {
         if paymentProductId == SDKConstants.kApplePayIdentifier {
             if SDKConstants.SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(v: "8.0") &&
@@ -292,6 +296,9 @@ public class C2SCommunicator: NSObject {
                     },
                     failure: { error in
                         failure(error)
+                    },
+                    apiFailure: { errorResponse in
+                        apiFailure?(errorResponse)
                     }
                 )
             } else {
@@ -335,23 +342,24 @@ public class C2SCommunicator: NSObject {
         // swiftlint:enable line_length
     }
 
-    @objc(publicKeyWithSuccess:failure:)
+    @objc(publicKeyWithSuccess:failure:apiFailure:)
     public func publicKey(
         success: @escaping (_ publicKeyResponse: PublicKeyResponse) -> Void,
-        failure: @escaping (_ error: Error) -> Void
+        failure: @escaping (_ error: Error) -> Void,
+        apiFailure: ((_ errorResponse: ErrorResponse) -> Void)? = nil
     ) {
         let URL = "\(baseURL)/\(configuration.customerId)/crypto/publickey"
-        getResponse(forURL: URL, success: {(_ responseObject: Any) -> Void in
-            guard let rawPublicKeyResponse = responseObject as? [AnyHashable: Any],
-                let keyId = rawPublicKeyResponse["keyId"] as? String,
-                let encodedPublicKey = rawPublicKeyResponse["publicKey"] as? String else {
-                    failure(SessionError.RuntimeError("Response was invalid. Raw response: \(responseObject)"))
-                    return
+        getResponse(forURL: URL, success: {(_ responseObject: PublicKeyResponse?) -> Void in
+            guard let publicKeyResponse = responseObject else {
+                failure(SessionError.RuntimeError("Response was empty."))
+                return
             }
-            let response = PublicKeyResponse(keyId: keyId, encodedPublicKey: encodedPublicKey)
-            success(response)
+
+            success(publicKeyResponse)
         }, failure: { error in
             failure(error)
+        }, apiFailure: { errorResponse in
+            apiFailure?(errorResponse)
         })
     }
 
@@ -359,7 +367,8 @@ public class C2SCommunicator: NSObject {
         byPartialCreditCardNumber partialCreditCardNumber: String,
         context: PaymentContext?,
         success: @escaping (_ iinDetailsResponse: IINDetailsResponse) -> Void,
-        failure: @escaping (_ error: Error) -> Void
+        failure: @escaping (_ error: Error) -> Void,
+        apiFailure: ((_ errorResponse: ErrorResponse) -> Void)? = nil
     ) {
         let URL = "\(baseURL)/\(configuration.customerId)/services/getIINdetails"
 
@@ -384,16 +393,19 @@ public class C2SCommunicator: NSObject {
             forURL: URL,
             withParameters: parameters,
             additionalAcceptableStatusCodes: additionalAcceptableStatusCodes,
-            success: {(responseObject) -> Void in
-                guard let json = responseObject as? [String: Any] else {
-                    failure(SessionError.RuntimeError("Response was not a dictionary. Raw response: \(responseObject)"))
+            success: {(responseObject: IINDetailsResponse?) -> Void in
+                guard let iinDetailsResponse = responseObject else {
+                    failure(SessionError.RuntimeError("Response was empty."))
                     return
                 }
-                let response = IINDetailsResponse(json: json)
-                success(response)
+
+                success(iinDetailsResponse)
             },
             failure: { error in
                 failure(error)
+            },
+            apiFailure: { errorResponse in
+                apiFailure?(errorResponse)
             }
         )
     }
@@ -417,7 +429,8 @@ public class C2SCommunicator: NSObject {
         amountOfMoney: AmountOfMoney,
         cardSource: CardSource,
         success: @escaping (_ surchargeCalculationResponse: SurchargeCalculationResponse) -> Void,
-        failure: @escaping (_ error: Error) -> Void
+        failure: @escaping (_ error: Error) -> Void,
+        apiFailure: ((_ errorResponse: ErrorResponse) -> Void)? = nil
     ) {
         let URL = "\(baseURL)/\(configuration.customerId)/services/surchargecalculation"
 
@@ -448,20 +461,31 @@ public class C2SCommunicator: NSObject {
             forURL: URL,
             withParameters: parameters,
             additionalAcceptableStatusCodes: nil,
-            success: {(responseObject) -> Void in
-                guard let json = responseObject as? [String: Any] else {
-                    failure(SessionError.RuntimeError("Response was not a dictionary. Raw response: \(responseObject)"))
+            success: {(responseObject: SurchargeCalculationResponse?) -> Void in
+                guard let surchargeCalculationResponse = responseObject else {
+                    failure(SessionError.RuntimeError("Response was empty."))
                     return
                 }
-                let response = SurchargeCalculationResponse(json: json)
-                success(response)
+
+                success(surchargeCalculationResponse)
             },
             failure: { error in
                 failure(error)
+            },
+            apiFailure: { errorResponse in
+                apiFailure?(errorResponse)
             }
         )
     }
 
+    @available(
+        *,
+        deprecated,
+        message:
+            """
+            In a future release, this function will be removed.
+            """
+    )
     @objc public func getResponse(
         forURL URL: String,
         withParameters parameters: Parameters? = nil,
@@ -492,6 +516,53 @@ public class C2SCommunicator: NSObject {
         )
     }
 
+    private func getResponse<T: Codable>(
+        forURL URL: String,
+        withParameters parameters: Parameters? = nil,
+        success: @escaping (_ responseObject: T?) -> Void,
+        failure: @escaping (_ error: Error) -> Void,
+        apiFailure: ((_ errorResponse: ErrorResponse) -> Void)? = nil
+    ) {
+        if loggingEnabled {
+            logRequest(forURL: URL, requestMethod: .get)
+        }
+
+        let successHandler: (T?, Int?) -> Void = { (responseObject, statusCode) -> Void in
+               if self.loggingEnabled {
+                   self.logSuccessResponse(forURL: URL, withResponseCode: statusCode, forResponse: responseObject)
+               }
+               success(responseObject)
+        }
+
+        networkingWrapper.getResponse(
+            forURL: URL,
+            headers: headers,
+            withParameters: parameters,
+            additionalAcceptableStatusCodes: nil,
+            success: successHandler,
+            failure: { error in
+                if self.loggingEnabled {
+                    self.logFailureResponse(forURL: URL, forError: error)
+                }
+                failure(error)
+            },
+            apiFailure: { errorResponse in
+                if self.loggingEnabled {
+                    self.logApiFailureResponse(forURL: URL, forApiError: errorResponse)
+                }
+                apiFailure?(errorResponse)
+            }
+        )
+    }
+
+    @available(
+        *,
+        deprecated,
+        message:
+            """
+            In a future release, this function will be removed.
+            """
+    )
     @objc public func postResponse(
         forURL URL: String,
         withParameters parameters: [AnyHashable: Any],
@@ -523,6 +594,46 @@ public class C2SCommunicator: NSObject {
         )
     }
 
+    private func postResponse<T: Codable>(
+        forURL URL: String,
+        withParameters parameters: [AnyHashable: Any],
+        additionalAcceptableStatusCodes: IndexSet?,
+        success: @escaping (_ responseObject: T?) -> Void,
+        failure: @escaping (_ error: Error) -> Void,
+        apiFailure: ((_ errorResponse: ErrorResponse) -> Void)? = nil
+    ) {
+        if loggingEnabled {
+            logRequest(forURL: URL, requestMethod: .post, postBody: parameters as? Parameters)
+        }
+
+        let successHandler: (T?, Int?) -> Void = { (responseObject, statusCode) -> Void in
+               if self.loggingEnabled {
+                   self.logSuccessResponse(forURL: URL, withResponseCode: statusCode, forResponse: responseObject)
+               }
+               success(responseObject)
+        }
+
+        networkingWrapper.postResponse(
+            forURL: URL,
+            headers: headers,
+            withParameters: parameters as? Parameters,
+            additionalAcceptableStatusCodes: additionalAcceptableStatusCodes,
+            success: successHandler,
+            failure: { error in
+                if self.loggingEnabled {
+                    self.logFailureResponse(forURL: URL, forError: error)
+                }
+                failure(error)
+            },
+            apiFailure: { errorResponse in
+                if self.loggingEnabled {
+                    self.logApiFailureResponse(forURL: URL, forApiError: errorResponse)
+                }
+                apiFailure?(errorResponse)
+            }
+        )
+    }
+
     private func responseWithoutStatusCode(response: [String: Any]?) -> [String: Any]? {
         var originalResponse = response
         originalResponse?.removeValue(forKey: "statusCode")
@@ -538,12 +649,35 @@ public class C2SCommunicator: NSObject {
         self.logResponse(forURL: URL, responseCode: responseCode, responseBody: "\(originalResponse as AnyObject)")
     }
 
+    private func logSuccessResponse<T: Codable>(
+        forURL URL: String,
+        withResponseCode responseCode: Int?,
+        forResponse response: T
+    ) {
+        guard let responseData = try? JSONEncoder().encode(response) else {
+            print("Success response received, but could not be encoded.")
+            return
+        }
+
+        let responseString = String(decoding: responseData, as: UTF8.self)
+        self.logResponse(forURL: URL, responseCode: responseCode, responseBody: responseString)
+    }
+
     private func logFailureResponse(forURL URL: String, forError error: Error) {
         self.logResponse(
             forURL: URL,
             responseCode: error.asAFError?.responseCode,
             responseBody: "\(error.localizedDescription)",
             isError: true
+        )
+    }
+
+    private func logApiFailureResponse(forURL URL: String, forApiError errorResponse: ErrorResponse) {
+        self.logResponse(
+            forURL: URL,
+            responseCode: nil,
+            responseBody: errorResponse.message,
+            isApiError: true
         )
     }
 
@@ -572,7 +706,13 @@ public class C2SCommunicator: NSObject {
     /**
      * Logs all response headers, status code and body
      */
-    private func logResponse(forURL URL: String, responseCode: Int?, responseBody: String, isError: Bool = false) {
+    private func logResponse(
+        forURL URL: String,
+        responseCode: Int?,
+        responseBody: String,
+        isError: Bool = false,
+        isApiError: Bool = false
+    ) {
         var responseLog =
         """
         Response URL : \(URL)
@@ -591,7 +731,14 @@ public class C2SCommunicator: NSObject {
             responseLog += " \(header) \n"
         }
 
-        responseLog += isError ? "Response Error : " : "Response Body : "
+        if isApiError {
+            responseLog += "API Error : "
+        } else if isError {
+            responseLog += "Response Error : "
+        } else {
+            responseLog += "Response Body : "
+        }
+
         responseLog += responseBody
 
         print(responseLog)

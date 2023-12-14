@@ -1,6 +1,6 @@
 # Online Payments Swift SDK
 
-The Online Payments Swift SDK helps you with accepting payments in your iOS app, supporting iOS 11.0 and up, through the Online Payments platform.
+The Online Payments Swift SDK helps you with accepting payments in your iOS app, supporting iOS 12.0 and up, through the Online Payments platform.
 
 The SDK's main function is to establish a secure channel between your iOS app and our server. This channel processes security credentials to guarantee the safe transit of your customers' data during the payment process.
 
@@ -112,12 +112,13 @@ let session = Session(
     customerId: "9991-0d93d6a0e18443bd871c89ec6d38a873",
     baseURL: "https://clientapi.com",
     assetBaseURL: "https://assets.com",
-    appIdentifier: "Swift Example Application/v2.0.4"
+    appIdentifier: "Swift Example Application/v2.0.4",
+    loggingEnabled: true // set this to false in production
 )
 ```
 3. Configure your payment context.
 ```swift
-let amountOfMoney = PaymentAmountOfMoney(
+let amountOfMoney = AmountOfMoney(
     totalAmount: 1298, // in cents
     currencyCodeString: "EUR" // three letter currency code as defined in ISO 4217
 )
@@ -133,11 +134,14 @@ let paymentContext = PaymentContext(
 session.paymentItems(
     for: paymentContext,
     groupPaymentProducts: false,
-    success: {(_ paymentItems: PaymentItems) ->
+    success: { paymentItems in
         // Display the contents of paymentItems & accountsOnFile to your customer
-    )},
-    failure: { _ in
+    },
+    failure: { error in
         // Inform the customer that something went wrong while retrieving the available Payment Products
+    },
+    apiFailure: { errorResponse in
+        // Inform the customer that the API threw an error while retrieving the available Payment Products
     }
 )
 ```
@@ -146,31 +150,37 @@ session.paymentItems(
 session.paymentProduct(
     withId: "1",
     context: paymentContext,
-    success: {(_ paymentProduct: PaymentProduct) ->
+    success: { paymentProduct in
         // Display the fields to your customer
-    )},
-    failure: { _ in
+    },
+    failure: { error in
         // Handle failure of retrieving a Payment Product by id
+    },
+    apiFailure: { errorResponse in
+        // Handle API failure of retrieving a Payment Product by id
     }
 )
 ```
-6. Save the customer's input for the required information fields in a `PaymentRequest`.
+6. Save the customer's input for the required information fields in a `PaymentRequest`. These should be unmasked values.
 ```swift
 let paymentRequest = PaymentRequest()
 
-paymentRequest.setValue(forField: "cardNumber", value: "1245 1254 4575 45")
+paymentRequest.setValue(forField: "cardNumber", value: "12451254457545")
 paymentRequest.setValue(forField: "cvv", value: "123")
-paymentRequest.setValue(forField: "expiryDate", value: "12/25")
+paymentRequest.setValue(forField: "expiryDate", value: "1225")
 ```
 7. Validate and encrypt the payment request. The encrypted customer data should then be sent to your server.
 ```swift
 session.prepare(
     paymentRequest,
-    success: {(_ preparedPaymentRequest: PreparedPaymentRequest) ->
+    success: { preparedPaymentRequest in
         // Forward the encryptedFields to your server
-    )},
-    failure: { _ in
+    },
+    failure: { error in
         // Handle failure of encrypting Payment Request
+    },
+    apiFailure: { errorResponse in
+        // Handle API failure of encrypting Payment Request
     }
 )
 ```
@@ -187,10 +197,10 @@ let session = Session(
     baseURL: "https://clientapi.com",
     assetBaseURL: "https://assets.com",
     appIdentifier: "Swift Example Application/v2.0.4",
-    loggingEnabled: true
+    loggingEnabled: true // set this to false in production
 )
 ```
-Almost all methods that are offered by `Session` are simple wrappers around the Client API. They make the request and convert the response to Swift objects that may contain convenience functions.
+Almost all methods that are offered by `Session` are simple wrappers around the Client API. They create the request and convert the response to Swift objects that may contain convenience functions.
 
 #### Logging of requests and responses
 You are able to log requests made to the server and responses received from the server. By default logging is disabled, and it is important to always disable it in production. You are able to enable the logging in two ways. Either by setting its value when creating a Session - as shown in the code fragment above - or by setting its value after the Session was already created.
@@ -205,7 +215,7 @@ session.loggingEnabled = true
 public class PaymentContext {
     var countryCodeString: String // ISO 3166-1 alpha-2 country code
     var locale: String // IETF Language Tag + ISO 15897, example: 'nl_NL'
-    var amountOfMoney: PaymentAmountOfMoney // contains the total amount and the ISO 4217 currency code
+    var amountOfMoney: AmountOfMoney // contains the total amount and the ISO 4217 currency code
     var isRecurring: Bool // Set `true` when payment is recurring. Default false.
 }
 ```
@@ -220,11 +230,14 @@ The code fragment below shows how to get the `PaymentItems` instance.
 session.paymentItems(
     for: paymentContext,
     groupPaymentProducts: false,
-    success: {(_ paymentItems: PaymentItems) ->
+    success: { paymentItems in
         // Display the contents of paymentItems & accountsOnFile to your customer
-    )},
-    failure: { _ in
+    },
+    failure: { error in
         // Inform the customer that something went wrong while retrieving the available Payment Products
+    },
+    apiFailure: { errorResponse in
+        // Inform the customer that the API threw an error while retrieving the available Payment Products
     }
 )
 ```
@@ -257,7 +270,7 @@ let accountOnFile = basicPaymentProduct.accountOnFile(withIdentifier: "123")
 
 // Shows a mask based formatted value for the obfuscated cardNumber.
 // The mask that is used is defined in the displayHints of this accountOnFile
-// If the mask is {{9999}} {{9999}} {{9999}} {{9999}} {{999}}, then the result would be **** **** **** 7412
+// If the mask for the "cardNumber" field is {{9999}} {{9999}} {{9999}} {{9999}} {{999}}, then the result would be **** **** **** 7412
 let maskedValue = accountOnFile.maskedValue(forField: "cardNumber")
 ```
 
@@ -270,11 +283,14 @@ Information about the fields of payment products are represented by instances of
 session.paymentProduct(
     withId: "1",
     context: paymentContext,
-    success: {(_ paymentProduct: PaymentProduct) ->
+    success: { paymentProduct in
         // Display the fields to your customer
-    )},
-    failure: { _ in
+    },
+    failure: { error in
         // Handle failure of retrieving a Payment Product by id
+    },
+    apiFailure: { errorResponse in
+        // Handle API failure of retrieving a Payment Product by id
     }
 )
 ```
@@ -300,7 +316,7 @@ let paymentRequest = PaymentRequest(paymentProduct: paymentProduct)
 
 #### Tokenize payment request
 
-A `PaymentProduct` has a property `tokenize`, which is used to indicate whether a payment request should be stored as an account on file. The code fragment below shows how a payment request should be constructed when the request should *not* be stored as an account on file. By default, `tokenize` is set to `false`.
+A `PaymentProduct` has a property `tokenize`, which is used to indicate whether a payment request should be stored as an account on file. The code fragment below shows how a payment request should be constructed when the request should be stored as an account on file. By default, `tokenize` is set to `false`.
 ```swift
 let paymentRequest = PaymentRequest(paymentProduct: paymentProduct) // when you do not pass the tokenize value, it will be false
 
@@ -334,23 +350,23 @@ paymentRequest.setValue(forField: "expiryDate", value: "12/25")
 
 #### Validate payment request
 
-Once all values have been supplied, the payment request can be validated. Behind the scenes the validation uses the `DataRestrictions` class for each of the fields that were added to the `PaymentRequest`. After the validation, a list of errors is available, which indicates any issues that have occured during validation. If there are no errors, the payment request can be encrypted and sent to our platform via your server. If there are validation errors, the customer should be provided with feedback about these errors.
+Once all values have been supplied, the payment request can be validated. Behind the scenes the validation uses the `DataRestrictions` class for each of the fields that were added to the `PaymentRequest`. The `validate()` functions returns a list of errors, which indicates any issues that have occured during validation. This list of errors can also be accessed by the `PaymentRequest.errorMessageIds` property. If there are no errors, the payment request can be encrypted and sent to our platform via your server. If there are validation errors, the customer should be provided with feedback about these errors.
 ```swift
 // validate all fields in the payment request
-paymentRequest.validate()
+let errorMessageIds = paymentRequest.validate()
 
 // check if the payment request is valid
-if paymentRequest.errors.count == 0 {
+if errorMessageIds.count == 0 {
     // payment request is valid
 } else {
     // payment request has errors
 }
 ```
 
-The validations are the `Validator`s linked to the `PaymentProductField` and are returned as a value, for example:
+The validations are the `Validator`s linked to the `PaymentProductField` and are returned as a `ValidationError`, for example:
 ```swift
-paymentRequest.errors.forEach { error in
-    // do something with the error, like displaying it to the user
+paymentRequest.errorMessageIds.forEach { error in
+    // do something with the ValidationError, like displaying it to the user
 }
 ```
 
@@ -360,11 +376,14 @@ The `PaymentRequest` is ready for encryption once the `PaymentProduct` is set, t
 ```swift
 session.prepare(
     paymentRequest,
-    success: {(_ preparedPaymentRequest: PreparedPaymentRequest) ->
-        // Pass the encrypted payment request to your server which should then forward it to the Server API
-    )},
-    failure: { _ in
-        // Handle failure of encrypting a Payment Request
+    success: { preparedPaymentRequest in
+        // Forward the encryptedFields to your server
+    },
+    failure: { error in
+        // Handle failure of encrypting Payment Request
+    },
+    apiFailure: { errorResponse in
+        // Handle API failure of encrypting Payment Request
     }
 )
 ```
@@ -386,12 +405,15 @@ The `IINDetailsResponse` has a status property represented through the `IINStatu
 session.iinDetails(
     forPartialCreditCardNumber: "123456",
     context: paymentContext,
-    success: {(_ iinDetailsResponse: IINDetailsResponse) ->
+    success: { iinDetailsResponse in
         // check the status of the associated payment product
         let iinStatus = iinDetailsResponse.status
-    )},
-    failure: { _ in
+    },
+    failure: { error in
         // Handle failure of retrieving IIN details
+    },
+    apiFailure: { errorResponse in
+        // Handle API failure of retrieving IIN details
     }
 )
 ```
@@ -427,10 +449,11 @@ let session = Session(
     customerId: "9991-0d93d6a0e18443bd871c89ec6d38a873",
     baseURL: "https://clientapi.com",
     assetBaseURL: "https://assets.com",
-    appIdentifier: "Swift Example Application/v2.0.4"
+    appIdentifier: "Swift Example Application/v2.0.4",
+    loggingEnabled: true // set this to false in production
 )
 
-let amountOfMoney = PaymentAmountOfMoney(
+let amountOfMoney = AmountOfMoney(
     totalAmount: 1298, // in cents
     currencyCodeString: "EUR" // ISO 4217 currency code
 )
@@ -458,11 +481,14 @@ Retrieve the payment products and accounts on file that can be used for this pay
 session.paymentItems(
     for: paymentContext,
     groupPaymentProducts: false,
-    success: {(_ paymentItems: PaymentItems) ->
+    success: { paymentItems in
         // Display the contents of paymentItems & accountsOnFile to your customer
-    )},
-    failure: { _ in
+    },
+    failure: { error in
         // Inform the customer that something went wrong while retrieving the available Payment Products
+    },
+    apiFailure: { errorResponse in
+        // Inform the customer that the API threw an error while retrieving the available Payment Products
     }
 )
 ```
@@ -478,14 +504,14 @@ Retrieve all the details about the payment product - including it's fields - tha
 session.paymentProduct(
     withId: "1",
     context: paymentContext,
-    success: {(_ paymentProduct: PaymentProduct) ->
-        // Assign the paymentProduct to the paymentRequest
-        let paymentRequest = PaymentRequest(paymentProduct: paymentProduct)
-
+    success: { paymentProduct in
         // Display the fields to your customer
-    )},
-    failure: { _ in
+    },
+    failure: { error in
         // Handle failure of retrieving a Payment Product by id
+    },
+    apiFailure: { errorResponse in
+        // Handle API failure of retrieving a Payment Product by id
     }
 )
 ```
@@ -498,11 +524,14 @@ Encrypt all the provided payment information in the `PaymentRequest` using `sess
 ```swift
 session.prepare(
     paymentRequest,
-    success: {(_ preparedPaymentRequest: PreparedPaymentRequest) ->
-        // Pass the encrypted payment request to your  server which should then forward it to the Server API
-    )},
-    failure: { _ in
-        // Handle failure of encrypting a Payment Request
+    success: { preparedPaymentRequest in
+        // Forward the encryptedFields to your server
+    },
+    failure: { error in
+        // Handle failure of encrypting Payment Request
+    },
+    apiFailure: { errorResponse in
+        // Handle API failure of encrypting Payment Request
     }
 )
 ```
@@ -512,5 +541,5 @@ All the heavy lifting, such as requesting a public key from the Client API, perf
 From your server, make a create payment request, providing the encrypted data in the `encryptedCustomerInput` field.
 
 ### 5. Response from the Server API call
-It is up to you and your application to show the customer the correct screens based on the response of the Server API call. In some cases, the payment has not finished yet since the customer must be redirected to a third party (such as a bank or PayPayl) to authorise the payment. See the Server API documentation on what kinds of responses the Server API can return. The Client API has no part in the remainder of the payment.
+It is up to you and your application to show the customer the correct screens based on the response of the Server API call. In some cases, the payment has not finished yet since the customer must be redirected to a third party (such as a bank or PayPal) to authorise the payment. See the Server API documentation on what kinds of responses the Server API can return. The Client API has no part in the remainder of the payment.
 

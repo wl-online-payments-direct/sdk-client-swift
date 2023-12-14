@@ -7,7 +7,7 @@
 import Foundation
 
 @objc(OPPreparedPaymentRequest)
-public class PreparedPaymentRequest: NSObject {
+public class PreparedPaymentRequest: NSObject, Codable {
 
     @objc public var encryptedFields: String
     @objc public var encodedClientMetaInfo: String

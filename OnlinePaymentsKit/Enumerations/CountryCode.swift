@@ -14,7 +14,7 @@
         adhering to the ISO 3166-1 alpha-2 standard. See https://www.iso.org/iso-3166-country-codes.html ."
         """
 )
-public enum CountryCode: String {
+public enum CountryCode: String, Codable {
     case AF
     case AX
     case AL

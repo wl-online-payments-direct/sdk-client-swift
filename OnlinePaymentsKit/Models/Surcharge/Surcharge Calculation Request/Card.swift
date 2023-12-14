@@ -6,7 +6,7 @@
 
 import Foundation
 
-internal class Card: NSObject {
+internal class Card: NSObject, Codable {
     var cardNumber: String
     public var paymentProductId: Int?
 

@@ -29,10 +29,6 @@ class SessionTestCase: XCTestCase {
             countryCode: "NL"
         )
 
-    override func setUp() {
-        super.setUp()
-    }
-
     func testPaymentProductsForContext() {
         stub(condition: isHost(host) && isPath("/client/v1/customer-id/products") && isMethodGET()) { _ in
             let response = [
@@ -45,6 +41,7 @@ class SessionTestCase: XCTestCase {
                             "label": "Visa",
                             "logo": "https://example.com/templates/master/global/css/img/ppimages/pp_logo_1_v1.png"
                         ],
+                        "usesRedirectionTo3rdParty": false,
                         "id": 1,
                         "maxAmount": 1000000,
                         "mobileIntegrationLevel": "OPTIMISED_SUPPORT",
@@ -59,6 +56,7 @@ class SessionTestCase: XCTestCase {
                             "label": "American Express",
                             "logo": "https://example.com/templates/master/global/css/img/ppimages/pp_logo_2_v1.png"
                         ],
+                        "usesRedirectionTo3rdParty": false,
                         "id": 2,
                         "maxAmount": 1000000,
                         "mobileIntegrationLevel": "OPTIMISED_SUPPORT",
@@ -73,6 +71,7 @@ class SessionTestCase: XCTestCase {
                             "label": "MasterCard",
                             "logo": "https://example.com/templates/master/global/css/img/ppimages/pp_logo_3_v1.png"
                         ],
+                        "usesRedirectionTo3rdParty": false,
                         "id": 3,
                         "maxAmount": 1000000,
                         "mobileIntegrationLevel": "OPTIMISED_SUPPORT",
@@ -104,7 +103,7 @@ class SessionTestCase: XCTestCase {
         }
     }
 
-    func testPaymentProductNetworksForProductId() {
+    func testPaymentProductNetworksForApplePay() {
         stub(condition: isHost(host) && isPath("/client/v1/customer-id/products/302") && isMethodGET()) { _ in
             let response = [
                 "allowsRecurring": false,
@@ -174,7 +173,7 @@ class SessionTestCase: XCTestCase {
             withId: "302",
             context: context,
             success: { product in
-                self.check(paymentProductWithNetworks: product)
+                self.checkPaymentProductWithNetworks(product: product, isApplePay: true)
                 expectation.fulfill()
             },
             failure: { (error) in
@@ -190,12 +189,105 @@ class SessionTestCase: XCTestCase {
         }
     }
 
-    fileprivate func check(paymentProductWithNetworks product: PaymentProduct) {
-        XCTAssertEqual(product.identifier, "302", "Received product id not as expected")
-        XCTAssertEqual(product.displayHintsList.first?.displayOrder, 0, "Received product displayOrder not as expected")
+    func testPaymentProductNetworksForGooglePay() {
+        stub(condition: isHost(host) && isPath("/client/v1/customer-id/products/320") && isMethodGET()) { _ in
+            let response = [
+                "allowsRecurring": false,
+                "allowsTokenization": false,
+                "displayHints": [
+                    "displayOrder": 1,
+                    "label": "GOOGLEPAY",
+                    "logo": "https://example.com/templates/master/global/css/img/ppimages/pp_logo_2_v1.png"
+                ],
+                "displayHintsList": [[
+                    "displayOrder": 1,
+                    "label": "GOOGLEPAY",
+                    "logo": "https://example.com/templates/master/global/css/img/ppimages/pp_logo_2_v1.png"
+                ]],
+                "fields": [
+                    [
+                        "dataRestrictions": [
+                            "isRequired": true,
+                            "validators": []
+                        ],
+                        "displayHints": [
+                            "alwaysShow": false,
+                            "displayOrder": 0,
+                            "formElement": [
+                                "type": "text"
+                            ],
+                            "label": "",
+                            "obfuscate": false,
+                            "placeholderLabel": "",
+                            "preferredInputType": "StringKeyboard",
+                            "tooltip": [
+                                "label": ""
+                            ]
+                        ],
+                        "id": "encryptedPaymentData",
+                        "type": "string"
+                    ]
+                ],
+                "id": 320,
+                "paymentMethod": "mobile",
+                "usesRedirectionTo3rdParty": false,
+                "paymentProduct320SpecificData": [
+                    "networks": [
+                        "Visa",
+                        "MasterCard"
+                    ],
+                    "gateway": "googlepaygateway"
+                ]
+                ] as [String: Any]
+            return
+                HTTPStubsResponse(jsonObject: response, statusCode: 200, headers: ["Content-Type": "application/json"])
+        }
+
+        stub(condition: isHost(host) && isPath("/client/v1/customer-id/products/320/networks") && isMethodGET()) { _ in
+            let response = [
+                "networks": [
+                    "Visa",
+                    "MasterCard"
+                ]
+            ] as [String: Any]
+            return
+                HTTPStubsResponse(jsonObject: response, statusCode: 200, headers: ["Content-Type": "application/json"])
+        }
+
+        let expectation = self.expectation(description: "Response provided")
+
+        session.paymentProduct(
+            withId: "320",
+            context: context,
+            success: { product in
+                self.checkPaymentProductWithNetworks(product: product, isApplePay: false)
+                expectation.fulfill()
+            },
+            failure: { (error) in
+                XCTFail("Unexpected failure while testing paymentProductWithId: \(error.localizedDescription)")
+                expectation.fulfill()
+            }
+        )
+
+        waitForExpectations(timeout: 3) { error in
+            if let error = error {
+                print("Timeout error: \(error.localizedDescription)")
+            }
+        }
+    }
+
+    private func checkPaymentProductWithNetworks(product: PaymentProduct, isApplePay: Bool) {
+        XCTAssertEqual(product.identifier, isApplePay ? "302" : "320", "Received product id not as expected")
+        XCTAssertEqual(
+            product.displayHintsList.first?.displayOrder,
+            isApplePay ? 0 : 1,
+            "Received product displayOrder not as expected"
+        )
         XCTAssertEqual(
             product.displayHintsList.first?.logoPath,
-            "https://example.com/templates/master/global/css/img/ppimages/pp_logo_1_v1.png",
+            isApplePay ?
+                "https://example.com/templates/master/global/css/img/ppimages/pp_logo_1_v1.png" :
+                "https://example.com/templates/master/global/css/img/ppimages/pp_logo_2_v1.png",
             "Received product logoPath not as expected"
         )
 
@@ -238,12 +330,34 @@ class SessionTestCase: XCTestCase {
         XCTAssertEqual(product.paymentMethod, "mobile", "Received product paymentMethod not as expected")
 
         // Networks
-        guard let product302SpecificData = product.paymentProduct302SpecificData else {
-            XCTFail("Received product 302SpecificData not as expected")
-            return
-        }
+        if isApplePay {
+            guard let product302SpecificData = product.paymentProduct302SpecificData else {
+                XCTFail("Received product 302SpecificData not as expected")
+                return
+            }
 
-        XCTAssertEqual(product302SpecificData.networks.count, 2, "Received 302SpecificData networks not as expected")
+            XCTAssertEqual(
+                product302SpecificData.networks.count,
+                2,
+                "Received 302SpecificData networks not as expected"
+            )
+        } else {
+            guard let product320SpecificData = product.paymentProduct320SpecificData else {
+                XCTFail("Received product 320SpecificData not as expected")
+                return
+            }
+
+            XCTAssertEqual(
+                product320SpecificData.networks.count,
+                2,
+                "Received 320SpecificData networks not as expected"
+            )
+            XCTAssertEqual(
+                product320SpecificData.gateway,
+                "googlepaygateway",
+                "Received 320SpecificData networks not as expected"
+            )
+        }
     }
 
     func testPaymentProductWithId() {
@@ -261,6 +375,7 @@ class SessionTestCase: XCTestCase {
                     "label": "Visa",
                     "logo": "https://example.com/templates/master/global/css/img/ppimages/pp_logo_1_v1.png"
                 ]],
+                "usesRedirectionTo3rdParty": false,
                 "fields": [
                     [
                         "dataRestrictions": [
@@ -338,13 +453,7 @@ class SessionTestCase: XCTestCase {
 
                 // Check initializeImages
                 XCTAssertNotNil(product.displayHintsList.first?.logoImage)
-                for index in 0..<product.fields.paymentProductFields.count {
-                    let field = product.fields.paymentProductFields[index]
 
-                    if field.displayHints.tooltip?.imagePath != nil {
-                        XCTAssertNotNil(field.displayHints.tooltip?.image)
-                    }
-                }
                 expectation.fulfill()
             },
             failure: { (error) in

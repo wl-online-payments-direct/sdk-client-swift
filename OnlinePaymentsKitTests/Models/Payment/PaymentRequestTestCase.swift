@@ -12,17 +12,9 @@ import OHHTTPStubsSwift
 
 class PaymentRequestTestCase: XCTestCase {
 
-    let request = PaymentRequest(paymentProduct: PaymentProduct(json: [
-        "fields": [[:]],
-        "id": 1,
-        "paymentMethod": "card",
-        "displayHints": [
-            "displayOrder": 20,
-            "label": "Visa",
-            "logo": "/this/is_a_test.png"
-        ]
-    ])!)
-    let account = AccountOnFile(json: ["id": 1, "paymentProductId": 1])!
+    var request: PaymentRequest!
+    var account: AccountOnFile!
+
     let fieldId = "1"
     var attribute: AccountOnFileAttribute!
     var session = Session(clientSessionId: "client-session-id",
@@ -34,27 +26,49 @@ class PaymentRequestTestCase: XCTestCase {
     override func setUp() {
         super.setUp()
 
-        attribute =
-            AccountOnFileAttribute(
-                json: ["key": fieldId, "value": "paymentProductFieldValue1", "status": "CAN_WRITE"]
-            )!
-
-        account.attributes = AccountOnFileAttributes()
-        account.attributes.attributes.append(attribute)
-        request.accountOnFile = account
-
-        request.paymentProduct = PaymentProduct(json: [
-            "fields": [[:]],
+        let paymentProductJSON = Data("""
+        {
+            "fields": [],
             "id": 1,
             "paymentMethod": "card",
-            "displayHints": [
+            "displayHints": {
                 "displayOrder": 20,
                 "label": "Visa",
                 "logo": "/templates/master/global/css/img/ppimages/pp_logo_1_v1.png"
-            ]
-        ])!
+            },
+            "usesRedirectionTo3rdParty": false
+        }
+        """.utf8)
 
-        let field = PaymentProductField(json: [
+        guard let paymentProduct = try? JSONDecoder().decode(PaymentProduct.self, from: paymentProductJSON) else {
+            XCTFail("Not a valid PaymentProduct")
+            return
+        }
+
+        request = PaymentRequest(paymentProduct: paymentProduct)
+
+        let accountJSON = Data("""
+        {
+            "id": 1,
+            "paymentProductId": 1,
+            "attributes": [{
+                "key": "\(fieldId)",
+                "value": "paymentProductFieldValue1",
+                "status": "CAN_WRITE"
+            }]
+        }
+        """.utf8)
+        account = try? JSONDecoder().decode(AccountOnFile.self, from: accountJSON)
+        guard let account else {
+            XCTFail("Not a valid AccountOnFile")
+            return
+        }
+
+        attribute = account.attributes.attributes.first
+
+        request.accountOnFile = account
+
+        let fieldDictionary = [
             "displayHints": [
                 "displayOrder": 0,
                 "formElement": [
@@ -63,14 +77,24 @@ class PaymentRequestTestCase: XCTestCase {
             ],
             "id": fieldId,
             "type": "numericstring"
-        ])!
+        ] as [String: Any]
+
+        guard let fieldJSON = try? JSONSerialization.data(withJSONObject: fieldDictionary) else {
+            XCTFail("Not a valid Dictionary")
+            return
+        }
+        guard let field = try? JSONDecoder().decode(PaymentProductField.self, from: fieldJSON) else {
+            XCTFail("Not a valid PaymentProductField")
+            return
+        }
+
         request.paymentProduct?.fields.paymentProductFields.append(field)
         request.paymentProduct?.paymentProductField(withId: fieldId)?.displayHints.mask =
             "{{9999}} {{9999}} {{9999}} {{9999}} {{9999}}"
         request.setValue(forField: field.identifier, value: "payment1Value")
         request.formatter = StringFormatter()
 
-        request.validate()
+        _ = request.validate()
     }
 
     func testGetValue() {
@@ -98,6 +122,16 @@ class PaymentRequestTestCase: XCTestCase {
             "Value was found: \(request.maskedValue(forField: "999")!)."
         )
 
+    }
+
+    func testRemoveValue() {
+        let value = request.getValue(forField: fieldId)
+        XCTAssertNotNil(value)
+
+        request.removeValue(forField: fieldId)
+
+        let removedValue = request.getValue(forField: fieldId)
+        XCTAssertNil(removedValue)
     }
 
     func testIsPartOfAccount() {

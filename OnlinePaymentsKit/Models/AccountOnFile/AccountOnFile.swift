@@ -7,7 +7,7 @@
 import Foundation
 
 @objc(OPAccountOnFile)
-public class AccountOnFile: NSObject, ResponseObjectSerializable {
+public class AccountOnFile: NSObject, Codable, ResponseObjectSerializable {
 
     @objc public var identifier: String
     @objc public var paymentProductIdentifier: String
@@ -15,7 +15,7 @@ public class AccountOnFile: NSObject, ResponseObjectSerializable {
     @objc public var attributes = AccountOnFileAttributes()
     @objc public var stringFormatter = StringFormatter()
 
-    @available(*, deprecated, message: "In a future release, this initializer will become internal to the SDK.")
+    @available(*, deprecated, message: "In a future release, this initializer will be removed.")
     @objc public required init?(json: [String: Any]) {
 
         guard let identifier = json["id"] as? Int,
@@ -40,6 +40,44 @@ public class AccountOnFile: NSObject, ResponseObjectSerializable {
                 }
             }
         }
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case id, paymentProductId, displayHints, attributes
+    }
+
+    public required init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+
+        if let idInt = try? container.decode(Int.self, forKey: .id) {
+            self.identifier = "\(idInt)"
+        } else {
+            self.identifier = try container.decode(String.self, forKey: .id)
+        }
+
+        if let paymentProductIdInt = try? container.decode(Int.self, forKey: .paymentProductId) {
+            self.paymentProductIdentifier = "\(paymentProductIdInt)"
+        } else {
+            self.paymentProductIdentifier = try container.decode(String.self, forKey: .paymentProductId)
+        }
+
+        if let displayHints = try? container.decodeIfPresent(AccountOnFileDisplayHints.self, forKey: .displayHints) {
+            self.displayHints = displayHints
+        }
+        if let accountOnFileAttributes =
+            try? container.decodeIfPresent([AccountOnFileAttribute].self, forKey: .attributes) {
+                for accountOnFileAttribute in accountOnFileAttributes {
+                    self.attributes.attributes.append(accountOnFileAttribute)
+                }
+        }
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try? container.encode(identifier, forKey: .id)
+        try? container.encode(paymentProductIdentifier, forKey: .paymentProductId)
+        try? container.encode(displayHints, forKey: .displayHints)
+        try? container.encode(attributes.attributes, forKey: .attributes)
     }
 
     @objc public func maskedValue(forField paymentProductFieldId: String) -> String {

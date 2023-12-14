@@ -7,7 +7,7 @@
 import Foundation
 
 @objc(OPPaymentContext)
-public class PaymentContext: NSObject {
+public class PaymentContext: NSObject, Decodable {
     @available(
         *,
         deprecated,
@@ -18,6 +18,7 @@ public class PaymentContext: NSObject {
     @objc public var locale = String()
     @available(*, deprecated, message: "In a future release, this field will be removed.")
     @objc public var forceBasicFlow = false
+    @available(*, deprecated, message: "In a future release, the type of this field will become 'AmountOfMoney'.")
     @objc public var amountOfMoney: PaymentAmountOfMoney
     @objc public var isRecurring: Bool
 
@@ -39,6 +40,37 @@ public class PaymentContext: NSObject {
         self.isRecurring = isRecurring
         self.countryCode = CountryCode.init(rawValue: countryCode) ?? .UNKNOWN
         self.countryCodeString = countryCode
+
+        if let languageCode = Locale.current.languageCode {
+            self.locale = languageCode.appending("_")
+        }
+        if let regionCode = Locale.current.regionCode, !self.locale.isEmpty {
+            self.locale = self.locale.appending(regionCode)
+        }
+    }
+
+    enum CodingKeys: CodingKey {
+        case countryCode, forceBasicFlow, amountOfMoney, isRecurring
+    }
+
+    public required init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+
+        if let countryCodeString = try? container.decodeIfPresent(String.self, forKey: .countryCode) {
+            self.countryCodeString = countryCodeString
+            self.countryCode = CountryCode.init(rawValue: countryCodeString) ?? .UNKNOWN
+        } else {
+            self.countryCodeString = "UNKNOWN"
+            self.countryCode = .UNKNOWN
+        }
+
+        if let forceBasicFlow = try? container.decodeIfPresent(Bool.self, forKey: .forceBasicFlow) {
+            self.forceBasicFlow = forceBasicFlow
+        }
+
+        self.amountOfMoney = try container.decode(PaymentAmountOfMoney.self, forKey: .amountOfMoney)
+
+        self.isRecurring = try container.decodeIfPresent(Bool.self, forKey: .isRecurring) ?? false
 
         if let languageCode = Locale.current.languageCode {
             self.locale = languageCode.appending("_")

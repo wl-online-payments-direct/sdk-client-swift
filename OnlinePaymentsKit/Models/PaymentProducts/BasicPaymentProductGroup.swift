@@ -7,7 +7,7 @@
 import Foundation
 
 @objc(OPBasicPaymentProductGroup)
-public class BasicPaymentProductGroup: NSObject, ResponseObjectSerializable, BasicPaymentItem {
+public class BasicPaymentProductGroup: NSObject, Codable, ResponseObjectSerializable, BasicPaymentItem {
 
     @objc public var identifier: String
     @available(*, deprecated, message: "In the next major release, the type of displayHints will change to List.")
@@ -26,7 +26,7 @@ public class BasicPaymentProductGroup: NSObject, ResponseObjectSerializable, Bas
         }
     }
 
-    @available(*, deprecated, message: "In a future release, this initializer will become internal to the SDK.")
+    @available(*, deprecated, message: "In a future release, this initializer will be removed.")
     @objc public required init?(json: [String: Any]) {
         guard let identifier = json["id"] as? String,
             let hints = json["displayHints"] as? [String: Any],
@@ -51,6 +51,34 @@ public class BasicPaymentProductGroup: NSObject, ResponseObjectSerializable, Bas
                 }
             }
         }
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case id, displayHints, displayHintsList, accountsOnFile
+    }
+
+    public required init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.identifier = try container.decode(String.self, forKey: .id)
+        self.displayHints = try container.decode(PaymentItemDisplayHints.self, forKey: .displayHints)
+        if let displayHintsList =
+            try? container.decodeIfPresent([PaymentItemDisplayHints].self, forKey: .displayHintsList) {
+                self.displayHintsList = displayHintsList
+        }
+
+        if let accountsOnFile = try? container.decodeIfPresent([AccountOnFile].self, forKey: .accountsOnFile) {
+            for accountOnFile in accountsOnFile {
+                self.accountsOnFile.accountsOnFile.append(accountOnFile)
+            }
+        }
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try? container.encode(identifier, forKey: .id)
+        try? container.encode(displayHints, forKey: .displayHints)
+        try? container.encode(displayHintsList, forKey: .displayHintsList)
+        try? container.encode(accountsOnFile.accountsOnFile, forKey: .accountsOnFile)
     }
 
     @objc public func accountOnFile(withIdentifier identifier: String) -> AccountOnFile? {

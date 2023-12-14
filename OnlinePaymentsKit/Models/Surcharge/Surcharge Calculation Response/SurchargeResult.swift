@@ -7,7 +7,7 @@
 import Foundation
 
 @objc(OPSurchargeResult)
-public enum SurchargeResult: Int {
+public enum SurchargeResult: Int, Codable {
     // swiftlint:disable identifier_name
     @objc(OPOk) case ok
     // swiftlint:enable identifier_name

@@ -7,11 +7,24 @@
 import Foundation
 
 @objc(OPValidator)
-public class Validator: NSObject {
+public class Validator: NSObject, Codable {
     @objc public var errors: [ValidationError] = []
+    @objc public var messageId: String = ""
+    @objc public var validationType: ValidationType = .type
 
+    @available(*, deprecated, message: "In a future release, this function will be removed.")
     @objc(validate:forPaymentRequest:)
     public func validate(value: String, for: PaymentRequest) {
+        clearErrors()
+    }
+
+    internal func validate(value: String, for fieldId: String?) -> Bool {
+        clearErrors()
+
+        return true
+    }
+
+    internal func clearErrors() {
         errors.removeAll()
     }
 
@@ -19,4 +32,50 @@ public class Validator: NSObject {
     @objc public override init() {
         super.init()
     }
+
+    internal init(messageId: String, validationType: ValidationType) {
+        self.messageId = messageId
+        self.validationType = validationType
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case messageId, validationType
+    }
+
+    public required init(from decoder: Decoder) throws {}
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encodeIfPresent(messageId, forKey: .messageId)
+        try container.encodeIfPresent(getValidationTypeString(type: validationType), forKey: .validationType)
+    }
+
+    // swiftlint:disable cyclomatic_complexity
+    private func getValidationTypeString(type: ValidationType) -> String {
+        switch type {
+        case .expirationDate:
+            return "EXPIRATIONDATE"
+        case .emailAddress:
+            return "EMAILADDRESS"
+        case .fixedList:
+            return "FIXEDLIST"
+        case .iban:
+            return "IBAN"
+        case .length:
+            return "LENGTH"
+        case .luhn:
+            return "LUHN"
+        case .range:
+            return "RANGE"
+        case .regularExpression:
+            return "REGULAREXPRESSION"
+        case .required:
+            return "REQUIRED"
+        case .type:
+            return "TYPE"
+        case .termsAndConditions:
+            return "TERMSANDCONDITIONS"
+        }
+    }
+    // swiftlint:enable cyclomatic_complexity
 }
