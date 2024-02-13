@@ -108,6 +108,20 @@ public class PaymentRequest: NSObject, Codable {
     public func isPartOfAccountOnFile(field paymentProductFieldId: String) -> Bool {
         return accountOnFile?.hasValue(forField: paymentProductFieldId) ?? false
     }
+    
+    @objc(fieldIsPartOfAccountOnFileAndNotModified:)
+    public func isPartOfAccountOnFileAndNotModified(field paymentProductFieldId: String) -> Bool {
+        if let accountOnFile,
+           !accountOnFile.attributes.attributes.isEmpty {
+            for attribute in accountOnFile.attributes.attributes {
+                if attribute.key == paymentProductFieldId &&
+                    (!attribute.isEditingAllowed() || getValue(forField: paymentProductFieldId) == nil) {
+                    return true
+                }
+            }
+        }
+        return false
+    }
 
     @objc(fieldIsReadOnly:)
     public func isReadOnly(field paymentProductFieldId: String) -> Bool {
@@ -140,21 +154,21 @@ public class PaymentRequest: NSObject, Codable {
         }
 
         for field in paymentProduct.fields.paymentProductFields {
-            if let fieldValue = unmaskedValue(forField: field.identifier) {
-                if !isPartOfAccountOnFile(field: field.identifier) {
+            if !isPartOfAccountOnFileAndNotModified(field: field.identifier) {
+                if let fieldValue = unmaskedValue(forField: field.identifier) {
                     let fieldErrors = field.validateValue(value: fieldValue, for: self)
                     errors.append(contentsOf: fieldErrors)
                     errorMessageIds.append(contentsOf: fieldErrors)
+                } else {
+                    let error =
+                        ValidationErrorIsRequired(
+                            errorMessage: "required",
+                            paymentProductFieldId: field.identifier,
+                            rule: nil
+                        )
+                    errors.append(error)
+                    errorMessageIds.append(error)
                 }
-            } else {
-                let error =
-                    ValidationErrorIsRequired(
-                        errorMessage: "required",
-                        paymentProductFieldId: field.identifier,
-                        rule: nil
-                    )
-                errors.append(error)
-                errorMessageIds.append(error)
             }
         }
         return errorMessageIds

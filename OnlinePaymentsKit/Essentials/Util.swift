@@ -50,7 +50,7 @@ public class Util: NSObject {
         super.init()
         metaInfo = [
             "platformIdentifier": platformIdentifier,
-            "sdkIdentifier": "SwiftClientSDK/v2.2.1",
+            "sdkIdentifier": "SwiftClientSDK/v2.2.2",
             "sdkCreator": "Online Payments",
             "screenSize": screenSize,
             "deviceBrand": "Apple",
