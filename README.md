@@ -120,13 +120,13 @@ let session = Session(
 ```swift
 let amountOfMoney = AmountOfMoney(
     totalAmount: 1298, // in cents
-    currencyCodeString: "EUR" // three letter currency code as defined in ISO 4217
+    currencyCode: "EUR" // three letter currency code as defined in ISO 4217
 )
 
 let paymentContext = PaymentContext(
     amountOfMoney: amountOfMoney,
     isRecurring: false, // true, if it is a recurring payment
-    countryCodeString: "NL" // two letter country code as defined in ISO 3166-1 alpha-2
+    countryCode: "NL" // two letter country code as defined in ISO 3166-1 alpha-2
 )
 ```
 4. Retrieve the available Payment Products. Display the `BasicPaymentItem` and `AccountOnFile` lists and request your customer to select one.
@@ -213,7 +213,7 @@ session.loggingEnabled = true
 `PaymentContext` is an object that contains the context/settings of the upcoming payment. It is required as an argument to some of the methods of the `Session` instance. This object can contain the following details:
 ```swift
 public class PaymentContext {
-    var countryCodeString: String // ISO 3166-1 alpha-2 country code
+    var countryCode: String // ISO 3166-1 alpha-2 country code
     var locale: String // IETF Language Tag + ISO 15897, example: 'nl_NL'
     var amountOfMoney: AmountOfMoney // contains the total amount and the ISO 4217 currency code
     var isRecurring: Bool // Set `true` when payment is recurring. Default false.
@@ -455,13 +455,13 @@ let session = Session(
 
 let amountOfMoney = AmountOfMoney(
     totalAmount: 1298, // in cents
-    currencyCodeString: "EUR" // ISO 4217 currency code
+    currencyCode: "EUR" // ISO 4217 currency code
 )
 
 let paymentContext = PaymentContext(
     amountOfMoney: amountOfMoney,
     isRecurring: false, // true, if it is a recurring payment
-    countryCodeString: "NL" // ISO 3166-1 alpha-2 country code
+    countryCode: "NL" // ISO 3166-1 alpha-2 country code
 )
 ```
 
@@ -470,8 +470,8 @@ let paymentContext = PaymentContext(
 - The `baseURL` and `assetBaseURL` are the URLs the SDK should connect to. The SDK communicates with two types of servers to perform its tasks. One type of server offers the Client API as discussed above. And the other type of server stores the static resources used by the SDK, such as the logos of payment products.
 - Payment information (`paymentContext`) is not needed to construct a session, but you will need to provide it when requesting any payment product information. The payment products that the customer can choose from depend on the provided payment information, so the Client SDK needs this information to be able to do its job. The payment information that is needed is:
     - the total amount of the payment, defined as property `amountOfMoney.totalAmount`
-    - the currency that should be used, defined as property `amountOfMoney.currencyCodeString`
-    - the country of the person that is performing the payment, defined as property `countryCodeString`
+    - the currency that should be used, defined as property `amountOfMoney.currencyCode`
+    - the country of the person that is performing the payment, defined as property `countryCode`
     - whether the payment is a single payment or a recurring payment
 
 ### 2. Retrieve the payment items

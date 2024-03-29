@@ -17,8 +17,8 @@ class SessionTestCase: XCTestCase {
         StubSession(
             clientSessionId: "client-session-id",
             customerId: "customer-id",
-            baseURL: "https://example.com/client/v1",
-            assetBaseURL: "https://example.com/client/v1",
+            baseURL: "https://example.com",
+            assetBaseURL: "https://example.com",
             appIdentifier: "",
             loggingEnabled: false
         )
@@ -633,7 +633,7 @@ class SessionTestCase: XCTestCase {
         expectation = self.expectation(description: "Response provided")
         session.iinDetails(forPartialCreditCardNumber: "012345", context: context, success: { iinDetailsResponse in
             XCTAssertEqual(iinDetailsResponse.status.hashValue, IINStatus.supported.hashValue)
-            XCTAssertEqual(iinDetailsResponse.countryCodeString, "RU")
+            XCTAssertEqual(iinDetailsResponse.countryCode, "RU")
             XCTAssertEqual(iinDetailsResponse.paymentProductId, "3")
             expectation.fulfill()
         }, failure: { _ in
@@ -661,7 +661,7 @@ class SessionTestCase: XCTestCase {
         session.iinLookupPending = true
         session.iinDetails(forPartialCreditCardNumber: "426398", context: context, success: { iinDetailsResponse in
             XCTAssertEqual(iinDetailsResponse.status.hashValue, IINStatus.existingButNotAllowed.hashValue)
-            XCTAssertEqual(iinDetailsResponse.countryCodeString, "RU")
+            XCTAssertEqual(iinDetailsResponse.countryCode, "RU")
             XCTAssertEqual(iinDetailsResponse.paymentProductId, "3")
             expectation.fulfill()
         }, failure: { _ in

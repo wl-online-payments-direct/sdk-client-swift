@@ -7,62 +7,53 @@
 import Alamofire
 import PassKit
 
-@available(
-    *,
-    deprecated,
-    message:
-        """
-        In a future release, this class, its functions and its properties will become internal to the SDK.
-        """
-)
-@objc(OPC2SCommunicator)
-public class C2SCommunicator: NSObject {
-    @objc public var configuration: C2SCommunicatorConfiguration
-    @objc public var networkingWrapper = AlamofireWrapper.shared
+internal class C2SCommunicator {
+    var configuration: C2SCommunicatorConfiguration
+    var networkingWrapper = AlamofireWrapper.shared
 
-    @objc public var baseURL: String {
+    var baseURL: String {
         return configuration.baseURL
     }
 
-    @objc public var assetsBaseURL: String {
+    var assetsBaseURL: String {
         return configuration.assetsBaseURL
     }
 
-    @objc public var clientSessionId: String {
+    var clientSessionId: String {
         return configuration.clientSessionId
     }
 
-    @objc public var base64EncodedClientMetaInfo: String {
+    var base64EncodedClientMetaInfo: String {
         return configuration.base64EncodedClientMetaInfo ?? ""
     }
 
-    internal var loggingEnabled: Bool {
+    var loggingEnabled: Bool {
         return configuration.loggingEnabled
     }
 
-    public var headers: HTTPHeaders {
+    var headers: HTTPHeaders {
         return [
             "Authorization": "GCS v1Client:\(clientSessionId)",
             "X-GCS-ClientMetaInfo": base64EncodedClientMetaInfo
         ]
     }
 
-    @objc public init(configuration: C2SCommunicatorConfiguration) {
+    init(configuration: C2SCommunicatorConfiguration) {
         self.configuration = configuration
     }
 
-    @objc public func paymentProducts(
+    func paymentProducts(
         forContext context: PaymentContext,
         success: @escaping (_ paymentProducts: BasicPaymentProducts) -> Void,
         failure: @escaping (_ error: Error) -> Void,
         apiFailure: ((_ errorResponse: ErrorResponse) -> Void)? = nil
     ) {
         let isRecurring = context.isRecurring ? "true" : "false"
-        let URL = "\(baseURL)/\(configuration.customerId)/products"
+        let URL = configuration.getUrl(version: .v1, apiUrl: "\(configuration.customerId)/products")
         var params: [String: Any] =
             [
-                "countryCode": context.countryCodeString,
-                "currencyCode": context.amountOfMoney.currencyCodeString,
+                "countryCode": context.countryCode,
+                "currencyCode": context.amountOfMoney.currencyCode,
                 "amount": context.amountOfMoney.totalAmount, "hide": "fields",
                 "isRecurring": isRecurring
             ]
@@ -101,8 +92,7 @@ public class C2SCommunicator: NSObject {
         )
     }
 
-    @objc(checkApplePayAvailabilityWithPaymentProducts:forContext:success:failure:apiFailure:)
-    public func checkApplePayAvailability(
+    func checkApplePayAvailability(
         with paymentProducts: BasicPaymentProducts,
         for context: PaymentContext,
         success: @escaping () -> Void,
@@ -111,7 +101,7 @@ public class C2SCommunicator: NSObject {
     ) -> BasicPaymentProducts {
         if let applePayPaymentProduct =
             paymentProducts.paymentProduct(withIdentifier: SDKConstants.kApplePayIdentifier) {
-            if SDKConstants.SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(v: "8.0") &&
+            if SDKConstants.systemVersionGreaterThanOrEqualTo("8.0") &&
                 PKPaymentAuthorizationViewController.canMakePayments() {
                 paymentProductNetworks(
                     forProduct: SDKConstants.kApplePayIdentifier,
@@ -146,8 +136,7 @@ public class C2SCommunicator: NSObject {
         return paymentProducts
     }
 
-    @objc(paymentProductNetworksForProductId:context:success:failure:apiFailure:)
-    public func paymentProductNetworks(
+    func paymentProductNetworks(
         forProduct paymentProductId: String,
         context: PaymentContext,
         success: @escaping (_ paymentProductNetworks: PaymentProductNetworks) -> Void,
@@ -159,12 +148,15 @@ public class C2SCommunicator: NSObject {
             failure(SessionError.RuntimeError("Locale was nil."))
             return
         }
-        let URL = "\(self.baseURL)/\(self.configuration.customerId)/products/\(paymentProductId)/networks"
+        let URL = configuration.getUrl(
+            version: .v1,
+            apiUrl: "\(self.configuration.customerId)/products/\(paymentProductId)/networks"
+        )
         let params: [String: Any] =
         [
-            "countryCode": context.countryCodeString,
+            "countryCode": context.countryCode,
             "locale": context.locale,
-            "currencyCode": context.amountOfMoney.currencyCodeString,
+            "currencyCode": context.amountOfMoney.currencyCode,
             "amount": context.amountOfMoney.totalAmount,
             "hide": "fields",
             "isRecurring": isRecurring
@@ -189,8 +181,7 @@ public class C2SCommunicator: NSObject {
         )
     }
 
-    @objc(paymentProductWithId:context:success:failure:apiFailure:)
-    public func paymentProduct(
+    func paymentProduct(
         withIdentifier paymentProductId: String,
         context: PaymentContext,
         success: @escaping (_ paymentProduct: PaymentProduct) -> Void,
@@ -199,11 +190,14 @@ public class C2SCommunicator: NSObject {
     ) {
         checkAvailability(forProduct: paymentProductId, context: context, success: {() -> Void in
             let isRecurring = context.isRecurring ? "true" : "false"
-            let URL = "\(self.baseURL)/\(self.configuration.customerId)/products/\(paymentProductId)/"
+            let URL = self.configuration.getUrl(
+                version: .v1,
+                apiUrl: "\(self.configuration.customerId)/products/\(paymentProductId)/"
+            )
             var params: [String: Any] =
             [
-                "countryCode": context.countryCodeString,
-                "currencyCode": context.amountOfMoney.currencyCodeString,
+                "countryCode": context.countryCode,
+                "currencyCode": context.amountOfMoney.currencyCode,
                 "amount": context.amountOfMoney.totalAmount,
                 "isRecurring": isRecurring
             ]
@@ -271,8 +265,7 @@ public class C2SCommunicator: NSObject {
         }
     }
 
-    @objc(checkAvailabilityForPaymentProductWithId:context:success:failure:apiFailure:)
-    public func checkAvailability(
+    func checkAvailability(
         forProduct paymentProductId: String,
         context: PaymentContext,
         success: @escaping () -> Void,
@@ -280,7 +273,7 @@ public class C2SCommunicator: NSObject {
         apiFailure: ((_ errorResponse: ErrorResponse) -> Void)? = nil
     ) {
         if paymentProductId == SDKConstants.kApplePayIdentifier {
-            if SDKConstants.SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(v: "8.0") &&
+            if SDKConstants.systemVersionGreaterThanOrEqualTo("8.0") &&
                 PKPaymentAuthorizationViewController.canMakePayments() {
                 paymentProductNetworks(
                     forProduct: SDKConstants.kApplePayIdentifier,
@@ -309,8 +302,7 @@ public class C2SCommunicator: NSObject {
         }
     }
 
-    @objc(badRequestErrorForPaymentProductId:context:)
-    public func badRequestError(forProduct paymentProductId: String, context: PaymentContext) -> Error {
+    func badRequestError(forProduct paymentProductId: String, context: PaymentContext) -> Error {
         let url = createBadRequestErrorURL(forProduct: paymentProductId, context: context)
         let errorUserInfo =
         [
@@ -337,18 +329,19 @@ public class C2SCommunicator: NSObject {
     private func createBadRequestErrorURL(forProduct paymentProductId: String, context: PaymentContext) -> String {
         let isRecurring = context.isRecurring ? "true" : "false"
         // swiftlint:disable line_length
-        return
-            "\(baseURL)/\(configuration.customerId)/products/\(paymentProductId)/?countryCode=\(context.countryCodeString)&locale=\(context.locale)&currencyCode=\(context.amountOfMoney.currencyCodeString)&amount=\(UInt(context.amountOfMoney.totalAmount))&isRecurring=\(isRecurring)"
+        return configuration.getUrl(
+            version: .v1,
+            apiUrl: "\(configuration.customerId)/products/\(paymentProductId)/?countryCode=\(context.countryCode)&locale=\(context.locale)&currencyCode=\(context.amountOfMoney.currencyCode)&amount=\(UInt(context.amountOfMoney.totalAmount))&isRecurring=\(isRecurring)"
+        )
         // swiftlint:enable line_length
     }
 
-    @objc(publicKeyWithSuccess:failure:apiFailure:)
-    public func publicKey(
+    func publicKey(
         success: @escaping (_ publicKeyResponse: PublicKeyResponse) -> Void,
         failure: @escaping (_ error: Error) -> Void,
         apiFailure: ((_ errorResponse: ErrorResponse) -> Void)? = nil
     ) {
-        let URL = "\(baseURL)/\(configuration.customerId)/crypto/publickey"
+        let URL = configuration.getUrl(version: .v1, apiUrl: "\(configuration.customerId)/crypto/publickey")
         getResponse(forURL: URL, success: {(_ responseObject: PublicKeyResponse?) -> Void in
             guard let publicKeyResponse = responseObject else {
                 failure(SessionError.RuntimeError("Response was empty."))
@@ -363,14 +356,14 @@ public class C2SCommunicator: NSObject {
         })
     }
 
-    @objc public func paymentProductId(
+    func paymentProductId(
         byPartialCreditCardNumber partialCreditCardNumber: String,
         context: PaymentContext?,
         success: @escaping (_ iinDetailsResponse: IINDetailsResponse) -> Void,
         failure: @escaping (_ error: Error) -> Void,
         apiFailure: ((_ errorResponse: ErrorResponse) -> Void)? = nil
     ) {
-        let URL = "\(baseURL)/\(configuration.customerId)/services/getIINdetails"
+        let URL = configuration.getUrl(version: .v1, apiUrl: "\(configuration.customerId)/services/getIINdetails")
 
         var parameters: [String: Any] = [:]
         parameters["bin"] = getIINDigitsFrom(partialCreditCardNumber: partialCreditCardNumber)
@@ -378,11 +371,11 @@ public class C2SCommunicator: NSObject {
         if let context = context {
             var paymentContext: [String: Any] = [:]
             paymentContext["isRecurring"] = context.isRecurring ? "true" : "false"
-            paymentContext["countryCode"] = context.countryCodeString
+            paymentContext["countryCode"] = context.countryCode
 
             var amountOfMoney: [String: Any] = [:]
             amountOfMoney["amount"] = String(context.amountOfMoney.totalAmount)
-            amountOfMoney["currencyCode"] = context.amountOfMoney.currencyCodeString
+            amountOfMoney["currencyCode"] = context.amountOfMoney.currencyCode
             paymentContext["amountOfMoney"] = amountOfMoney
 
             parameters["paymentContext"] = paymentContext
@@ -410,7 +403,7 @@ public class C2SCommunicator: NSObject {
         )
     }
 
-    internal func getIINDigitsFrom(partialCreditCardNumber: String) -> String {
+    func getIINDigitsFrom(partialCreditCardNumber: String) -> String {
         let max: Int
         if partialCreditCardNumber.count >= 8 {
             max = 8
@@ -425,37 +418,59 @@ public class C2SCommunicator: NSObject {
             )
     }
 
-    internal func surchargeCalculation(
+    internal func currencyConversionQuote(
+        amountOfMoney: AmountOfMoney,
+        cardSource: CardSource,
+        success: @escaping (_ currencyConversionResponse: CurrencyConversionResponse) -> Void,
+        failure: @escaping (_ error: Error) -> Void,
+        apiFailure: ((_ errorResponse: ErrorResponse) -> Void)? = nil
+    ) {
+        let URL = configuration.getUrl(version: .v2, apiUrl: "\(configuration.customerId)/services/dccrate")
+
+        var parameters: [String: Any] = [:]
+        parameters["cardSource"] = getCardSourceParameter(cardSource: cardSource)
+
+        var transactionParameter: [String: Any] = [:]
+        transactionParameter["amount"] = getAmountOfMoneyParameter(amountOfMoney: amountOfMoney)
+
+        parameters["transaction"] = transactionParameter
+
+        postResponse(
+            forURL: URL,
+            withParameters: parameters,
+            additionalAcceptableStatusCodes: nil,
+            success: {(responseObject: CurrencyConversionResponse?) -> Void in
+                guard let currencyConversionResponse = responseObject else {
+                    failure(SessionError.RuntimeError("Response was empty."))
+                    return
+                }
+
+                success(currencyConversionResponse)
+            },
+            failure: { error in
+                failure(error)
+            },
+            apiFailure: { errorResponse in
+                apiFailure?(errorResponse)
+            })
+    }
+
+    func surchargeCalculation(
         amountOfMoney: AmountOfMoney,
         cardSource: CardSource,
         success: @escaping (_ surchargeCalculationResponse: SurchargeCalculationResponse) -> Void,
         failure: @escaping (_ error: Error) -> Void,
         apiFailure: ((_ errorResponse: ErrorResponse) -> Void)? = nil
     ) {
-        let URL = "\(baseURL)/\(configuration.customerId)/services/surchargecalculation"
+        let URL = configuration.getUrl(
+            version: .v1,
+            apiUrl: "\(configuration.customerId)/services/surchargecalculation"
+        )
 
         var parameters: [String: Any] = [:]
 
-        var amountOfMoneyParameter: [String: Any] = [:]
-        amountOfMoneyParameter["amount"] = amountOfMoney.totalAmount
-        amountOfMoneyParameter["currencyCode"] = amountOfMoney.currencyCodeString
-
-        var cardSourceParameter: [String: Any] = [:]
-
-        if let card = cardSource.card {
-            var cardParameter: [String: Any] = [:]
-            cardParameter["cardNumber"] = card.cardNumber
-            cardParameter["paymentProductId"] = card.paymentProductId
-
-            cardSourceParameter["card"] = cardParameter
-        }
-
-        if let token = cardSource.token {
-            cardSourceParameter["token"] = token
-        }
-
-        parameters["amountOfMoney"] = amountOfMoneyParameter
-        parameters["cardSource"] = cardSourceParameter
+        parameters["amountOfMoney"] = getAmountOfMoneyParameter(amountOfMoney: amountOfMoney)
+        parameters["cardSource"] = getCardSourceParameter(cardSource: cardSource)
 
         postResponse(
             forURL: URL,
@@ -478,42 +493,31 @@ public class C2SCommunicator: NSObject {
         )
     }
 
-    @available(
-        *,
-        deprecated,
-        message:
-            """
-            In a future release, this function will be removed.
-            """
-    )
-    @objc public func getResponse(
-        forURL URL: String,
-        withParameters parameters: Parameters? = nil,
-        success: @escaping (_ responseObject: Any) -> Void,
-        failure: @escaping (_ error: Error) -> Void
-    ) {
-        if loggingEnabled {
-            logRequest(forURL: URL, requestMethod: .get)
+    private func getCardSourceParameter(cardSource: CardSource) -> [String: Any] {
+        var cardSourceParameter: [String: Any] = [:]
+
+        if let card = cardSource.card {
+            var cardParameter: [String: Any] = [:]
+            cardParameter["cardNumber"] = card.cardNumber
+            cardParameter["paymentProductId"] = card.paymentProductId
+
+            cardSourceParameter["card"] = cardParameter
         }
 
-        networkingWrapper.getResponse(
-            forURL: URL,
-            withParameters: parameters,
-            headers: headers,
-            additionalAcceptableStatusCodes: nil,
-            success: { response in
-                if self.loggingEnabled {
-                    self.logSuccessResponse(forURL: URL, forResponse: response)
-                }
-                success(response as Any)
-            },
-            failure: { error in
-                if self.loggingEnabled {
-                    self.logFailureResponse(forURL: URL, forError: error)
-                }
-                failure(error)
-            }
-        )
+        if let token = cardSource.token {
+            cardSourceParameter["token"] = token
+        }
+
+        return cardSourceParameter
+    }
+
+    private func getAmountOfMoneyParameter(amountOfMoney: AmountOfMoney) -> [String: Any] {
+        var amountOfMoneyParameter: [String: Any] = [:]
+
+        amountOfMoneyParameter["amount"] = amountOfMoney.totalAmount
+        amountOfMoneyParameter["currencyCode"] = amountOfMoney.currencyCode
+
+        return amountOfMoneyParameter
     }
 
     private func getResponse<T: Codable>(
@@ -551,45 +555,6 @@ public class C2SCommunicator: NSObject {
                     self.logApiFailureResponse(forURL: URL, forApiError: errorResponse)
                 }
                 apiFailure?(errorResponse)
-            }
-        )
-    }
-
-    @available(
-        *,
-        deprecated,
-        message:
-            """
-            In a future release, this function will be removed.
-            """
-    )
-    @objc public func postResponse(
-        forURL URL: String,
-        withParameters parameters: [AnyHashable: Any],
-        additionalAcceptableStatusCodes: IndexSet?,
-        success: @escaping (_ responseObject: Any) -> Void,
-        failure: @escaping (_ error: Error) -> Void
-    ) {
-        if loggingEnabled {
-            logRequest(forURL: URL, requestMethod: .post, postBody: parameters as? Parameters)
-        }
-
-        networkingWrapper.postResponse(
-            forURL: URL,
-            headers: headers,
-            withParameters: parameters as? Parameters,
-            additionalAcceptableStatusCodes: additionalAcceptableStatusCodes,
-            success: { response in
-                if self.loggingEnabled {
-                    self.logSuccessResponse(forURL: URL, forResponse: response)
-                }
-                success(response as Any)
-            },
-            failure: { error in
-                if self.loggingEnabled {
-                    self.logFailureResponse(forURL: URL, forError: error)
-                }
-                failure(error)
             }
         )
     }

@@ -16,8 +16,8 @@ class IINDetailsResponseTestCase: XCTestCase {
 
     var session = Session(clientSessionId: "client-session-id",
                           customerId: "customer-id",
-                          baseURL: "https://example.com/client/v1",
-                          assetBaseURL: "https://example.com/client/v1",
+                          baseURL: "https://example.com",
+                          assetBaseURL: "https://example.com",
                           appIdentifier: "")
     let context = PaymentContext(amountOfMoney: AmountOfMoney(totalAmount: 3, currencyCode: "EUR"),
                                  isRecurring: true,
@@ -80,9 +80,9 @@ class IINDetailsResponseTestCase: XCTestCase {
                     "Payment product ID did not match: \(String(describing: response.paymentProductId))"
                 )
                 XCTAssertEqual(
-                    response.countryCodeString,
+                    response.countryCode,
                     "RU",
-                    "Country code did not match: \(String(describing: response.countryCodeString))"
+                    "Country code did not match: \(String(describing: response.countryCode))"
                 )
 
                 let details = IINDetail(paymentProductId: response.paymentProductId!, allowedInContext: true)

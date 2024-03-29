@@ -9,8 +9,7 @@ import Foundation
 @objc(OPValidatorIBAN)
 public class ValidatorIBAN: Validator, ValidationRule {
 
-    @available(*, deprecated, message: "In a future release, this initializer will become internal to the SDK.")
-    @objc public override init() {
+    internal override init() {
         super.init(messageId: "iban", validationType: .iban)
     }
 

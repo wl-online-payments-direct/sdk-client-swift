@@ -12,12 +12,8 @@ public class IINDetailsResponse: NSObject, Codable, ResponseObjectSerializable {
     @objc public var paymentProductId: String?
     @objc public var status: IINStatus = .supported
     @objc public var coBrands = [IINDetail]()
-    @available(
-        *,
-        deprecated,
-        message: "Use countryCodeString instead. In a future release, this field will become 'String' type."
-    )
-    public var countryCode: CountryCode?
+    @objc public var countryCode: String?
+    @available(*, deprecated, message: "In a future release this property will be removed. Use countryCode instead.")
     @objc public var countryCodeString: String?
     @objc public var allowedInContext = false
     @objc public var cardType: CardType = .credit
@@ -40,7 +36,7 @@ public class IINDetailsResponse: NSObject, Codable, ResponseObjectSerializable {
         }
 
         if let input = json["countryCode"] as? String {
-            countryCode = CountryCode.init(rawValue: input)
+            countryCode = input
             countryCodeString = input
         }
 
@@ -80,7 +76,7 @@ public class IINDetailsResponse: NSObject, Codable, ResponseObjectSerializable {
 
         if let countryCodeString = try? container.decodeIfPresent(String.self, forKey: .countryCode) {
             self.countryCodeString = countryCodeString
-            self.countryCode = CountryCode.init(rawValue: countryCodeString)
+            self.countryCode = countryCodeString
         }
 
         if let coBrands = try? container.decodeIfPresent([IINDetail].self, forKey: .coBrands) {
@@ -96,37 +92,18 @@ public class IINDetailsResponse: NSObject, Codable, ResponseObjectSerializable {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try? container.encodeIfPresent(paymentProductId, forKey: .paymentProductId)
         try? container.encode(coBrands, forKey: .coBrands)
-        try? container.encodeIfPresent(countryCodeString, forKey: .countryCode)
+        try? container.encodeIfPresent(countryCode, forKey: .countryCode)
         try? container.encode(allowedInContext, forKey: .isAllowedInContext)
         try? container.encode(getIINStatusString(status: status), forKey: .status)
         try? container.encode(CardTypeEnumHandler.getCardTypeString(type: cardType), forKey: .cardType)
     }
 
-    @available(*, deprecated, message: "In a future release, this initializer will become internal to the SDK.")
-    @objc convenience public init(status: IINStatus) {
+    internal convenience init(status: IINStatus) {
         self.init()
         self.status = status
     }
 
-    @available(*, deprecated, message: "Use init(String:IINStatus:[IINDetail]:String:Bool:) instead.")
-    public convenience init(
-        paymentProductId: String,
-        status: IINStatus,
-        coBrands: [IINDetail],
-        countryCode: CountryCode,
-        allowedInContext: Bool
-    ) {
-        self.init(
-            paymentProductId: paymentProductId,
-            status: status,
-            coBrands: coBrands,
-            countryCode: countryCode.rawValue,
-            allowedInContext: allowedInContext
-        )
-    }
-
-    @available(*, deprecated, message: "In a future release, this initializer will become internal to the SDK.")
-    @objc public init(
+    internal init(
         paymentProductId: String,
         status: IINStatus,
         coBrands: [IINDetail],
@@ -136,7 +113,7 @@ public class IINDetailsResponse: NSObject, Codable, ResponseObjectSerializable {
         self.paymentProductId = paymentProductId
         self.status = status
         self.coBrands = coBrands
-        self.countryCode = CountryCode.init(rawValue: countryCode)
+        self.countryCode = countryCode
         self.countryCodeString = countryCode
         self.allowedInContext = allowedInContext
     }

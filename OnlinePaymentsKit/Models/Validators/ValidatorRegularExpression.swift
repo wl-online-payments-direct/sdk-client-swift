@@ -11,8 +11,7 @@ public class ValidatorRegularExpression: Validator, ValidationRule, ResponseObje
 
     @objc public var regularExpression: NSRegularExpression
 
-    @available(*, deprecated, message: "In a future release, this initializer will become internal to the SDK.")
-    @objc public init(regularExpression: NSRegularExpression) {
+    internal init(regularExpression: NSRegularExpression) {
         self.regularExpression = regularExpression
 
         super.init(messageId: "regularExpression", validationType: .regularExpression)

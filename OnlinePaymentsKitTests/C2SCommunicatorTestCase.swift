@@ -48,8 +48,7 @@ class C2SCommunicatorTestCase: XCTestCase {
                 customerId: "1",
                 baseURL: "https://example.com/client/v1",
                 assetBaseURL: "https://example.com/client/v1",
-                appIdentifier: "",
-                ipAddress: ""
+                appIdentifier: ""
             )
         communicator = C2SCommunicator(configuration: configuration)
     }
@@ -399,7 +398,7 @@ class C2SCommunicatorTestCase: XCTestCase {
             success: { (gciinDetailsResponse) in
                 expectation.fulfill()
 
-                XCTAssertEqual(gciinDetailsResponse.countryCodeString, "RU", "Received countrycode not as expected")
+                XCTAssertEqual(gciinDetailsResponse.countryCode, "RU", "Received countrycode not as expected")
                 XCTAssertEqual(gciinDetailsResponse.paymentProductId, "3", "Received paymentProductId not as expected")
             },
             failure: { (error) in

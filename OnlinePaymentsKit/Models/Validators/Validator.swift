@@ -28,8 +28,7 @@ public class Validator: NSObject, Codable {
         errors.removeAll()
     }
 
-    @available(*, deprecated, message: "In a future release, this initializer will become internal to the SDK.")
-    @objc public override init() {
+    internal override init() {
         super.init()
     }
 

@@ -16,8 +16,8 @@ class SurchargeCalculationResponseTestCase: XCTestCase {
 
     var session = Session(clientSessionId: "client-session-id",
                           customerId: "customer-id",
-                          baseURL: "https://example.com/client/v1",
-                          assetBaseURL: "https://example.com/client/v1",
+                          baseURL: "https://example.com",
+                          assetBaseURL: "https://example.com",
                           appIdentifier: "")
     let amountOfMoney = AmountOfMoney(totalAmount: 1000, currencyCode: "EUR")
 
@@ -251,11 +251,11 @@ class SurchargeCalculationResponseTestCase: XCTestCase {
         XCTAssertEqual(surcharge?.paymentProductId, 1)
         XCTAssertEqual(surcharge?.result, SurchargeResult.ok)
         XCTAssertEqual(surcharge?.netAmount.totalAmount, 1000)
-        XCTAssertEqual(surcharge?.netAmount.currencyCodeString, "EUR")
+        XCTAssertEqual(surcharge?.netAmount.currencyCode, "EUR")
         XCTAssertEqual(surcharge?.surchargeAmount.totalAmount, 366)
-        XCTAssertEqual(surcharge?.surchargeAmount.currencyCodeString, "EUR")
+        XCTAssertEqual(surcharge?.surchargeAmount.currencyCode, "EUR")
         XCTAssertEqual(surcharge?.totalAmount.totalAmount, 1366)
-        XCTAssertEqual(surcharge?.totalAmount.currencyCodeString, "EUR")
+        XCTAssertEqual(surcharge?.totalAmount.currencyCode, "EUR")
         XCTAssertEqual(surcharge?.surchargeRate?.surchargeProductTypeId, "PAYMENT_PRODUCT_TYPE_ID")
         XCTAssertEqual(surcharge?.surchargeRate?.surchargeProductTypeVersion, "1a2b3c-4d5e-6f7g8h-9i0j")
         XCTAssertEqual(surcharge?.surchargeRate?.adValoremRate, 3.3)
@@ -270,11 +270,11 @@ class SurchargeCalculationResponseTestCase: XCTestCase {
         XCTAssertEqual(surcharge?.paymentProductId, 2)
         XCTAssertEqual(surcharge?.result, SurchargeResult.noSurcharge)
         XCTAssertEqual(surcharge?.netAmount.totalAmount, 1000)
-        XCTAssertEqual(surcharge?.netAmount.currencyCodeString, "EUR")
+        XCTAssertEqual(surcharge?.netAmount.currencyCode, "EUR")
         XCTAssertEqual(surcharge?.surchargeAmount.totalAmount, 0)
-        XCTAssertEqual(surcharge?.surchargeAmount.currencyCodeString, "EUR")
+        XCTAssertEqual(surcharge?.surchargeAmount.currencyCode, "EUR")
         XCTAssertEqual(surcharge?.totalAmount.totalAmount, 1000)
-        XCTAssertEqual(surcharge?.totalAmount.currencyCodeString, "EUR")
+        XCTAssertEqual(surcharge?.totalAmount.currencyCode, "EUR")
         XCTAssertNil(surcharge?.surchargeRate)
     }
 }

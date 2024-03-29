@@ -21,136 +21,168 @@ class AlamofireWrapperTestCase: XCTestCase {
 
     // Stub GET request
     stub(condition: isHost("\(host)") && isPath("/client/v1/\(merchantId)/crypto/publickey") && isMethodGET()) { _ in
-      let response = [
-        "errors": [[
-          "code": 9002,
-          "message": "MISSING_OR_INVALID_AUTHORIZATION"
-        ]]
-      ]
-      return HTTPStubsResponse(jsonObject: response, statusCode: 200, headers: ["Content-Type": "application/json"])
+          let response = [
+            "message": "MISSING_OR_INVALID_AUTHORIZATION",
+            "apiError": [
+                "errorId": "1",
+                "errors": [[
+                  "code": "9002",
+                  "message": "MISSING_OR_INVALID_AUTHORIZATION"
+                ]]
+            ]
+          ]
+          return HTTPStubsResponse(jsonObject: response, statusCode: 200, headers: ["Content-Type": "application/json"])
     }
 
     // Stub POST request
     stub(condition: isHost("\(host)") && isPath("/client/v1/\(merchantId)/sessions") && isMethodPOST()) { _ in
-      let response = [
-        "errors": [[
-          "code": 9002,
-          "message": "MISSING_OR_INVALID_AUTHORIZATION"
-          ]]
-        ]
-      return HTTPStubsResponse(jsonObject: response, statusCode: 200, headers: ["Content-Type": "application/json"])
+          let response = [
+            "message": "MISSING_OR_INVALID_AUTHORIZATION",
+            "apiError": [
+                "errorId": "1",
+                "errors": [[
+                  "code": "9002",
+                  "message": "MISSING_OR_INVALID_AUTHORIZATION"
+                ]]
+            ]
+          ]
+          return HTTPStubsResponse(jsonObject: response, statusCode: 200, headers: ["Content-Type": "application/json"])
     }
 
     stub(condition: isHost("\(host)") && isPath("/client/v1/noerror") && isMethodGET()) { _ in
-      return HTTPStubsResponse(jsonObject: [], statusCode: 401, headers: ["Content-Type": "application/json"])
+        let response = [
+            "keyId": "keyId123",
+            "publicKey": "enc0d3dPubl1cK3y"
+        ]
+        return HTTPStubsResponse(jsonObject: response, statusCode: 401, headers: ["Content-Type": "application/json"])
     }
 
     stub(condition: isHost("\(host)") && isPath("/client/v1/error") && isMethodGET()) { _ in
-      return HTTPStubsResponse(jsonObject: [], statusCode: 500, headers: ["Content-Type": "application/json"])
+        return HTTPStubsResponse(jsonObject: [], statusCode: 500, headers: ["Content-Type": "application/json"])
     }
   }
 
   func testPost() {
-    let sessionsURL = "\(baseURL)/\(merchantId)/sessions"
-    let expectation = self.expectation(description: "Response provided")
+      let sessionsURL = "\(baseURL)/\(merchantId)/sessions"
+      let expectation = self.expectation(description: "Response provided")
 
-    AlamofireWrapper.shared.postResponse(
+      let successHandler: (ErrorResponse?, Int?) -> Void = { (responseObject, _) -> Void in
+          self.assertErrorResponse(responseObject, expectation: expectation)
+      }
+
+      AlamofireWrapper.shared.postResponse(
         forURL: sessionsURL,
         headers: nil,
         withParameters: nil,
         additionalAcceptableStatusCodes: nil,
-        success: { responseObject in
-          self.assertErrorResponse(responseObject, expectation: expectation)
-        },
+        success: successHandler,
         failure: { error in
-          XCTFail("Unexpected failure while testing POST request: \(error.localizedDescription)")
+            XCTFail("Unexpected failure while testing POST request: \(error.localizedDescription)")
+        },
+        apiFailure: { errorResponse in
+            XCTFail("Unexpected failure while testing POST request: \(errorResponse.message)")
         }
-    )
+      )
 
-    waitForExpectations(timeout: 3) { error in
-      if let error = error {
-        print("Timeout error: \(error.localizedDescription)")
+      waitForExpectations(timeout: 3) { error in
+          if let error = error {
+              print("Timeout error: \(error.localizedDescription)")
+          }
       }
-    }
   }
 
   func testGet() {
-    let publicKeyURL = "\(baseURL)/\(merchantId)/crypto/publickey"
-    let expectation = self.expectation(description: "Response provided")
+      let publicKeyURL = "\(baseURL)/\(merchantId)/crypto/publickey"
+      let expectation = self.expectation(description: "Response provided")
 
-    AlamofireWrapper.shared.getResponse(
+      let successHandler: (ErrorResponse?, Int?) -> Void = { (responseObject, _) -> Void in
+          self.assertErrorResponse(responseObject, expectation: expectation)
+      }
+
+      AlamofireWrapper.shared.getResponse(
         forURL: publicKeyURL,
         headers: nil,
         additionalAcceptableStatusCodes: nil,
-        success: { responseObject in
-          self.assertErrorResponse(responseObject, expectation: expectation)
-        },
+        success: successHandler,
         failure: { error in
-          XCTFail("Unexpected failure while testing GET request: \(error.localizedDescription)")
+            XCTFail("Unexpected failure while testing GET request: \(error.localizedDescription)")
+        },
+        apiFailure: { errorResponse in
+            XCTFail("Unexpected failure while testing POST request: \(errorResponse.message)")
         }
-    )
+      )
 
-    waitForExpectations(timeout: 3) { error in
-      if let error = error {
-        print("Timeout error: \(error.localizedDescription)")
+      waitForExpectations(timeout: 3) { error in
+          if let error = error {
+              print("Timeout error: \(error.localizedDescription)")
+          }
       }
-    }
   }
 
   func testAdditionalStatusCodeAcceptance() {
-    let publicKeyURL = "\(baseURL)/noerror"
-    let expectation = self.expectation(description: "Response provided")
-    let additionalAcceptableStatusCodes: IndexSet = [401]
+      let publicKeyURL = "\(baseURL)/noerror"
+      let expectation = self.expectation(description: "Response provided")
+      let additionalAcceptableStatusCodes: IndexSet = [401]
 
-    AlamofireWrapper.shared.getResponse(
+      let successHandler: (PublicKeyResponse?, Int?) -> Void = { (_, _) -> Void in
+          expectation.fulfill()
+      }
+
+      AlamofireWrapper.shared.getResponse(
         forURL: publicKeyURL,
         headers: nil,
         additionalAcceptableStatusCodes: additionalAcceptableStatusCodes,
-        success: { _ in
-          expectation.fulfill()
-        },
+        success: successHandler,
         failure: { error in
-          XCTFail("Additional status code did not accept: \(error.localizedDescription)")
+            XCTFail("Additional status code did not accept: \(error.localizedDescription)")
+        },
+        apiFailure: { errorResponse in
+            XCTFail("Additional status code did not accept: \(errorResponse.message)")
         }
-    )
+      )
 
-    waitForExpectations(timeout: 3) { error in
-      if let error = error {
-        print("Timeout error: \(error.localizedDescription)")
+      waitForExpectations(timeout: 3) { error in
+          if let error = error {
+              print("Timeout error: \(error.localizedDescription)")
+          }
       }
-    }
   }
 
   func testRequestFailure() {
-    let publicKeyURL = "\(baseURL)/error"
-    let expectation = self.expectation(description: "Response provided")
+      let publicKeyURL = "\(baseURL)/error"
+      let expectation = self.expectation(description: "Response provided")
 
-    AlamofireWrapper.shared.getResponse(
+      let successHandler: (ErrorResponse?, Int?) -> Void = { (_, _) -> Void in
+          XCTFail("Failure should have been called")
+      }
+
+      AlamofireWrapper.shared.getResponse(
         forURL: publicKeyURL,
         headers: nil,
         additionalAcceptableStatusCodes: nil,
-        success: { _ in
-          XCTFail("Failure should have been called")
-        },
+        success: successHandler,
         failure: { _ in
-          expectation.fulfill()
+            expectation.fulfill()
+        },
+        apiFailure: { _ in
+            expectation.fulfill()
         }
-    )
+      )
 
-    waitForExpectations(timeout: 3) { error in
-      if let error = error {
-        print("Timeout error: \(error.localizedDescription)")
+      waitForExpectations(timeout: 3) { error in
+          if let error = error {
+              print("Timeout error: \(error.localizedDescription)")
+          }
       }
-    }
   }
 
-  fileprivate func assertErrorResponse(_ errorResponse: [String: Any]?, expectation: XCTestExpectation) {
+  fileprivate func assertErrorResponse(_ errorResponse: ErrorResponse?, expectation: XCTestExpectation) {
     if let errorResponse = errorResponse,
-    let errors = errorResponse["errors"] as? [[String: Any]],
-       let firstError = errors.first {
-      XCTAssertEqual(firstError["code"] as? Int, 9002)
-      XCTAssertEqual(firstError["message"] as? String, "MISSING_OR_INVALID_AUTHORIZATION")
-      expectation.fulfill()
+       let apiError = errorResponse.apiError {
+        let apiErrorItem = apiError.errors[0]
+        XCTAssertEqual(apiErrorItem.code, "9002")
+        XCTAssertEqual(apiErrorItem.message, "MISSING_OR_INVALID_AUTHORIZATION")
+        expectation.fulfill()
     }
   }
 }

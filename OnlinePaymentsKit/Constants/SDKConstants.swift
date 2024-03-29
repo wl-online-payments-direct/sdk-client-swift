@@ -13,77 +13,38 @@ public class SDKConstants: NSObject {
 
     @objc(kOPSDKLocalizable)
     public static let kSDKLocalizable = "OPSDKLocalizable"
-    @objc(kOPImageMapping)
-    @available(*, deprecated, message: "In a future release, this property will become internal to the SDK.")
-    public static let kImageMapping = "kImageMapping"
-    @objc(kOPImageMappingInitialized)
-    @available(*, deprecated, message: "In a future release, this property will become internal to the SDK.")
-    public static let kImageMappingInitialized = "kImageMappingInitialized"
-    @objc(kOPIINMapping)
-    @available(*, deprecated, message: "In a future release, this property will become internal to the SDK.")
-    public static let kIINMapping = "kIINMapping"
+    internal static let kImageMapping = "kImageMapping"
+    internal static let kImageMappingInitialized = "kImageMappingInitialized"
+    internal static let kIINMapping = "kIINMapping"
 
-    @objc(kOPApplePayIdentifier)
-    @available(*, deprecated, message: "In a future release, this property will become internal to the SDK.")
-    public static let kApplePayIdentifier = "302"
-    @objc(kOPGooglePayIdentifier)
-    @available(*, deprecated, message: "In a future release, this property will become internal to the SDK.")
-    public static let kGooglePayIdentifier = "320"
+    internal static let kApplePayIdentifier = "302"
+    internal static let kGooglePayIdentifier = "320"
 
-    @objc(kOPAPIVersion)
-    @available(*, deprecated, message: "In a future release, this property will become internal to the SDK.")
-    public static let kApiVersion = "client/v1"
+    internal static let kApiBase = "client/"
 
 #if SWIFT_PACKAGE
     @objc(kOPSDKBundlePath)
     public static var kSDKBundlePath = Bundle.module.path(forResource: "OnlinePaymentsKit", ofType: "bundle")
 #elseif COCOAPODS
-    @objc(kOPSDKBundleIdentifier)
-    @available(
-        *,
-        deprecated,
-         message:
-            """
-            In a future release, this property will become internal to the SDK.
-            Use kSDKBundlePath to get the correct reference to the SDK bundle.
-            """
-    )
-    public static var kSDKBundleIdentifier = "org.cocoapods.OnlinePaymentsKit"
+    private static let kSDKBundleIdentifier = "org.cocoapods.OnlinePaymentsKit"
     @objc(kOPSDKBundlePath)
     public static var kSDKBundlePath =
         Bundle(identifier: SDKConstants.kSDKBundleIdentifier)?.path(forResource: "OnlinePaymentsKit", ofType: "bundle")
 #else
-    @objc(kOPSDKBundleIdentifier)
-    @available(
-        *,
-        deprecated,
-        message:
-            """
-            In a future release, this property will become internal to the SDK.
-            Use kSDKBundlePath to get the correct reference to the SDK bundle.
-            """
-    )
-    public static var kSDKBundleIdentifier = "com.onlinepayments.OnlinePaymentsKit"
+    private static let kSDKBundleIdentifier = "com.onlinepayments.OnlinePaymentsKit"
     @objc(kOPSDKBundlePath)
     public static var kSDKBundlePath =
         Bundle(identifier: SDKConstants.kSDKBundleIdentifier)?.path(forResource: "OnlinePaymentsKit", ofType: "bundle")
 #endif
 
-    @available(*, deprecated, message: "Use iOS’s native APIs instead to validate the system version")
-    // swiftlint:disable identifier_name
-    public static func SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(v: String) -> Bool {
+    internal static func systemVersionGreaterThanOrEqualTo(_ version: String) -> Bool {
         return
-            UIDevice.current.systemVersion.compare(v, options: String.CompareOptions.numeric) != .orderedAscending
+            UIDevice.current.systemVersion.compare(version, options: String.CompareOptions.numeric) != .orderedAscending
     }
-    // swiftlint:enable identifier_name
 
-    @objc(StandardUserDefaults)
-    @available(*, deprecated, message: "In a future release, this property will become internal to the SDK.")
-    public static let StandardUserDefaults = UserDefaults.standard
+    internal static let StandardUserDefaults = UserDefaults.standard
 
-    @objc(DocumentsFolderPath)
-    @available(*, deprecated, message: "In a future release, this property will become internal to the SDK.")
-    public static let DocumentsFolderPath = (NSHomeDirectory() as NSString).appendingPathComponent("Documents")
+    internal static let DocumentsFolderPath = (NSHomeDirectory() as NSString).appendingPathComponent("Documents")
 
     @objc(kOPCountryCodes)
     @available(

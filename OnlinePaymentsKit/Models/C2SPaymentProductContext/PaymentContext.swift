@@ -8,24 +8,12 @@ import Foundation
 
 @objc(OPPaymentContext)
 public class PaymentContext: NSObject, Decodable {
-    @available(
-        *,
-        deprecated,
-        message: "Use countryCodeString instead. In a future release, this field will become 'String' type."
-    )
-    public var countryCode: CountryCode
+    @objc public var countryCode: String
+    @available(*, deprecated, message: "In a future release this property will be removed. Use countryCode instead.")
     @objc public var countryCodeString: String
     @objc public var locale = String()
-    @available(*, deprecated, message: "In a future release, this field will be removed.")
-    @objc public var forceBasicFlow = false
-    @available(*, deprecated, message: "In a future release, the type of this field will become 'AmountOfMoney'.")
-    @objc public var amountOfMoney: PaymentAmountOfMoney
+    @objc public var amountOfMoney: AmountOfMoney
     @objc public var isRecurring: Bool
-
-    @available(*, deprecated, message: "Use init(AmountOfMoney:Bool:String:) instead")
-    public convenience init(amountOfMoney: PaymentAmountOfMoney, isRecurring: Bool, countryCode: CountryCode) {
-        self.init(amountOfMoney: amountOfMoney, isRecurring: isRecurring, countryCode: countryCode.rawValue)
-    }
 
     /// PaymentContext, contains information about the payment to be made.
     /// - Parameters:
@@ -36,9 +24,9 @@ public class PaymentContext: NSObject, Decodable {
     ///                  See [ISO 3166 Country Codes](https://www.iso.org/iso-3166-country-codes.html) .
     @objc(initWithAmountOfMoney:isRecurring:countryCode:)
     public init(amountOfMoney: AmountOfMoney, isRecurring: Bool, countryCode: String) {
-        self.amountOfMoney = amountOfMoney.cloneToDeprecatedObject()
+        self.amountOfMoney = amountOfMoney
         self.isRecurring = isRecurring
-        self.countryCode = CountryCode.init(rawValue: countryCode) ?? .UNKNOWN
+        self.countryCode = countryCode
         self.countryCodeString = countryCode
 
         if let languageCode = Locale.current.languageCode {
@@ -50,7 +38,7 @@ public class PaymentContext: NSObject, Decodable {
     }
 
     enum CodingKeys: CodingKey {
-        case countryCode, forceBasicFlow, amountOfMoney, isRecurring
+        case countryCode, amountOfMoney, isRecurring
     }
 
     public required init(from decoder: Decoder) throws {
@@ -58,17 +46,13 @@ public class PaymentContext: NSObject, Decodable {
 
         if let countryCodeString = try? container.decodeIfPresent(String.self, forKey: .countryCode) {
             self.countryCodeString = countryCodeString
-            self.countryCode = CountryCode.init(rawValue: countryCodeString) ?? .UNKNOWN
+            self.countryCode = countryCodeString
         } else {
             self.countryCodeString = "UNKNOWN"
-            self.countryCode = .UNKNOWN
+            self.countryCode = "UNKNOWN"
         }
 
-        if let forceBasicFlow = try? container.decodeIfPresent(Bool.self, forKey: .forceBasicFlow) {
-            self.forceBasicFlow = forceBasicFlow
-        }
-
-        self.amountOfMoney = try container.decode(PaymentAmountOfMoney.self, forKey: .amountOfMoney)
+        self.amountOfMoney = try container.decode(AmountOfMoney.self, forKey: .amountOfMoney)
 
         self.isRecurring = try container.decodeIfPresent(Bool.self, forKey: .isRecurring) ?? false
 
@@ -81,6 +65,6 @@ public class PaymentContext: NSObject, Decodable {
     }
 
     @objc public override var description: String {
-        return "\(amountOfMoney.description)-\(countryCodeString)-\(isRecurring ? "YES" : "NO")"
+        return "\(amountOfMoney.description)-\(countryCode)-\(isRecurring ? "YES" : "NO")"
     }
 }

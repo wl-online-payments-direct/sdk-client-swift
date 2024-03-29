@@ -11,8 +11,7 @@ public class LabelTemplate: NSObject {
 
     @objc public var labelTemplateItems = [LabelTemplateItem]()
 
-    @available(*, deprecated, message: "In a future release, this initializer will become internal to the SDK.")
-    @objc public override init() {
+    internal override init() {
         super.init()
     }
 

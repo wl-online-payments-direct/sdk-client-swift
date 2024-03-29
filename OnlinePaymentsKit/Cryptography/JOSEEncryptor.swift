@@ -6,32 +6,21 @@
 
 import Foundation
 
-@available(
-    *,
-    deprecated,
-    message:
-        """
-        In a future release, this class, its functions and its properties will become internal to the SDK.
-        """
-)
-@objc(OPJOSEEncryptor)
-public class JOSEEncryptor: NSObject {
-    @objc public var encryptor = Encryptor()
+internal class JOSEEncryptor {
+    var encryptor = Encryptor()
 
-    @objc public convenience init(encryptor: Encryptor) {
+    convenience init(encryptor: Encryptor) {
         self.init()
 
         self.encryptor = encryptor
     }
 
-    @objc(generateProtectedHeader:)
-    public func generateProtectedHeader(withKey keyId: String) -> String {
+    func generateProtectedHeader(withKey keyId: String) -> String {
         let header = "{\"alg\":\"RSA-OAEP\", \"enc\":\"A256CBC-HS512\", \"kid\":\"\(keyId)\"}"
         return header
     }
 
-    @objc(encryptToCompactSerialization:withPublicKey:keyId:)
-    public func encryptToCompactSerialization(
+    func encryptToCompactSerialization(
         JSON: String,
         withPublicKey publicKey: SecKey,
         keyId: String
@@ -87,8 +76,7 @@ public class JOSEEncryptor: NSObject {
         return concatenatedComponents
     }
 
-    @objc(decryptFromCompactSerialization:withPrivateKey:)
-    public func decryptFromCompactSerialization(JOSE: String, withPrivateKey privateKey: SecKey) -> String {
+    func decryptFromCompactSerialization(JOSE: String, withPrivateKey privateKey: SecKey) -> String {
         let components = JOSE.components(separatedBy: ".")
         let decodedProtectedHeader = String(data: components[0].base64URLDecode(),
                                             encoding: String.Encoding.utf8)
@@ -134,8 +122,7 @@ public class JOSEEncryptor: NSObject {
         return decrypted
     }
 
-    @objc(computeAL:)
-    public func computeAL(forData data: Data) -> Data {
+    func computeAL(forData data: Data) -> Data {
         var lengthInBits = data.count * 8
         // swiftlint:disable identifier_name
         var AL = Data(bytes: &lengthInBits, count: MemoryLayout<Int>.size)

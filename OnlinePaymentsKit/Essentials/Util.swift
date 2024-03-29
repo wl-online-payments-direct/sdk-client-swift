@@ -6,27 +6,18 @@
 
 import UIKit
 
-@available(
-    *,
-    deprecated,
-    message:
-        """
-        In a future release, this class, its functions and its properties will become internal to the SDK.
-        """
-)
-@objc(OPUtil)
-public class Util: NSObject {
-    @objc internal static let shared = Util()
-    @objc public var metaInfo: [String: String]?
+internal class Util {
+    static let shared = Util()
+    var metaInfo: [String: String]?
 
-    @objc public var platformIdentifier: String {
+    var platformIdentifier: String {
         let OSName = UIDevice.current.systemName
         let OSVersion = UIDevice.current.systemVersion
 
         return "\(OSName)/\(OSVersion)"
     }
 
-    @objc public var screenSize: String {
+    var screenSize: String {
         let screenBounds = UIScreen.main.bounds
         let screenScale = UIScreen.main.scale
         let screenSize =
@@ -38,7 +29,7 @@ public class Util: NSObject {
         return "\(Int(screenSize.width))\(Int(screenSize.height))"
     }
 
-    @objc public var deviceType: String {
+    var deviceType: String {
         var size = 0
         sysctlbyname("hw.machine", nil, &size, nil, 0)
         var machine = [CChar](repeating: 0, count: size)
@@ -46,11 +37,10 @@ public class Util: NSObject {
         return String(cString: machine)
     }
 
-    @objc public override init() {
-        super.init()
+    init() {
         metaInfo = [
             "platformIdentifier": platformIdentifier,
-            "sdkIdentifier": "SwiftClientSDK/v2.2.2",
+            "sdkIdentifier": "SwiftClientSDK/v2.3.0",
             "sdkCreator": "Online Payments",
             "screenSize": screenSize,
             "deviceBrand": "Apple",
@@ -58,28 +48,20 @@ public class Util: NSObject {
         ]
     }
 
-    @objc public var base64EncodedClientMetaInfo: String? {
+    var base64EncodedClientMetaInfo: String? {
         return base64EncodedClientMetaInfo(withAppIdentifier: nil)
     }
 
-    @objc public func base64EncodedClientMetaInfo(withAddedData addedData: [String: String]) -> String? {
-        return base64EncodedClientMetaInfo(withAppIdentifier: nil, ipAddress: nil, addedData: addedData)
+    func base64EncodedClientMetaInfo(withAddedData addedData: [String: String]) -> String? {
+        return base64EncodedClientMetaInfo(withAppIdentifier: nil, addedData: addedData)
     }
 
-    @objc public func base64EncodedClientMetaInfo(withAppIdentifier appIdentifier: String?) -> String? {
-        return base64EncodedClientMetaInfo(withAppIdentifier: appIdentifier, ipAddress: nil, addedData: nil)
+    func base64EncodedClientMetaInfo(withAppIdentifier appIdentifier: String?) -> String? {
+        return base64EncodedClientMetaInfo(withAppIdentifier: appIdentifier, addedData: nil)
     }
 
-    @objc public func base64EncodedClientMetaInfo(
+    func base64EncodedClientMetaInfo(
         withAppIdentifier appIdentifier: String?,
-        ipAddress: String?
-    ) -> String? {
-        return base64EncodedClientMetaInfo(withAppIdentifier: appIdentifier, ipAddress: ipAddress, addedData: nil)
-    }
-
-    @objc public func base64EncodedClientMetaInfo(
-        withAppIdentifier appIdentifier: String?,
-        ipAddress: String?,
         addedData: [String: String]?
     ) -> String? {
         if let addedData = addedData {
@@ -94,14 +76,10 @@ public class Util: NSObject {
             metaInfo!["appIdentifier"] = "UNKNOWN"
         }
 
-        if let ipAddress = ipAddress, !ipAddress.isEmpty {
-            metaInfo!["ipAddress"] = ipAddress
-        }
-
         return base64EncodedString(fromDictionary: metaInfo!)
     }
 
-    @objc public func base64EncodedString(fromDictionary dictionary: [AnyHashable: Any]) -> String? {
+    func base64EncodedString(fromDictionary dictionary: [AnyHashable: Any]) -> String? {
         guard let json = try? JSONSerialization.data(withJSONObject: dictionary, options: []) else {
             Macros.DLog(message: "Unable to serialize dictionary")
             return nil

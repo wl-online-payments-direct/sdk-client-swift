@@ -6,8 +6,7 @@
 
 import Foundation
 
-@available(*, deprecated, message: "In a future release, this extension will become internal to the SDK.")
-extension String {
+internal extension String {
 
     subscript (index: Int) -> String {
         return self[index ..< index + 1]
@@ -29,7 +28,7 @@ extension String {
         return String(self[start ..< end])
     }
 
-    public func base64URLDecode() -> Data {
+    func base64URLDecode() -> Data {
         let underscoreReplaced = self.replacingOccurrences(of: "-", with: "+")
             .replacingOccurrences(of: "_", with: "/")
         let modulo = self.count % 4
@@ -44,11 +43,16 @@ extension String {
         return self.decode(paddingAdded)
     }
 
-    public func decode(_ string: String? = nil) -> Data {
+    func decode(_ string: String? = nil) -> Data {
         if let str = string {
             return Data(base64Encoded: str)!
         }
         return Data(base64Encoded: self)!
     }
 
+    mutating func appendIf(where predicate: (any StringProtocol) -> Bool, text: String) {
+        if predicate(self) {
+            append(text)
+        }
+    }
 }

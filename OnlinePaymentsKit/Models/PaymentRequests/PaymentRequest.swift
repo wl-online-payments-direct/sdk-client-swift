@@ -108,9 +108,8 @@ public class PaymentRequest: NSObject, Codable {
     public func isPartOfAccountOnFile(field paymentProductFieldId: String) -> Bool {
         return accountOnFile?.hasValue(forField: paymentProductFieldId) ?? false
     }
-    
-    @objc(fieldIsPartOfAccountOnFileAndNotModified:)
-    public func isPartOfAccountOnFileAndNotModified(field paymentProductFieldId: String) -> Bool {
+
+    private func isPartOfAccountOnFileAndNotModified(field paymentProductFieldId: String) -> Bool {
         if let accountOnFile,
            !accountOnFile.attributes.attributes.isEmpty {
             for attribute in accountOnFile.attributes.attributes {
@@ -153,8 +152,8 @@ public class PaymentRequest: NSObject, Codable {
             return errorMessageIds
         }
 
-        for field in paymentProduct.fields.paymentProductFields {
-            if !isPartOfAccountOnFileAndNotModified(field: field.identifier) {
+        for field in paymentProduct.fields.paymentProductFields where
+          !isPartOfAccountOnFileAndNotModified(field: field.identifier) {
                 if let fieldValue = unmaskedValue(forField: field.identifier) {
                     let fieldErrors = field.validateValue(value: fieldValue, for: self)
                     errors.append(contentsOf: fieldErrors)
@@ -169,7 +168,6 @@ public class PaymentRequest: NSObject, Codable {
                     errors.append(error)
                     errorMessageIds.append(error)
                 }
-            }
         }
         return errorMessageIds
     }

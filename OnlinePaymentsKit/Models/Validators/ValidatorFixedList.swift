@@ -10,8 +10,7 @@ import Foundation
 public class ValidatorFixedList: Validator, ValidationRule, ResponseObjectSerializable {
     @objc public var allowedValues: [String] = []
 
-    @available(*, deprecated, message: "In a future release, this initializer will become internal to the SDK.")
-    @objc public init(allowedValues: [String]) {
+    internal init(allowedValues: [String]) {
         self.allowedValues = allowedValues
 
         super.init(messageId: "fixedList", validationType: .fixedList)

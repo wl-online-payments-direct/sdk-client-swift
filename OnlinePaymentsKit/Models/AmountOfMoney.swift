@@ -9,12 +9,8 @@ import Foundation
 @objc(OPAmountOfMoney)
 public class AmountOfMoney: NSObject, Codable {
     @objc public var totalAmount = 0
-    @available(
-        *,
-        deprecated,
-        message: "Use currencyCodeString instead. In a future release, this field will become 'String' type."
-    )
-    public var currencyCode: CurrencyCode
+    @objc public var currencyCode: String
+    @available(*, deprecated, message: "In a future release this property will be removed. Use currencyCode instead.")
     @objc public var currencyCodeString: String
 
     @available(
@@ -29,13 +25,8 @@ public class AmountOfMoney: NSObject, Codable {
         }
 
         self.totalAmount = totalAmount
-        self.currencyCode = CurrencyCode.init(rawValue: currencyCode) ?? .UNKNOWN
+        self.currencyCode = currencyCode
         self.currencyCodeString = currencyCode
-    }
-
-    @available(*, deprecated, message: "Use init(Int, String) instead")
-    public convenience init(totalAmount: Int, currencyCode: CurrencyCode) {
-        self.init(totalAmount: totalAmount, currencyCode: currencyCode.rawValue)
     }
 
     /// AmountOfMoney, contains an amount and Currency Code.
@@ -46,7 +37,7 @@ public class AmountOfMoney: NSObject, Codable {
     @objc(initWithTotalAmount:currencyCode:)
     public init(totalAmount: Int, currencyCode: String) {
         self.totalAmount = totalAmount
-        self.currencyCode = CurrencyCode.init(rawValue: currencyCode) ?? .UNKNOWN
+        self.currencyCode = currencyCode
         self.currencyCodeString = currencyCode
     }
 
@@ -61,20 +52,20 @@ public class AmountOfMoney: NSObject, Codable {
 
         if let currencyCodeString = try? container.decodeIfPresent(String.self, forKey: .currencyCode) {
             self.currencyCodeString = currencyCodeString
-            self.currencyCode = CurrencyCode.init(rawValue: currencyCodeString) ?? .UNKNOWN
+            self.currencyCode = currencyCodeString
         } else {
             self.currencyCodeString = "UNKNOWN"
-            self.currencyCode = .UNKNOWN
+            self.currencyCode = "UNKNOWN"
         }
     }
 
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try? container.encode(totalAmount, forKey: .amount)
-        try? container.encode(currencyCodeString, forKey: .currencyCode)
+        try? container.encode(currencyCode, forKey: .currencyCode)
     }
 
     @objc public override var description: String {
-        return "\(totalAmount)-\(currencyCodeString)"
+        return "\(totalAmount)-\(currencyCode)"
     }
 }

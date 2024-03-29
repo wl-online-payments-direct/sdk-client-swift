@@ -24,7 +24,9 @@ class ValidatorExpirationDateTestCase: XCTestCase {
                     "type": "expirydate",
                     "displayHints": {
                         "displayOrder": 0,
-                        "formElement": {}
+                        "formElement": {
+                            "type": "date"
+                        }
                     }
                 }
             ],

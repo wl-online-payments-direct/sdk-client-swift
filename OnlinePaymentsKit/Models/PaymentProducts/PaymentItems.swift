@@ -30,9 +30,7 @@ public class PaymentItems: NSObject {
         return accountsOnFile
     }
 
-    @available(*, deprecated, message: "In a future release, this initializer will become internal to the SDK.")
-    @objc(initWithPaymentProducts:groups:)
-    public init(products: BasicPaymentProducts, groups: BasicPaymentProductGroups?) {
+    internal init(products: BasicPaymentProducts, groups: BasicPaymentProductGroups?) {
         super.init()
         paymentItems = createPaymentItemsFromProducts(products: products, groups: groups)
         allPaymentItems = products.paymentProducts

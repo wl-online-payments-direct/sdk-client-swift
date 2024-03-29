@@ -13,44 +13,24 @@ public class Session: NSObject {
     @objc public var clientSessionId: String {
         return communicator.clientSessionId
     }
-    @available(*, deprecated, message: "In a future release, this property will become internal to the SDK.")
-    @objc public var communicator: C2SCommunicator
-    @available(
-        *,
-         deprecated,
-         message:
-            """
-            In a future release this property will be removed.
-            Instead retrieve logos / tooltip images by accessing the PaymentItem.
-            """
-    )
-    @objc public var assetManager: AssetManager
-    @available(*, deprecated, message: "In a future release, this property will become internal to the SDK.")
-    @objc public var encryptor: Encryptor
-    @available(*, deprecated, message: "In a future release, this property will become internal to the SDK.")
-    @objc(JOSEEncryptor)
-    public var joseEncryptor: JOSEEncryptor
-    @available(*, deprecated, message: "In a future release, this property will become internal to the SDK.")
-    @objc public var stringFormatter: StringFormatter
+    private var communicator: C2SCommunicator
+    private var encryptor: Encryptor
+    private var joseEncryptor: JOSEEncryptor
+    private var stringFormatter: StringFormatter
 
-    @available(*, deprecated, message: "In a future release, this property will become internal to the SDK.")
-    @objc public var paymentProducts = BasicPaymentProducts()
+    private var paymentProducts = BasicPaymentProducts()
 
-    @available(*, deprecated, message: "In a future release, this property will become internal to the SDK.")
-    @objc public var paymentProductMapping = [AnyHashable: Any]()
+    internal var paymentProductMapping = [AnyHashable: Any]()
 
-    @available(*, deprecated, message: "In a future release, this property will become internal to the SDK.")
-    @objc public var baseURL: String {
+    private var baseURL: String {
         return communicator.baseURL
     }
 
-    @available(*, deprecated, message: "In a future release, this property will become internal to the SDK.")
-    @objc public var assetsBaseURL: String {
+    private var assetsBaseURL: String {
         return communicator.assetsBaseURL
     }
 
-    @available(*, deprecated, message: "In a future release, this property will become internal to the SDK.")
-    @objc public var iinLookupPending = false
+    internal var iinLookupPending = false
 
     @objc public var loggingEnabled: Bool {
         get {
@@ -61,46 +41,13 @@ public class Session: NSObject {
         }
     }
 
-    @available(
-        *,
-        deprecated,
-        message:
-            """
-            In a future release, this initializer will be removed.
-            Use init(String:String:String:String:String:) or init(String:String:String:String:String:Bool:) instead
-            """
-    )
-    @objc public init(
-        communicator: C2SCommunicator,
-        assetManager: AssetManager,
-        encryptor: Encryptor,
-        JOSEEncryptor: JOSEEncryptor,
-        stringFormatter: StringFormatter
-    ) {
-        self.communicator = communicator
-        self.assetManager = assetManager
-        self.encryptor = encryptor
-        self.joseEncryptor = JOSEEncryptor
-        self.stringFormatter = stringFormatter
-    }
-
-    @available(
-        *,
-        deprecated,
-        message:
-            """
-            In a future release, this initializer will become internal to the SDK.
-            Use init(String:String:String:String:String:) or init(String:String:String:String:String:Bool:) instead
-            """
-    )
-    @objc public init(
+    internal init(
         communicator: C2SCommunicator,
         encryptor: Encryptor,
         JOSEEncryptor: JOSEEncryptor,
         stringFormatter: StringFormatter
     ) {
         self.communicator = communicator
-        self.assetManager = AssetManager()
         self.encryptor = encryptor
         self.joseEncryptor = JOSEEncryptor
         self.stringFormatter = stringFormatter
@@ -114,7 +61,6 @@ public class Session: NSObject {
         appIdentifier: String,
         loggingEnabled: Bool = false
     ) {
-        let assetManager = AssetManager()
         let stringFormatter = StringFormatter()
         let encryptor = Encryptor()
         let configuration = C2SCommunicatorConfiguration(clientSessionId: clientSessionId,
@@ -127,7 +73,6 @@ public class Session: NSObject {
         let jsonEncryptor = JOSEEncryptor(encryptor: encryptor)
 
         self.communicator = communicator
-        self.assetManager = assetManager
         self.encryptor = encryptor
         self.joseEncryptor = jsonEncryptor
         self.stringFormatter = stringFormatter
@@ -406,6 +351,55 @@ public class Session: NSObject {
         return paymentRequestJSON
     }
 
+    @objc public func currencyConversionQuote(
+        amountOfMoney: AmountOfMoney,
+        partialCreditCardNumber: String,
+        paymentProductId: NSNumber? = nil,
+        success: ((_ currencyConversionResponse: CurrencyConversionResponse) -> Void)? = nil,
+        failure: ((_ error: Error) -> Void)? = nil,
+        apiFailure: ((_ errorResponse: ErrorResponse) -> Void)? = nil
+    ) {
+        let card = Card(cardNumber: partialCreditCardNumber, paymentProductId: paymentProductId?.intValue)
+        let cardSource = CardSource(card: card)
+
+        communicator.currencyConversionQuote(
+            amountOfMoney: amountOfMoney,
+            cardSource: cardSource,
+            success: { response in
+                success?(response)
+            },
+            failure: { error in
+                failure?(error)
+            },
+            apiFailure: { errorResponse in
+                apiFailure?(errorResponse)
+            })
+    }
+
+    @objc public func currencyConversionQuote(
+        amountOfMoney: AmountOfMoney,
+        token: String,
+        success: ((_ currencyConversionResponse: CurrencyConversionResponse) -> Void)? = nil,
+        failure: ((_ error: Error) -> Void)? = nil,
+        apiFailure: ((_ errorResponse: ErrorResponse) -> Void)? = nil
+    ) {
+        let cardSource = CardSource(token: token)
+
+        communicator.currencyConversionQuote(
+            amountOfMoney: amountOfMoney,
+            cardSource: cardSource,
+            success: { response in
+                success?(response)
+            },
+            failure: { error in
+                failure?(error)
+            },
+            apiFailure: { errorResponse in
+                apiFailure?(errorResponse)
+            }
+        )
+    }
+
     @objc public func surchargeCalculation(
         amountOfMoney: AmountOfMoney,
         partialCreditCardNumber: String,
@@ -422,7 +416,6 @@ public class Session: NSObject {
             cardSource: cardSource,
             success: { response in
                 success?(response)
-
             },
             failure: { error in
                 failure?(error)
@@ -458,8 +451,7 @@ public class Session: NSObject {
         )
     }
 
-    @available(*, deprecated, message: "In a future release, this function will become internal to the SDK.")
-    @objc public func keyValuePairs(from dictionary: [String: String]) -> [[String: String]] {
+    private func keyValuePairs(from dictionary: [String: String]) -> [[String: String]] {
         var keyValuePairs = [[String: String]]()
         for (key, value) in  dictionary {
             let pair = ["key": key, "value": value]
@@ -468,8 +460,7 @@ public class Session: NSObject {
         return keyValuePairs
     }
 
-    @available(*, deprecated, message: "In a future release, this function will become internal to the SDK.")
-    @objc public func keyValueJSONFromDictionary(dictionary: [String: String]) -> String? {
+    private func keyValueJSONFromDictionary(dictionary: [String: String]) -> String? {
         let keyValuePairs = self.keyValuePairs(from: dictionary)
         guard let JSONAsData = try? JSONSerialization.data(withJSONObject: keyValuePairs) else {
             Macros.DLog(message: "Unable to create JSON data from dictionary")

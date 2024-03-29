@@ -16,7 +16,7 @@ public class PaymentProduct302SpecificData: NSObject, Codable {
             self.networks = networks
         }
     }
-    
+
     private enum CodingKeys: String, CodingKey {
         case networks
     }

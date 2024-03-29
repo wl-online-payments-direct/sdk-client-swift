@@ -6,16 +6,15 @@
 
 import Foundation
 
-@available(*, deprecated, message: "In a future release, this extension will become internal to the SDK.")
-extension Data {
-    public func base64URLEncode() -> String {
+internal extension Data {
+    func base64URLEncode() -> String {
         return encode()
             .trimmingCharacters(in: CharacterSet(charactersIn: "="))
             .replacingOccurrences(of: "+", with: "-")
             .replacingOccurrences(of: "/", with: "_")
     }
 
-    public func encode() -> String {
+    func encode() -> String {
         return self.base64EncodedString()
     }
 }

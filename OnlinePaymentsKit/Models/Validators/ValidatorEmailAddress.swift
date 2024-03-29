@@ -9,8 +9,7 @@ import Foundation
 public class ValidatorEmailAddress: Validator, ValidationRule {
     @objc public var expression: NSRegularExpression
 
-    @available(*, deprecated, message: "In a future release, this initializer will become internal to the SDK.")
-    @objc public override init() {
+    internal override init() {
         let regex = "^[^@\\.]+(\\.[^@\\.]+)*@([^@\\.]+\\.)*[^@\\.]+\\.[^@\\.][^@\\.]+$"
 
         guard let regex = try? NSRegularExpression(pattern: regex) else {

@@ -10,7 +10,6 @@ import XCTest
 class PaymentProductsTestCase: XCTestCase {
 
     var products: BasicPaymentProducts!
-    var account: AccountOnFile!
     var product1: BasicPaymentProduct?
 
     override func setUp() {

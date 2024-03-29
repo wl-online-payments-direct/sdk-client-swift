@@ -50,8 +50,7 @@ public class IINDetail: NSObject, Codable, ResponseObjectSerializable {
         try? container.encode(CardTypeEnumHandler.getCardTypeString(type: cardType), forKey: .cardType)
     }
 
-    @available(*, deprecated, message: "In a future release, this initializer will become internal to the SDK.")
-    @objc public init(paymentProductId: String, allowedInContext: Bool) {
+    internal init(paymentProductId: String, allowedInContext: Bool) {
         self.paymentProductId = paymentProductId
         self.allowedInContext = allowedInContext
     }

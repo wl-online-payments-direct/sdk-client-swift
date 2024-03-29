@@ -11,32 +11,23 @@ class BasicPaymentProductTestCase: XCTestCase {
 
     var product: BasicPaymentProduct!
     let accountsOnFile = AccountsOnFile()
-    var account1: AccountOnFile!
-    var account2: AccountOnFile!
+    var account: AccountOnFile!
 
     override func setUp() {
         super.setUp()
 
-        let account1JSON = Data("""
+        let accountJSON = Data("""
         {
             "id": 1,
             "paymentProductId": 1
         }
         """.utf8)
 
-        let account2JSON = Data("""
-        {
-            "id": 2,
-            "paymentProductId": 2
-        }
-        """.utf8)
-        guard let account1 = try? JSONDecoder().decode(AccountOnFile.self, from: account1JSON),
-              let account2 = try? JSONDecoder().decode(AccountOnFile.self, from: account2JSON) else {
+        guard let account = try? JSONDecoder().decode(AccountOnFile.self, from: accountJSON) else {
             XCTFail("Accounts are not both a valid AccountOnFile")
             return
         }
-        self.account1 = account1
-        self.account2 = account2
+        self.account = account
 
         let productJSON = Data("""
         {
@@ -57,13 +48,12 @@ class BasicPaymentProductTestCase: XCTestCase {
         }
         self.product = product
 
-        accountsOnFile.accountsOnFile.append(account1)
-        accountsOnFile.accountsOnFile.append(account2)
+        accountsOnFile.accountsOnFile.append(account)
         product.accountsOnFile = accountsOnFile
     }
 
     func testAccountOnFileWithIdentifier() {
-        XCTAssert(product.accountOnFile(withIdentifier: "1") === account1, "Unexpected account on file retrieved")
+        XCTAssert(product.accountOnFile(withIdentifier: "1") === account, "Unexpected account on file retrieved")
     }
 
     func testSameBasicPaymentProduct() {

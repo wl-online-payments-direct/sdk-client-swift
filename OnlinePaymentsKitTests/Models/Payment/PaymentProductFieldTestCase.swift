@@ -10,7 +10,6 @@ import XCTest
 class PaymentProductFieldTestCase: XCTestCase {
 
     var field: PaymentProductField!
-    var request: PaymentRequest!
 
     override func setUp() {
         super.setUp()
@@ -51,27 +50,6 @@ class PaymentProductFieldTestCase: XCTestCase {
             return
         }
         self.field = field
-
-        let paymentProductJSON = Data("""
-        {
-            "fields": [],
-            "id": 1,
-            "paymentMethod": "card",
-            "displayHints": {
-                "displayOrder": 20,
-                "label": "Visa",
-                "logo": "/this/is_a_test.png"
-            },
-            "usesRedirectionTo3rdParty": false
-        }
-        """.utf8)
-
-        guard let paymentProduct = try? JSONDecoder().decode(PaymentProduct.self, from: paymentProductJSON) else {
-            XCTFail("Not a valid PaymentProduct")
-            return
-        }
-
-        request = PaymentRequest(paymentProduct: paymentProduct)
     }
 
     func testValidateValueCorrect() {

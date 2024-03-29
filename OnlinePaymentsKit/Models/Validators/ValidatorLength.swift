@@ -11,8 +11,7 @@ public class ValidatorLength: Validator, ValidationRule, ResponseObjectSerializa
     @objc public var minLength = 0
     @objc public var maxLength = 0
 
-    @available(*, deprecated, message: "In a future release, this initializer will become internal to the SDK.")
-    public init(minLength: Int?, maxLength: Int?) {
+    internal init(minLength: Int?, maxLength: Int?) {
         self.minLength = minLength ?? 0
         self.maxLength = maxLength ?? 0
 

@@ -8,11 +8,9 @@ import Foundation
 import CryptoSwift
 import Security
 
-@available(*, deprecated, message: "In a future release, this class and its functions will become internal to the SDK.")
-@objc(OPEncryptor)
-public class Encryptor: NSObject {
+internal class Encryptor {
 
-    @objc public func generateRSAKeyPair(withPublicTag publicTag: String, privateTag: String) {
+    func generateRSAKeyPair(withPublicTag publicTag: String, privateTag: String) {
         let privateKeyAttr: [String: Any] = [
             kSecAttrIsPermanent as String: true,
             kSecAttrApplicationTag as String: privateTag
@@ -40,7 +38,7 @@ public class Encryptor: NSObject {
         }
     }
 
-    @objc public func RSAKey(withTag tag: String) -> (SecKey?) {
+    func RSAKey(withTag tag: String) -> (SecKey?) {
         var keyRef: CFTypeRef?
 
         let queryAttr: NSDictionary = [
@@ -58,7 +56,7 @@ public class Encryptor: NSObject {
         return keyRef as! (SecKey?) // swiftlint:disable:this force_cast
     }
 
-    @objc public func deleteRSAKey(withTag tag: String) {
+    func deleteRSAKey(withTag tag: String) {
 
         let keyAttr: NSDictionary = [
             kSecClass: kSecClassKey,
@@ -72,13 +70,12 @@ public class Encryptor: NSObject {
         }
     }
 
-    @objc public func encryptRSA(data: Data, publicKey: SecKey) -> Data {
+    func encryptRSA(data: Data, publicKey: SecKey) -> Data {
         let buffer = convertDataToByteArray(data: data)
         return Data(encryptRSA(plaintext: buffer, publicKey: publicKey))
     }
 
-    @objc(encryptRSA:key:)
-    public func encryptRSA(plaintext: [UInt8], publicKey: SecKey) -> [UInt8] {
+    func encryptRSA(plaintext: [UInt8], publicKey: SecKey) -> [UInt8] {
 
         var cipherBufferSize = SecKeyGetBlockSize(publicKey)
         var cipherBuffer = [UInt8](repeating: 0, count: cipherBufferSize)
@@ -93,13 +90,12 @@ public class Encryptor: NSObject {
         return cipherBuffer
     }
 
-    @objc public func decryptRSA(data: Data, privateKey: SecKey) -> Data {
+    func decryptRSA(data: Data, privateKey: SecKey) -> Data {
         let buffer = convertDataToByteArray(data: data)
         return Data(decryptRSA(ciphertext: buffer, privateKey: privateKey))
     }
 
-    @objc(decryptRSA:key:)
-    public func decryptRSA(ciphertext: [UInt8], privateKey: SecKey) -> [UInt8] {
+    func decryptRSA(ciphertext: [UInt8], privateKey: SecKey) -> [UInt8] {
 
         var plainBufferSize = SecKeyGetBlockSize(privateKey)
         var plainBuffer = [UInt8](repeating: 0, count: plainBufferSize)
@@ -117,8 +113,7 @@ public class Encryptor: NSObject {
     // A PFX file suited to test the following methods can be generated with the following commands:
     // - openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout privateKey.key -out certificate.crt
     // - openssl pkcs12 -export -out certificate.pfx -inkey privatekey.key -in certificate.crt
-    @objc(storeRSAKeyPairFromPFXData:password:publicTag:privateTag:)
-    public func storeRSAKeyPairFromPFXData(
+    func storeRSAKeyPairFromPFXData(
         PFXData: NSData,
         password: String,
         publicTag: String, privateTag: String
@@ -183,8 +178,7 @@ public class Encryptor: NSObject {
         }
     }
 
-    @objc(storeRSAKey:tag:)
-    public func storeRSAKey(key: SecKey, tag: String) {
+    func storeRSAKey(key: SecKey, tag: String) {
         let keyAttr: NSDictionary = [
             kSecClass: kSecClassKey,
             kSecAttrApplicationTag: tag,
@@ -198,8 +192,7 @@ public class Encryptor: NSObject {
         }
     }
 
-    @objc(storePublicKey:tag:)
-    public func storePublicKey(publicKey: Data, tag: String) {
+    func storePublicKey(publicKey: Data, tag: String) {
         let keyAttr: NSDictionary = [
             kSecClass: kSecClassKey,
             kSecAttrApplicationTag: tag,
@@ -213,8 +206,7 @@ public class Encryptor: NSObject {
         }
     }
 
-    @objc(stripPublicKey:)
-    public func stripPublicKey(data: Data) -> (Data?) {
+    func stripPublicKey(data: Data) -> (Data?) {
         let publicKey = convertDataToByteArray(data: data)
         if let result = stripPublicKey(publicKey: publicKey) {
             return Data(result)
@@ -223,7 +215,7 @@ public class Encryptor: NSObject {
         }
     }
 
-    @objc public func stripPublicKey(publicKey: [UInt8]) -> ([UInt8]?) {
+    func stripPublicKey(publicKey: [UInt8]) -> ([UInt8]?) {
         let prefixLength = 24
         let prefix: [UInt8] =
             [
@@ -240,23 +232,13 @@ public class Encryptor: NSObject {
     }
 
     // swiftlint:disable identifier_name
-    @objc(encryptAES:key:IV:)
-    public func encryptAES(data: Data, key: Data, IV: Data) -> (Data?) {
+    func encryptAES(data: Data, key: Data, IV: Data) -> (Data?) {
         let plaintext = convertDataToByteArray(data: data)
 
         if let result = encryptAES(plaintext: plaintext, key: key.bytes, IV: IV.bytes) {
             return Data(result)
         }
         return nil
-    }
-
-    @available(
-        *,
-        deprecated,
-        message: "Deprecated in favor of encryptAES(ciphertext: [UInt8], key: [UInt8], IV: [UInt8])"
-    )
-    @objc public func encryptAES(plaintext: [UInt8], key: String, IV: String) -> ([UInt8]?) {
-        return self.encryptAES(plaintext: plaintext, key: key.bytes, IV: IV.bytes)
     }
 
     private func encryptAES(plaintext: [UInt8], key: [UInt8], IV: [UInt8]) -> ([UInt8]?) {
@@ -268,23 +250,13 @@ public class Encryptor: NSObject {
         return ciphertext
     }
 
-    @objc(decryptAES:key:IV:)
-    public func decryptAES(data: Data, key: Data, IV: Data) -> (Data?) {
+    func decryptAES(data: Data, key: Data, IV: Data) -> (Data?) {
         let ciphertext = convertDataToByteArray(data: data)
 
         if let result = decryptAES(ciphertext: ciphertext, key: key.bytes, IV: IV.bytes) {
             return Data(result)
         }
         return nil
-    }
-
-    @available(
-        *,
-        deprecated,
-        message: "Deprecated in favor of decryptAES(ciphertext: [UInt8], key: [UInt8], IV: [UInt8])"
-    )
-    @objc public func decryptAES(ciphertext: [UInt8], key: String, IV: String) -> ([UInt8]?) {
-        return self.decryptAES(ciphertext: ciphertext, key: key.bytes, IV: IV.bytes)
     }
 
     private func decryptAES(ciphertext: [UInt8], key: [UInt8], IV: [UInt8]) -> ([UInt8]?) {
@@ -297,7 +269,7 @@ public class Encryptor: NSObject {
     }
     // swiftlint:enable identifier_name
 
-    @objc public func generateHMAC(data: Data, key: Data) -> (Data?) {
+    func generateHMAC(data: Data, key: Data) -> (Data?) {
         let input = convertDataToByteArray(data: data)
         let keyBytes = convertDataToByteArray(data: key)
         if let hmac = generateHMAC(input: input, key: keyBytes) {
@@ -307,8 +279,7 @@ public class Encryptor: NSObject {
         }
     }
 
-    @objc(generateHMAC:key:)
-    public func generateHMAC(input: [UInt8], key: [UInt8]) -> ([UInt8]?) {
+    func generateHMAC(input: [UInt8], key: [UInt8]) -> ([UInt8]?) {
         guard let hmac = try? HMAC(key: key, variant: .sha512).authenticate(input) else {
             return nil
         }
@@ -316,11 +287,11 @@ public class Encryptor: NSObject {
         return hmac
     }
 
-    @objc public func generateRandomBytes(length: Int) -> (Data?) {
+    func generateRandomBytes(length: Int) -> (Data?) {
         return Data(AES.randomIV(length))
     }
 
-    @objc public func generateUUID() -> (String) {
+    func generateUUID() -> (String) {
         return UUID().uuidString
     }
 

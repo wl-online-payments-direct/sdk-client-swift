@@ -21,7 +21,9 @@ class ValidatorEmailAddressTestCase: XCTestCase {
                     "type": "string",
                     "displayHints": {
                         "displayOrder": 0,
-                        "formElement": {}
+                        "formElement": {
+                            "type": "text"
+                        }
                     }
                 }
             ],

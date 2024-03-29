@@ -16,8 +16,8 @@ class PaymentItemsTestCase: XCTestCase {
 
     var session = StubSession(clientSessionId: "client-session-id",
                           customerId: "customer-id",
-                          baseURL: "https://example.com/client/v1",
-                          assetBaseURL: "https://example.com/client/v1",
+                          baseURL: "https://example.com",
+                          assetBaseURL: "https://example.com",
                           appIdentifier: "")
     let context = PaymentContext(amountOfMoney: AmountOfMoney(totalAmount: 3, currencyCode: "EUR"),
                                  isRecurring: true,

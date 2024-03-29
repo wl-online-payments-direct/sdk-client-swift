@@ -40,8 +40,7 @@ public class BasicPaymentProductGroups: NSObject, Codable, ResponseObjectSeriali
         }
     }
 
-    @available(*, deprecated, message: "In a future release, this initializer will become internal to the SDK.")
-    @objc public override init() {}
+    internal override init() {}
 
     @available(*, deprecated, message: "In a future release, this initializer will be removed.")
     @objc required public init(json: [String: Any]) {

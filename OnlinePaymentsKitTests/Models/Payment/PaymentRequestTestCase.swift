@@ -19,8 +19,8 @@ class PaymentRequestTestCase: XCTestCase {
     var attribute: AccountOnFileAttribute!
     var session = Session(clientSessionId: "client-session-id",
                           customerId: "customer-id",
-                          baseURL: "https://example.com/client/v1",
-                          assetBaseURL: "https://example.com/client/v1",
+                          baseURL: "https://example.com",
+                          assetBaseURL: "https://example.com",
                           appIdentifier: "")
 
     override func setUp() {

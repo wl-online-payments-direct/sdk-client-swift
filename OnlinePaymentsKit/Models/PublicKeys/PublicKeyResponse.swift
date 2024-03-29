@@ -11,12 +11,6 @@ public class PublicKeyResponse: NSObject, Codable {
     @objc public var keyId: String
     @objc public var encodedPublicKey: String
 
-    @available(*, deprecated, message: "In a future release, this initializer will be removed.")
-    @objc public init(keyId: String, encodedPublicKey: String) {
-        self.keyId = keyId
-        self.encodedPublicKey = encodedPublicKey
-    }
-
     private enum CodingKeys: String, CodingKey {
         case keyId, publicKey
     }

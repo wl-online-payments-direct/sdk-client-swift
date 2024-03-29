@@ -11,8 +11,7 @@ public class AccountOnFileDisplayHints: NSObject, Codable {
 
     @objc public var labelTemplate: LabelTemplate = LabelTemplate()
 
-    @available(*, deprecated, message: "In a future release, this initializer will become internal to the SDK.")
-    @objc public override init() {
+    internal override init() {
         super.init()
     }
 

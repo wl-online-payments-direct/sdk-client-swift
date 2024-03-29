@@ -12,8 +12,7 @@ public class ValidatorExpirationDate: Validator, ValidationRule {
     private var fullYearDateFormatter = DateFormatter()
     private var monthAndFullYearDateFormatter = DateFormatter()
 
-    @available(*, deprecated, message: "In a future release, this initializer will become internal to the SDK.")
-    @objc public override init() {
+    internal override init() {
         dateFormatter.dateFormat = "MMyy"
         fullYearDateFormatter.dateFormat = "yyyy"
         monthAndFullYearDateFormatter.dateFormat = "MMyyyy"

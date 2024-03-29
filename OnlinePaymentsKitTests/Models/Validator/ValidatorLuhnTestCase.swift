@@ -23,7 +23,9 @@ class ValidatorLuhnTestCase: XCTestCase {
                     "type": "numericstring",
                     "displayHints": {
                         "displayOrder": 0,
-                        "formElement": {}
+                        "formElement": {
+                            "type": "text"
+                        }
                     }
                 }
             ],

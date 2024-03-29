@@ -8,8 +8,7 @@ import Foundation
 
 @objc(OPValidatorTermsAndConditions)
 public class ValidatorTermsAndConditions: Validator, ValidationRule {
-    @available(*, deprecated, message: "In a future release, this initializer will become internal to the SDK.")
-    @objc public override init() {
+    internal override init() {
         super.init(messageId: "termsAndConditions", validationType: .termsAndConditions)
     }
 

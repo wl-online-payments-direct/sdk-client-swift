@@ -11,11 +11,6 @@ public class PaymentProductNetworks: NSObject, Codable {
 
     @objc public var paymentProductNetworks = [PKPaymentNetwork]()
 
-    @available(*, deprecated, message: "In a future release, this initializer will be removed.")
-    @objc public override init() {
-        super.init()
-    }
-
     private enum CodingKeys: String, CodingKey {
         case networks
     }

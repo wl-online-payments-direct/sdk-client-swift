@@ -7,19 +7,11 @@
 import Alamofire
 import Foundation
 
-@available(
-    *,
-    deprecated,
-    message:
-        """
-        In a future release, this class, its functions and its properties will become internal to the SDK.
-        """
-)
-public class AlamofireWrapper: NSObject {
+internal class AlamofireWrapper {
 
     static let shared = AlamofireWrapper()
 
-    public var headers: HTTPHeaders? {
+    var headers: HTTPHeaders? {
         get {
             return URLSessionConfiguration.default.headers
         }
@@ -29,44 +21,6 @@ public class AlamofireWrapper: NSObject {
     }
 
     // swiftlint:disable function_parameter_count
-    @available(
-        *,
-        deprecated,
-        message:
-            """
-            In a future release, this function will be removed.
-            """
-    )
-    public func getResponse(forURL URL: String,
-                            withParameters parameters: Parameters? = nil,
-                            headers: HTTPHeaders?,
-                            additionalAcceptableStatusCodes: IndexSet?,
-                            success: @escaping (_ responseObject: [String: Any]?) -> Void,
-                            failure: @escaping (_ error: Error) -> Void) {
-
-        let acceptableStatusCodes = NSMutableIndexSet(indexesIn: NSRange(location: 200, length: 100))
-        if let additionalAcceptableStatusCodes = additionalAcceptableStatusCodes {
-            acceptableStatusCodes.add(additionalAcceptableStatusCodes)
-        }
-
-        AF
-            .request(URL, method: .get, parameters: parameters, headers: headers)
-            .validate(statusCode: acceptableStatusCodes)
-            .responseJSON { response in
-                if let error = response.error {
-                    Macros.DLog(
-                        message: "Error while retrieving response for URL \(URL): \(error.localizedDescription)"
-                    )
-                    failure(error)
-                } else {
-                    var responseObject = response.value as? [String: Any]
-                    responseObject?["statusCode"] = response.response?.statusCode
-
-                    success(responseObject)
-                }
-        }
-    }
-
     internal func getResponse<T: Codable>(forURL URL: String,
                                           headers: HTTPHeaders?,
                                           withParameters parameters: Parameters? = nil,
@@ -103,44 +57,6 @@ public class AlamofireWrapper: NSObject {
                     success((response.value, response.response?.statusCode))
                 }
             }
-    }
-
-    @available(
-        *,
-        deprecated,
-        message:
-            """
-            In a future release, this function will be removed.
-            """
-    )
-    public func postResponse(forURL URL: String,
-                             headers: HTTPHeaders?,
-                             withParameters parameters: Parameters?,
-                             additionalAcceptableStatusCodes: IndexSet?,
-                             success: @escaping (_ responseObject: [String: Any]?) -> Void,
-                             failure: @escaping (_ error: Error) -> Void) {
-
-        let acceptableStatusCodes = NSMutableIndexSet(indexesIn: NSRange(location: 200, length: 100))
-        if let additionalAcceptableStatusCodes = additionalAcceptableStatusCodes {
-            acceptableStatusCodes.add(additionalAcceptableStatusCodes)
-        }
-
-        AF
-            .request(URL, method: .post, parameters: parameters, encoding: JSONEncoding.default, headers: headers)
-            .validate(statusCode: acceptableStatusCodes)
-            .responseJSON { response in
-                if let error = response.error {
-                    Macros.DLog(
-                        message: "Error while retrieving response for URL \(URL): \(error.localizedDescription)"
-                    )
-                    failure(error)
-                } else {
-                    var responseObject = response.value as? [String: Any]
-                    responseObject?["statusCode"] = response.response?.statusCode
-
-                    success(responseObject)
-                }
-        }
     }
 
     internal func postResponse<T: Codable>(forURL URL: String,

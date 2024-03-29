@@ -12,8 +12,7 @@ public class ValidatorRange: Validator, ValidationRule, ResponseObjectSerializab
     @objc public var maxValue = 0
     @objc public var formatter = NumberFormatter()
 
-    @available(*, deprecated, message: "In a future release, this initializer will become internal to the SDK.")
-    public init(minValue: Int?, maxValue: Int?) {
+    internal init(minValue: Int?, maxValue: Int?) {
         self.minValue = minValue ?? 0
         self.maxValue = maxValue ?? 0
 
