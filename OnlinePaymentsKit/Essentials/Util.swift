@@ -40,7 +40,6 @@ internal class Util {
     init() {
         metaInfo = [
             "platformIdentifier": platformIdentifier,
-            "sdkIdentifier": "SwiftClientSDK/v2.3.0",
             "sdkCreator": "Online Payments",
             "screenSize": screenSize,
             "deviceBrand": "Apple",
@@ -64,6 +63,18 @@ internal class Util {
         withAppIdentifier appIdentifier: String?,
         addedData: [String: String]?
     ) -> String? {
+        return base64EncodedClientMetaInfo(
+            withAppIdentifier: appIdentifier,
+            addedData: addedData,
+            sdkIdentifier: SDKConstants.kSDKIdentifier
+        )
+    }
+
+    internal func base64EncodedClientMetaInfo(
+        withAppIdentifier appIdentifier: String?,
+        addedData: [String: String]?,
+        sdkIdentifier: String
+    ) -> String? {
         if let addedData = addedData {
             for (key, value) in addedData {
                 metaInfo!.updateValue(value, forKey: key)
@@ -75,6 +86,8 @@ internal class Util {
         } else {
             metaInfo!["appIdentifier"] = "UNKNOWN"
         }
+
+        metaInfo!["sdkIdentifier"] = sdkIdentifier
 
         return base64EncodedString(fromDictionary: metaInfo!)
     }

@@ -96,9 +96,9 @@ When the package has successfully been added, it will automatically be added as 
 The Online Payments Swift SDK can also be used in Objective-C projects by using CocoaPods or Carthage. Once you have added Online Payments Kit as a dependency, it can easily be used by adding the following import statement where you want to use the SDK:
 `@import OnlinePaymentsKit;` 
 
-## Example app
+## Example apps
 
-For your convenience, we also provide an example app that can be used as a basis for your own implementation. If you are fine with the look-and-feel of the example app, you do not need to make any changes at all. The example app can be found [here](https://github.com/wl-online-payments-direct/sdk-client-swift-example).
+For your convenience, we also provide an example application in both SwiftUI and UIKit that can be used as a basis for your own implementation. If you are fine with the look-and-feel of the example app, you do not need to make any changes at all. Take a look at the [SwiftUI](https://github.com/wl-online-payments-direct/sdk-client-swift-example-swiftui) or [UIKit](https://github.com/wl-online-payments-direct/sdk-client-swift-example) example apps.`
 
 ## Getting started
 

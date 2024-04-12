@@ -59,7 +59,8 @@ public class Session: NSObject {
         baseURL: String,
         assetBaseURL: String,
         appIdentifier: String,
-        loggingEnabled: Bool = false
+        loggingEnabled: Bool = false,
+        sdkIdentifier: String
     ) {
         let stringFormatter = StringFormatter()
         let encryptor = Encryptor()
@@ -68,7 +69,8 @@ public class Session: NSObject {
                                                          baseURL: baseURL,
                                                          assetBaseURL: assetBaseURL,
                                                          appIdentifier: appIdentifier,
-                                                         loggingEnabled: loggingEnabled)
+                                                         loggingEnabled: loggingEnabled,
+                                                         sdkIdentifier: sdkIdentifier)
         let communicator = C2SCommunicator(configuration: configuration)
         let jsonEncryptor = JOSEEncryptor(encryptor: encryptor)
 
@@ -76,6 +78,24 @@ public class Session: NSObject {
         self.encryptor = encryptor
         self.joseEncryptor = jsonEncryptor
         self.stringFormatter = stringFormatter
+    }
+
+    @objc public convenience init(
+        clientSessionId: String,
+        customerId: String,
+        baseURL: String,
+        assetBaseURL: String,
+        appIdentifier: String,
+        loggingEnabled: Bool = false
+    ) {
+        self.init(clientSessionId: clientSessionId,
+                  customerId: customerId,
+                  baseURL: baseURL,
+                  assetBaseURL: assetBaseURL,
+                  appIdentifier: appIdentifier,
+                  loggingEnabled: loggingEnabled,
+                  sdkIdentifier: SDKConstants.kSDKIdentifier
+        )
     }
 
     @objc public static func session(

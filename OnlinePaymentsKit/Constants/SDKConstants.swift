@@ -21,6 +21,7 @@ public class SDKConstants: NSObject {
     internal static let kGooglePayIdentifier = "320"
 
     internal static let kApiBase = "client/"
+    internal static let kSDKIdentifier = "SwiftClientSDK/v2.3.1"
 
 #if SWIFT_PACKAGE
     @objc(kOPSDKBundlePath)

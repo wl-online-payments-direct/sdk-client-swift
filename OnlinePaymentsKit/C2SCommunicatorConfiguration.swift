@@ -13,6 +13,7 @@ internal class C2SCommunicatorConfiguration {
     let appIdentifier: String
     let assetsBaseURL: String
     var loggingEnabled: Bool = false
+    var sdkIdentifier: String = SDKConstants.kSDKIdentifier
 
     private let _baseURL: String
     var baseURL: String {
@@ -26,7 +27,8 @@ internal class C2SCommunicatorConfiguration {
         assetBaseURL: String,
         appIdentifier: String,
         util: Util? = nil,
-        loggingEnabled: Bool = false
+        loggingEnabled: Bool = false,
+        sdkIdentifier: String = SDKConstants.kSDKIdentifier
     ) {
         self.clientSessionId = clientSessionId
         self.customerId = customerId
@@ -35,10 +37,28 @@ internal class C2SCommunicatorConfiguration {
         self._baseURL = baseURL
         self.assetsBaseURL = assetBaseURL
         self.loggingEnabled = loggingEnabled
+        self.sdkIdentifier = provideValidSDKIdentifier(sdkIdentifier: sdkIdentifier)
     }
 
     internal func getUrl(version: ApiVersion, apiUrl: String) -> String {
         return baseURL + version.rawValue + apiUrl
+    }
+    
+    private func provideValidSDKIdentifier(sdkIdentifier: String) -> String {
+        let identifierParts = sdkIdentifier.split(separator: "/")
+
+        if identifierParts.count == 2
+            && identifierParts[0] == "FlutterClientSDK"
+            && identifierParts[1].hasPrefix("v") {
+            let versionParts = identifierParts[1].replacingOccurrences(of: "v", with: "").split(separator: ".")
+
+            if versionParts.count == 3 && versionParts.allSatisfy({ Int($0) != nil }) {
+                return sdkIdentifier
+            }
+        }
+
+        return SDKConstants.kSDKIdentifier
+
     }
 
     private func fixURL(url: String) -> String? {
@@ -56,6 +76,10 @@ internal class C2SCommunicatorConfiguration {
     }
 
     var base64EncodedClientMetaInfo: String? {
-        return util.base64EncodedClientMetaInfo(withAppIdentifier: appIdentifier)
+        return util.base64EncodedClientMetaInfo(
+            withAppIdentifier: appIdentifier,
+            addedData: nil,
+            sdkIdentifier: sdkIdentifier
+        )
     }
 }
