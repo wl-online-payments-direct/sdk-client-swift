@@ -20,8 +20,10 @@ class SessionTestCase: XCTestCase {
             baseURL: "https://example.com",
             assetBaseURL: "https://example.com",
             appIdentifier: "",
-            loggingEnabled: false
+            loggingEnabled: false,
+            sdkIdentifier: SDKConstants.kSDKIdentifier
         )
+
     let context =
         PaymentContext(
             amountOfMoney: AmountOfMoney(totalAmount: 3, currencyCode: "EUR"),

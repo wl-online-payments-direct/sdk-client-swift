@@ -43,7 +43,7 @@ internal class C2SCommunicatorConfiguration {
     internal func getUrl(version: ApiVersion, apiUrl: String) -> String {
         return baseURL + version.rawValue + apiUrl
     }
-    
+
     private func provideValidSDKIdentifier(sdkIdentifier: String) -> String {
         let identifierParts = sdkIdentifier.split(separator: "/")
 

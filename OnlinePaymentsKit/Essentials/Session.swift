@@ -164,7 +164,9 @@ public class Session: NSObject {
         )
     }
 
+    // swiftlint:disable todo
     // TODO: SMBO-96367 - Parameter 'groupPaymentProducts' is unused
+    // swiftlint:enable todo
     @objc(paymentItemsForContext:groupPaymentProducts:success:failure:apiFailure:)
     public func paymentItems(
         for context: PaymentContext,

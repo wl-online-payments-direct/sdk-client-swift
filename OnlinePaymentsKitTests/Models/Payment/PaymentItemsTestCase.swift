@@ -15,10 +15,13 @@ class PaymentItemsTestCase: XCTestCase {
     let host = "example.com"
 
     var session = StubSession(clientSessionId: "client-session-id",
-                          customerId: "customer-id",
-                          baseURL: "https://example.com",
-                          assetBaseURL: "https://example.com",
-                          appIdentifier: "")
+                              customerId: "customer-id",
+                              baseURL: "https://example.com",
+                              assetBaseURL: "https://example.com",
+                              appIdentifier: "",
+                              loggingEnabled: false,
+                              sdkIdentifier: SDKConstants.kSDKIdentifier
+                        )
     let context = PaymentContext(amountOfMoney: AmountOfMoney(totalAmount: 3, currencyCode: "EUR"),
                                  isRecurring: true,
                                  countryCode: "NL")
