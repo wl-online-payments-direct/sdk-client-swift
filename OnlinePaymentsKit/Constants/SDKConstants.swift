@@ -13,15 +13,11 @@ public class SDKConstants: NSObject {
 
     @objc(kOPSDKLocalizable)
     public static let kSDKLocalizable = "OPSDKLocalizable"
-    internal static let kImageMapping = "kImageMapping"
-    internal static let kImageMappingInitialized = "kImageMappingInitialized"
-    internal static let kIINMapping = "kIINMapping"
 
     internal static let kApplePayIdentifier = "302"
-    internal static let kGooglePayIdentifier = "320"
 
     internal static let kApiBase = "client/"
-    internal static let kSDKIdentifier = "SwiftClientSDK/v2.3.2"
+    internal static let kSDKIdentifier = "SwiftClientSDK/v2.4.0"
 
 #if SWIFT_PACKAGE
     @objc(kOPSDKBundlePath)
@@ -42,10 +38,6 @@ public class SDKConstants: NSObject {
         return
             UIDevice.current.systemVersion.compare(version, options: String.CompareOptions.numeric) != .orderedAscending
     }
-
-    internal static let StandardUserDefaults = UserDefaults.standard
-
-    internal static let DocumentsFolderPath = (NSHomeDirectory() as NSString).appendingPathComponent("Documents")
 
     @objc(kOPCountryCodes)
     @available(

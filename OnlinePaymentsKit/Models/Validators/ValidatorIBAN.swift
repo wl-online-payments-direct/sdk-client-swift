@@ -13,6 +13,7 @@ public class ValidatorIBAN: Validator, ValidationRule {
         super.init(messageId: "iban", validationType: .iban)
     }
 
+    // periphery:ignore:parameters decoder
     public required init(from decoder: Decoder) throws {
         super.init(messageId: "iban", validationType: .iban)
     }

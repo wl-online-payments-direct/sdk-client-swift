@@ -11,6 +11,7 @@ internal class C2SCommunicatorConfiguration {
     let customerId: String
     let util: Util
     let appIdentifier: String
+    // periphery:ignore
     let assetsBaseURL: String
     var loggingEnabled: Bool = false
     var sdkIdentifier: String = SDKConstants.kSDKIdentifier

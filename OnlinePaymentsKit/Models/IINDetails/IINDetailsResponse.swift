@@ -103,21 +103,6 @@ public class IINDetailsResponse: NSObject, Codable, ResponseObjectSerializable {
         self.status = status
     }
 
-    internal init(
-        paymentProductId: String,
-        status: IINStatus,
-        coBrands: [IINDetail],
-        countryCode: String,
-        allowedInContext: Bool
-    ) {
-        self.paymentProductId = paymentProductId
-        self.status = status
-        self.coBrands = coBrands
-        self.countryCode = countryCode
-        self.countryCodeString = countryCode
-        self.allowedInContext = allowedInContext
-    }
-
     private func getIINStatusString(status: IINStatus) -> String {
         switch status {
         case .supported:

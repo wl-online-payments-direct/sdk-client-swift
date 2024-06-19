@@ -12,6 +12,7 @@ public class ValidatorTermsAndConditions: Validator, ValidationRule {
         super.init(messageId: "termsAndConditions", validationType: .termsAndConditions)
     }
 
+    // periphery:ignore:parameters decoder
     required init(from decoder: Decoder) throws {
         super.init(messageId: "termsAndConditions", validationType: .termsAndConditions)
     }

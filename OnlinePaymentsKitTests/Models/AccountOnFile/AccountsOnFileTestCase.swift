@@ -43,11 +43,84 @@ class AccountsOnFileTestCase: XCTestCase {
         accountsOnFile.accountsOnFile.append(self.account2)
     }
 
+    func testMaskedLabelWithMultipleLabelTemplateItems() {
+        let testAccount = accountsOnFile.accountOnFile(withIdentifier: "1")
+        XCTAssertNotNil(testAccount, "Account could not be found")
+        XCTAssertEqual(testAccount!, account1, "Incorrect account on file retrieved")
+
+        let attributeJSON = Data("""
+        {
+            "key": "expiryDate",
+            "value" : "1224",
+            "status" : "READ_ONLY"
+        }
+        """.utf8)
+
+        let attributeJSON2 = Data("""
+        {
+            "key": "cardNumber",
+            "value" : "4012XXXXXXXX0026",
+            "status" : "READ_ONLY"
+        }
+        """.utf8)
+
+        let attributeJSON3 = Data("""
+        {
+            "key": "alias",
+            "value" : "4012XXXXXXXX0026",
+            "status" : "READ_ONLY"
+        }
+        """.utf8)
+
+        let labelTemplateItemJSON = Data("""
+        {
+            "attributeKey": "alias",
+            "mask": "{{9999}} {{9999}} {{9999}} {{9999}}"
+        }
+        """.utf8)
+
+        let labelTemplateItemJSON2 = Data("""
+        {
+            "attributeKey": "expiryDate",
+            "mask": "{{99}}/{{99}}"
+        }
+        """.utf8)
+
+        let labelTemplateItemJSON3 = Data("""
+        {
+            "attributeKey": "cardNumber",
+            "mask": "{{9999}} {{9999}} {{9999}} {{9999}}"
+        }
+        """.utf8)
+
+        guard let attribute = try? JSONDecoder().decode(AccountOnFileAttribute.self, from: attributeJSON),
+              let attribute2 = try? JSONDecoder().decode(AccountOnFileAttribute.self, from: attributeJSON2),
+              let attribute3 = try? JSONDecoder().decode(AccountOnFileAttribute.self, from: attributeJSON3) else {
+                  XCTFail("Not a valid AccountOnFileAttribute")
+                  return
+        }
+
+        guard let lti1 = try? JSONDecoder().decode(LabelTemplateItem.self, from: labelTemplateItemJSON),
+              let lti2 = try? JSONDecoder().decode(LabelTemplateItem.self, from: labelTemplateItemJSON2),
+              let lti3 = try? JSONDecoder().decode(LabelTemplateItem.self, from: labelTemplateItemJSON3) else {
+                  XCTFail("Not a valid LabelTemplateItem")
+                  return
+        }
+
+        testAccount?.displayHints.labelTemplate.labelTemplateItems.append(contentsOf: [lti1, lti2, lti3])
+        testAccount?.attributes.attributes.append(contentsOf: [attribute, attribute2, attribute3])
+
+        XCTAssertNotNil(testAccount?.hasValue(forField: "alias"))
+        XCTAssertTrue(testAccount!.hasValue(forField: "alias"))
+        XCTAssertEqual(testAccount?.label, "4012 XXXX XXXX 0026",
+                      "Label not correct, label was \(String(describing: testAccount?.label))")
+    }
+
     func testAccountOnFileWithIdentifier() {
         let testAccount = accountsOnFile.accountOnFile(withIdentifier: "1")
 
         XCTAssertNotNil(testAccount, "Account could not be found")
-        XCTAssert(testAccount! === account1, "Incorrect account on file retrieved")
+        XCTAssertEqual(testAccount, account1, "Incorrect account on file retrieved")
 
         for index in 0...3 {
             let templabelJSON = Data("""
@@ -61,11 +134,11 @@ class AccountsOnFileTestCase: XCTestCase {
                 XCTFail("Not a valid LabelTemplateItem")
                 return
             }
-            account1.displayHints.labelTemplate.labelTemplateItems.append(tempItem)
+            testAccount?.displayHints.labelTemplate.labelTemplateItems.append(tempItem)
         }
 
-        XCTAssertTrue(
-            account1.maskedValue(forField: "attributeKey1") == "123451",
+        XCTAssertEqual(
+            account1.maskedValue(forField: "attributeKey1"), "123451",
             "Mask was: \(account1.maskedValue(forField: "attributeKey1")) should have been: mask1"
         )
         XCTAssertTrue(
@@ -103,7 +176,7 @@ class AccountsOnFileTestCase: XCTestCase {
         XCTAssertTrue(account1.hasValue(forField: attr.key), "Should have value.")
 
         let foundValue = account1.attributes.value(forField: "2")
-        XCTAssertTrue(foundValue == attr2.value, "Values are not equal.")
+        XCTAssertEqual(foundValue, attr2.value, "Values are not equal.")
 
         XCTAssertTrue(account1.attributes.value(forField: "999").isEmpty, "Value should have been empty.")
 

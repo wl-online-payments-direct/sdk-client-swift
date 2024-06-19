@@ -270,7 +270,7 @@ let accountOnFile = basicPaymentProduct.accountOnFile(withIdentifier: "123")
 
 // Shows a mask based formatted value for the obfuscated cardNumber.
 // The mask that is used is defined in the displayHints of this accountOnFile
-// If the mask for the "cardNumber" field is {{9999}} {{9999}} {{9999}} {{9999}} {{999}}, then the result would be **** **** **** 7412
+// If the mask for the "cardNumber" field is {{9999}} {{9999}} {{9999}} {{9999}}, then the result would be **** **** **** 7412
 let maskedValue = accountOnFile.maskedValue(forField: "cardNumber")
 ```
 
@@ -426,7 +426,7 @@ To help in formatting field values based on masks, the SDK offers the `StringFor
 ```swift
 let formatter = StringFormatter()
 
-let mask = "{{9999}} {{9999}} {{9999}} {{9999}} {{999}}"
+let mask = "{{9999}} {{9999}} {{9999}} {{9999}}"
 let value = "1234567890123456"
 
 // apply masked value

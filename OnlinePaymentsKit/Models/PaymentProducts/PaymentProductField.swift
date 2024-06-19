@@ -176,6 +176,7 @@ public class PaymentProductField: NSObject, Codable, ResponseObjectSerializable 
         return errorMessageIds
     }
 
+    // periphery:ignore
     @available(
         *,
         deprecated,

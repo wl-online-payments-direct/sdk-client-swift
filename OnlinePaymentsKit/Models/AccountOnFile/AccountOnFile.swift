@@ -43,7 +43,7 @@ public class AccountOnFile: NSObject, Codable, ResponseObjectSerializable {
     }
 
     private enum CodingKeys: String, CodingKey {
-        case id, paymentProductId, displayHints, attributes
+        case id, paymentProductId, displayHints, attributes, label
     }
 
     public required init(from decoder: Decoder) throws {
@@ -78,6 +78,7 @@ public class AccountOnFile: NSObject, Codable, ResponseObjectSerializable {
         try? container.encode(paymentProductIdentifier, forKey: .paymentProductId)
         try? container.encode(displayHints, forKey: .displayHints)
         try? container.encode(attributes.attributes, forKey: .attributes)
+        try? container.encode(label, forKey: .label)
     }
 
     @objc public func maskedValue(forField paymentProductFieldId: String) -> String {
@@ -106,17 +107,11 @@ public class AccountOnFile: NSObject, Codable, ResponseObjectSerializable {
     }
 
     @objc public var label: String {
-        var labelComponents = [String]()
-
-        for labelTemplateItem in displayHints.labelTemplate.labelTemplateItems {
-            let value = maskedValue(forField: labelTemplateItem.attributeKey)
-            if !value.isEmpty {
-                let trimmedValue = value.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
-                labelComponents.append(trimmedValue)
-            }
+        var label = ""
+        if let labelTemplateItem = displayHints.labelTemplate.labelTemplateItems.first {
+            label = maskedValue(forField: labelTemplateItem.attributeKey, mask: labelTemplateItem.mask)
         }
 
-        return labelComponents.joined(separator: " ")
+        return label
     }
-
 }

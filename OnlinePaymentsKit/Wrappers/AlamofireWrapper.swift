@@ -11,15 +11,6 @@ internal class AlamofireWrapper {
 
     static let shared = AlamofireWrapper()
 
-    var headers: HTTPHeaders? {
-        get {
-            return URLSessionConfiguration.default.headers
-        }
-        set {
-            URLSessionConfiguration.default.headers = newValue ?? .default
-        }
-    }
-
     // swiftlint:disable function_parameter_count
     internal func getResponse<T: Codable>(forURL URL: String,
                                           headers: HTTPHeaders?,

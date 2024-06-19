@@ -20,6 +20,7 @@ public class ValidatorEmailAddress: Validator, ValidationRule {
         super.init(messageId: "emailAddress", validationType: .emailAddress)
     }
 
+    // periphery:ignore:parameters decoder
     required init(from decoder: Decoder) throws {
         let regex = "^[^@\\.]+(\\.[^@\\.]+)*@([^@\\.]+\\.)*[^@\\.]+\\.[^@\\.][^@\\.]+$"
 

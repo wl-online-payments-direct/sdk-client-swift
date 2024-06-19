@@ -13,6 +13,7 @@ public class ValidatorLuhn: Validator, ValidationRule {
         super.init(messageId: "luhn", validationType: .luhn)
     }
 
+    // periphery:ignore:parameters decoder
     required init(from decoder: Decoder) throws {
         super.init(messageId: "luhn", validationType: .luhn)
     }

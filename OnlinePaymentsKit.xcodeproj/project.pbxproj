@@ -39,8 +39,8 @@
 		7BCE528028BCEA85003E22B1 /* CryptoSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 7BCE527F28BCEA85003E22B1 /* CryptoSwift */; };
 		7BCE528628BCEB4C003E22B1 /* OHHTTPStubsSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 7BCE528528BCEB4C003E22B1 /* OHHTTPStubsSwift */; };
 		7BEC2ACD2A7A920200463F12 /* SurchargeCalculationResponseTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BEC2ACC2A7A920200463F12 /* SurchargeCalculationResponseTestCase.swift */; };
+		BFF039352BF75D840005DB37 /* ApiErrorItemTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFF039342BF75D840005DB37 /* ApiErrorItemTestCase.swift */; };
 		F7027A5F24C08B0300DAE78D /* AlamofireWrapperTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7027A5E24C08B0300DAE78D /* AlamofireWrapperTestCase.swift */; };
-		F7027A6324C08BA000DAE78D /* StubBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7027A6224C08BA000DAE78D /* StubBundle.swift */; };
 		F7027A6524C08BB800DAE78D /* StubSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7027A6424C08BB800DAE78D /* StubSession.swift */; };
 		F7027A6724C08C1200DAE78D /* EncryptorTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7027A6624C08C1200DAE78D /* EncryptorTestCase.swift */; };
 		F7027A6924C08C7200DAE78D /* Base64TestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7027A6824C08C7200DAE78D /* Base64TestCase.swift */; };
@@ -195,8 +195,8 @@
 		7BBE95682A666B3500B957CB /* ApiError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApiError.swift; sourceTree = "<group>"; };
 		7BBE956A2A666B5900B957CB /* ApiErrorItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApiErrorItem.swift; sourceTree = "<group>"; };
 		7BEC2ACC2A7A920200463F12 /* SurchargeCalculationResponseTestCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SurchargeCalculationResponseTestCase.swift; sourceTree = "<group>"; };
+		BFF039342BF75D840005DB37 /* ApiErrorItemTestCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApiErrorItemTestCase.swift; sourceTree = "<group>"; };
 		F7027A5E24C08B0300DAE78D /* AlamofireWrapperTestCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlamofireWrapperTestCase.swift; sourceTree = "<group>"; };
-		F7027A6224C08BA000DAE78D /* StubBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StubBundle.swift; sourceTree = "<group>"; };
 		F7027A6424C08BB800DAE78D /* StubSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StubSession.swift; sourceTree = "<group>"; };
 		F7027A6624C08C1200DAE78D /* EncryptorTestCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EncryptorTestCase.swift; sourceTree = "<group>"; };
 		F7027A6824C08C7200DAE78D /* Base64TestCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Base64TestCase.swift; sourceTree = "<group>"; };
@@ -401,6 +401,14 @@
 			path = Surcharge;
 			sourceTree = "<group>";
 		};
+		BFF039332BF75D750005DB37 /* ApiErrorItem */ = {
+			isa = PBXGroup;
+			children = (
+				BFF039342BF75D840005DB37 /* ApiErrorItemTestCase.swift */,
+			);
+			path = ApiErrorItem;
+			sourceTree = "<group>";
+		};
 		F7027A7824C08D5900DAE78D /* IINDetails */ = {
 			isa = PBXGroup;
 			children = (
@@ -461,7 +469,6 @@
 		F702F52424C0880500C6FFFC /* Stubs */ = {
 			isa = PBXGroup;
 			children = (
-				F7027A6224C08BA000DAE78D /* StubBundle.swift */,
 				F7027A6424C08BB800DAE78D /* StubSession.swift */,
 			);
 			path = Stubs;
@@ -494,6 +501,7 @@
 		F702F52824C0882700C6FFFC /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				BFF039332BF75D750005DB37 /* ApiErrorItem */,
 				F7027AA324C09B1500DAE78D /* AccountOnFile */,
 				F7027A7824C08D5900DAE78D /* IINDetails */,
 				F7027A8B24C0909200DAE78D /* Payment */,
@@ -1051,6 +1059,7 @@
 				F7027A7A24C08D6F00DAE78D /* IINDetailsResponseTestCase.swift in Sources */,
 				F7027A9524C0932B00DAE78D /* PaymentProductFieldTestCase.swift in Sources */,
 				F7027A9324C092FC00DAE78D /* PaymentProductTestCase.swift in Sources */,
+				BFF039352BF75D840005DB37 /* ApiErrorItemTestCase.swift in Sources */,
 				F7027A9C24C09A2200DAE78D /* PaymentProductGroupTestCase.swift in Sources */,
 				F74A8CA924C1890D00FEE8F1 /* SessionTestCase.swift in Sources */,
 				F7027A6524C08BB800DAE78D /* StubSession.swift in Sources */,
@@ -1076,7 +1085,6 @@
 				F7027A8324C08FD100DAE78D /* ValidatorLuhnTestCase.swift in Sources */,
 				7B27217929B72BCE00505CC3 /* BasicPaymentProductsTestCase.swift in Sources */,
 				F7027AA924C09BB200DAE78D /* LabelTemplateTestCase.swift in Sources */,
-				F7027A6324C08BA000DAE78D /* StubBundle.swift in Sources */,
 				F7027A8D24C0924A00DAE78D /* PaymentRequestTestCase.swift in Sources */,
 				F7027A8A24C0907200DAE78D /* ValidatorEmailAddressTestCase.swift in Sources */,
 				F7027A6B24C08CFC00DAE78D /* StringFormatterTestCase.swift in Sources */,
@@ -1369,6 +1377,8 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/KeychainEntitlementsTestApp.app/KeychainEntitlementsTestApp";
@@ -1393,6 +1403,8 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/KeychainEntitlementsTestApp.app/KeychainEntitlementsTestApp";
@@ -1446,15 +1458,15 @@
 			repositoryURL = "https://github.com/Alamofire/Alamofire";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 5.6.0;
+				minimumVersion = 5.9.0;
 			};
 		};
 		7BCE527E28BCEA85003E22B1 /* XCRemoteSwiftPackageReference "CryptoSwift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/krzyzanowskim/CryptoSwift";
 			requirement = {
-				kind = exactVersion;
-				version = 1.5.1;
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.8.0;
 			};
 		};
 		7BCE528428BCEB4C003E22B1 /* XCRemoteSwiftPackageReference "OHHTTPStubs" */ = {

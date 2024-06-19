@@ -39,6 +39,7 @@ public class PaymentItems: NSObject {
     // swiftlint:disable todo
     // TODO: SMBO-96367 - Parameter 'groups' is unused
     // swiftlint:enable todo
+    // periphery:ignore
     @objc(createPaymentItemsFromProducts:groups:)
     public func createPaymentItemsFromProducts(
         products: BasicPaymentProducts,

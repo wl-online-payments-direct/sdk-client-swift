@@ -20,6 +20,7 @@ public class ValidatorExpirationDate: Validator, ValidationRule {
         super.init(messageId: "expirationDate", validationType: .expirationDate)
     }
 
+    // periphery:ignore:parameters decoder
     public required init(from decoder: Decoder) throws {
         dateFormatter.dateFormat = "MMyy"
         fullYearDateFormatter.dateFormat = "yyyy"

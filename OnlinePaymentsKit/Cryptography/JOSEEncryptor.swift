@@ -76,6 +76,7 @@ internal class JOSEEncryptor {
         return concatenatedComponents
     }
 
+    // periphery:ignore
     func decryptFromCompactSerialization(JOSE: String, withPrivateKey privateKey: SecKey) -> String {
         let components = JOSE.components(separatedBy: ".")
         let decodedProtectedHeader = String(data: components[0].base64URLDecode(),

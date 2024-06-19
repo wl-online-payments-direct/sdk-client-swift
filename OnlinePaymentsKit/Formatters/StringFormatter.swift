@@ -88,6 +88,7 @@ public class StringFormatter: NSObject {
 
     // swiftlint:disable function_parameter_count
     // swiftlint:disable cyclomatic_complexity
+    // periphery:ignore:parameters mask
     @objc(processMatch:string:stringIndex:mask:copyFromMask:appendRestOfMask:cursorPosition:)
     public func processMatch(
         match: String,

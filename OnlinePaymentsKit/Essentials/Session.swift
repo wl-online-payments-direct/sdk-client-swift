@@ -22,14 +22,6 @@ public class Session: NSObject {
 
     internal var paymentProductMapping = [AnyHashable: Any]()
 
-    private var baseURL: String {
-        return communicator.baseURL
-    }
-
-    private var assetsBaseURL: String {
-        return communicator.assetsBaseURL
-    }
-
     internal var iinLookupPending = false
 
     @objc public var loggingEnabled: Bool {
@@ -167,6 +159,7 @@ public class Session: NSObject {
     // swiftlint:disable todo
     // TODO: SMBO-96367 - Parameter 'groupPaymentProducts' is unused
     // swiftlint:enable todo
+    // periphery:ignore:parameters groupPaymentProducts
     @objc(paymentItemsForContext:groupPaymentProducts:success:failure:apiFailure:)
     public func paymentItems(
         for context: PaymentContext,
@@ -215,7 +208,7 @@ public class Session: NSObject {
                 context: context,
                 success: { paymentProduct in
                     self.paymentProductMapping[key] = paymentProduct
-                    self.setTooltipImages(for: paymentProduct) {}
+                    self.setTooltipImages(for: paymentProduct)
                     self.setLogoForDisplayHints(for: paymentProduct.displayHints) {}
                     self.setLogoForDisplayHintsList(for: paymentProduct.displayHintsList) {
                         success?(paymentProduct)
@@ -539,7 +532,7 @@ public class Session: NSObject {
         }
     }
 
-    private func setTooltipImages(for paymentItem: PaymentItem, completion: @escaping() -> Void) {
+    private func setTooltipImages(for paymentItem: PaymentItem) {
         for field in paymentItem.fields.paymentProductFields {
             guard let tooltip = field.displayHints.tooltip,
                   let imagePath = tooltip.imagePath else { return }
@@ -686,6 +679,7 @@ public class Session: NSObject {
         self.prepare(paymentRequest, success: success, failure: failure, apiFailure: nil)
     }
 
+    // periphery:ignore
     @available(swift, obsoleted: 1.0)
     @available(
         *,

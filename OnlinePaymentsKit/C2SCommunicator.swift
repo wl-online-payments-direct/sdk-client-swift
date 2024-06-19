@@ -11,14 +11,6 @@ internal class C2SCommunicator {
     var configuration: C2SCommunicatorConfiguration
     var networkingWrapper = AlamofireWrapper.shared
 
-    var baseURL: String {
-        return configuration.baseURL
-    }
-
-    var assetsBaseURL: String {
-        return configuration.assetsBaseURL
-    }
-
     var clientSessionId: String {
         return configuration.clientSessionId
     }
@@ -597,21 +589,6 @@ internal class C2SCommunicator {
                 apiFailure?(errorResponse)
             }
         )
-    }
-
-    private func responseWithoutStatusCode(response: [String: Any]?) -> [String: Any]? {
-        var originalResponse = response
-        originalResponse?.removeValue(forKey: "statusCode")
-
-        return originalResponse
-    }
-
-    private func logSuccessResponse(forURL URL: String, forResponse response: [String: Any]?) {
-        let responseCode = response?["statusCode"] as? Int
-
-        let originalResponse = self.responseWithoutStatusCode(response: response)
-
-        self.logResponse(forURL: URL, responseCode: responseCode, responseBody: "\(originalResponse as AnyObject)")
     }
 
     private func logSuccessResponse<T: Codable>(

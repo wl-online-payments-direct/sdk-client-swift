@@ -26,8 +26,12 @@ class AlamofireWrapperTestCase: XCTestCase {
             "apiError": [
                 "errorId": "1",
                 "errors": [[
-                  "code": "9002",
-                  "message": "MISSING_OR_INVALID_AUTHORIZATION"
+                    "errorCode": "9002",
+                    "category": "AUTHORIZATION",
+                    "code": "9002",
+                    "httpStatusCode": 403,
+                    "id": "1",
+                    "message": "MISSING_OR_INVALID_AUTHORIZATION"
                 ]]
             ]
           ]
@@ -41,8 +45,12 @@ class AlamofireWrapperTestCase: XCTestCase {
             "apiError": [
                 "errorId": "1",
                 "errors": [[
-                  "code": "9002",
-                  "message": "MISSING_OR_INVALID_AUTHORIZATION"
+                    "errorCode": "9002",
+                    "category": "AUTHORIZATION",
+                    "code": "9002",
+                    "httpStatusCode": 403,
+                    "id": "1",
+                    "message": "MISSING_OR_INVALID_AUTHORIZATION"
                 ]]
             ]
           ]
@@ -180,7 +188,11 @@ class AlamofireWrapperTestCase: XCTestCase {
     if let errorResponse = errorResponse,
        let apiError = errorResponse.apiError {
         let apiErrorItem = apiError.errors[0]
+        XCTAssertEqual(apiErrorItem.errorCode, "9002")
+        XCTAssertEqual(apiErrorItem.category, "AUTHORIZATION")
         XCTAssertEqual(apiErrorItem.code, "9002")
+        XCTAssertEqual(apiErrorItem.httpStatusCode, 403)
+        XCTAssertEqual(apiErrorItem.id, "1")
         XCTAssertEqual(apiErrorItem.message, "MISSING_OR_INVALID_AUTHORIZATION")
         expectation.fulfill()
     }
