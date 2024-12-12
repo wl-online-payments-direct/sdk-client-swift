@@ -9,7 +9,7 @@ import PackageDescription
 let package = Package(
     name: "OnlinePaymentsKit",
     platforms: [
-        .iOS(.v10)
+        .iOS(.v12)
     ],
     products: [
         .library(
@@ -19,7 +19,7 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/Alamofire/Alamofire", from: "5.6.0"),
         .package(url: "https://github.com/krzyzanowskim/CryptoSwift", from: "1.5.0"),
-        .package(url: "https://github.com/AliSoftware/OHHTTPStubsSwift", from: "9.1.0")
+        .package(url: "https://github.com/AliSoftware/OHHTTPStubs", from: "9.1.0")
     ],
     targets: [
         .target(
@@ -30,7 +30,7 @@ let package = Package(
         ),
         .testTarget(
             name: "OnlinePaymentsKitTests",
-            dependencies: ["OnlinePaymentsKit", "OHHTTPStubsSwift"],
+            dependencies: ["OnlinePaymentsKit", "OHHTTPStubs"],
             path: "OnlinePaymentsKitTests"
         )
     ]
