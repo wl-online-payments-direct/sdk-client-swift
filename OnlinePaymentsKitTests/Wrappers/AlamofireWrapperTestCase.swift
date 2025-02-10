@@ -190,7 +190,6 @@ class AlamofireWrapperTestCase: XCTestCase {
         let apiErrorItem = apiError.errors[0]
         XCTAssertEqual(apiErrorItem.errorCode, "9002")
         XCTAssertEqual(apiErrorItem.category, "AUTHORIZATION")
-        XCTAssertEqual(apiErrorItem.code, "9002")
         XCTAssertEqual(apiErrorItem.httpStatusCode, 403)
         XCTAssertEqual(apiErrorItem.id, "1")
         XCTAssertEqual(apiErrorItem.message, "MISSING_OR_INVALID_AUTHORIZATION")

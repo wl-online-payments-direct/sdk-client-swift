@@ -54,9 +54,10 @@ public class PaymentItems: NSObject {
             return nil
         }
 
-        guard let displayHints = item.displayHintsList.first else {
+        guard let displayHints = item.displayHints.first else {
             return nil
         }
+
         return displayHints.logoPath
     }
 
@@ -70,8 +71,8 @@ public class PaymentItems: NSObject {
 
     @objc public func sort() {
         paymentItems = paymentItems.sorted {
-            let displayOrder0 = $0.displayHintsList[0].displayOrder
-            let displayOrder1 = $1.displayHintsList[0].displayOrder
+            let displayOrder0 = $0.displayHints[0].displayOrder
+            let displayOrder1 = $1.displayHints[0].displayOrder
 
             return displayOrder0 < displayOrder1
         }

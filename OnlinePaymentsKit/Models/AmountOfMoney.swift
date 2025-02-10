@@ -10,24 +10,6 @@ import Foundation
 public class AmountOfMoney: NSObject, Codable {
     @objc public var totalAmount = 0
     @objc public var currencyCode: String
-    @available(*, deprecated, message: "In a future release this property will be removed. Use currencyCode instead.")
-    @objc public var currencyCodeString: String
-
-    @available(
-        *,
-        deprecated,
-        message: "Do not use this initializer, it is only for internal SDK use and will be removed in a future release."
-    )
-    public required init?(json: [String: Any]) {
-        guard let totalAmount = json["amount"] as? Int,
-            let currencyCode = json["currencyCode"] as? String else {
-            return nil
-        }
-
-        self.totalAmount = totalAmount
-        self.currencyCode = currencyCode
-        self.currencyCodeString = currencyCode
-    }
 
     /// AmountOfMoney, contains an amount and Currency Code.
     /// - Parameters:
@@ -38,7 +20,6 @@ public class AmountOfMoney: NSObject, Codable {
     public init(totalAmount: Int, currencyCode: String) {
         self.totalAmount = totalAmount
         self.currencyCode = currencyCode
-        self.currencyCodeString = currencyCode
     }
 
     enum CodingKeys: CodingKey {
@@ -51,10 +32,8 @@ public class AmountOfMoney: NSObject, Codable {
         self.totalAmount = try container.decode(Int.self, forKey: .amount)
 
         if let currencyCodeString = try? container.decodeIfPresent(String.self, forKey: .currencyCode) {
-            self.currencyCodeString = currencyCodeString
             self.currencyCode = currencyCodeString
         } else {
-            self.currencyCodeString = "UNKNOWN"
             self.currencyCode = "UNKNOWN"
         }
     }

@@ -1,7 +1,7 @@
-// swift-tools-version:5.3
+// swift-tools-version:5.5
 // Do not remove or alter the notices in this preamble.
 // This software code is created for Online Payments on 16/07/2020
-// Copyright © 2020 Global Collect Services. All rights reserved.
+// Copyright © 2025 Global Collect Services. All rights reserved.
 //
 import Foundation
 import PackageDescription
@@ -9,7 +9,7 @@ import PackageDescription
 let package = Package(
     name: "OnlinePaymentsKit",
     platforms: [
-        .iOS(.v12)
+        .iOS(.v15)
     ],
     products: [
         .library(

@@ -15,38 +15,6 @@ public class Surcharge: NSObject, Codable {
     @objc public var totalAmount: AmountOfMoney
     @objc public var surchargeRate: SurchargeRate?
 
-    @available(
-        *,
-        deprecated,
-        message: "Do not use this initializer, it is only for internal SDK use and will be removed in a future release."
-    )
-    @objc required public init?(json: [String: Any]) {
-        guard let paymentProductId = json["paymentProductId"] as? Int,
-              let netAmountDictionary = json["netAmount"] as? [String: Any],
-              let netAmount = AmountOfMoney(json: netAmountDictionary),
-              let surchargeAmountDictionary = json["surchargeAmount"] as? [String: Any],
-              let surchargeAmount = AmountOfMoney(json: surchargeAmountDictionary),
-              let totalAmountDictionary = json["totalAmount"] as? [String: Any],
-              let totalAmount = AmountOfMoney(json: totalAmountDictionary) else {
-            return nil
-        }
-
-        self.paymentProductId = paymentProductId
-        self.netAmount = netAmount
-        self.surchargeAmount = surchargeAmount
-        self.totalAmount = totalAmount
-
-        if let input = json["surchargeRate"] as? [String: Any] {
-            surchargeRate = SurchargeRate(json: input)
-        }
-
-        super.init()
-
-        if let input = json["result"] as? String {
-            result = getSurchargeResult(surchargeResult: input)
-        }
-    }
-
     private enum CodingKeys: String, CodingKey {
         case paymentProductId, result, netAmount, surchargeAmount, totalAmount, surchargeRate
     }

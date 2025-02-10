@@ -94,3 +94,7 @@ iOSInjectionProject/
 
 # Keep this in git to enable preamble for all project members
 !**/xcshareddata/IDETemplateMacros.plist
+
+# xcframework dist folder
+archives
+.dist

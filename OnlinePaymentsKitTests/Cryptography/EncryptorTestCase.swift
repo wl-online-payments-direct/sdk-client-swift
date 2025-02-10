@@ -55,30 +55,43 @@ class EncryptorTestCase: XCTestCase {
         let AESKey = encryptor.generateRandomBytes(length: 32)
         let AESIV = encryptor.generateRandomBytes(length: 16)
         let input = Data([0, 255, 43, 1])
-        let output = encryptor.encryptAES(data: input, key: AESKey!, IV: AESIV!)
-        XCTAssertEqual(
-            output?.count,
-            16,
-            "AES ciphertext does not have the right length: \(String(describing: output?.count))"
-        )
-        XCTAssertNotEqual(input, output, "AES does not perform encryption")
+
+        do {
+            let output = try encryptor.encryptAES(data: input, key: AESKey, IV: AESIV)
+            XCTAssertEqual(
+                output.count,
+                16,
+                "AES ciphertext does not have the right length: \(String(describing: output.count))"
+            )
+            XCTAssertNotEqual(input, output, "AES does not perform encryption")
+        } catch {
+            XCTFail("Test testEncryptAES failed: \(error.localizedDescription)")
+        }
     }
 
     func testEncryptDecryptAES() {
         let AESKey = encryptor.generateRandomBytes(length: 32)
         let AESIV = encryptor.generateRandomBytes(length: 16)
         let input = Data([0, 255, 43, 1])
-        let encrypted = encryptor.encryptAES(data: input, key: AESKey!, IV: AESIV!)
-        let decrypted = encryptor.decryptAES(data: encrypted!, key: AESKey!, IV: AESIV!)
-        XCTAssertEqual(input, decrypted, "AES decryption fails to recover the original data")
+        do {
+            let encrypted = try encryptor.encryptAES(data: input, key: AESKey, IV: AESIV)
+            let decrypted = try encryptor.decryptAES(data: encrypted, key: AESKey, IV: AESIV)
+            XCTAssertEqual(input, decrypted, "AES decryption fails to recover the original data")
+        } catch {
+            XCTFail("Test testEncryptDecryptAES failed: \(error.localizedDescription)")
+        }
     }
 
     func testGenerateHMACContent() {
         let hmacKey = encryptor.generateRandomBytes(length: 16)
         let input = Data([0, 255, 43, 1])
-        let hmac1 = encryptor.generateHMAC(data: input, key: hmacKey!)
-        let hmac2 = encryptor.generateHMAC(data: input, key: hmacKey!)
-        XCTAssertEqual(hmac1, hmac2, "HMACs generated from the same input do not match")
+        do {
+            let hmac1 = try encryptor.generateHMAC(data: input, key: hmacKey)
+            let hmac2 = try encryptor.generateHMAC(data: input, key: hmacKey)
+            XCTAssertEqual(hmac1, hmac2, "HMACs generated from the same input do not match")
+        } catch {
+            XCTFail("Failed to generate HMAC: \(error.localizedDescription)")
+        }
     }
 
     func testgenerateUUID() {

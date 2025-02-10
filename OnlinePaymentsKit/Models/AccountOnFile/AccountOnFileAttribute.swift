@@ -12,44 +12,15 @@ public class AccountOnFileAttribute: NSObject, Codable {
     @objc public var key: String
     @objc public var value: String?
     @objc public var status: AccountOnFileAttributeStatus = .readOnly
-    @available(
-        *,
-        deprecated,
-        message: "In a future release, this property will be removed since it is not returned from the API."
-    )
-    @objc public var mustWriteReason: String?
-
-    @available(*, deprecated, message: "In a future release, this initializer will be removed.")
-    @objc required public init?(json: [String: Any]) {
-        guard let key = json["key"] as? String else {
-            return nil
-        }
-        self.key = key
-        value = json["value"] as? String
-        mustWriteReason = json["mustWriteReason"] as? String
-
-        switch json["status"] as? String {
-        case "READ_ONLY"?:
-            status = .readOnly
-        case "CAN_WRITE"?:
-            status = .canWrite
-        case "MUST_WRITE"?:
-            status = .mustWrite
-        default:
-            Macros.DLog(message: "AccountOnFileAttribute status: \(json["status"]!) is invalid")
-            return nil
-        }
-    }
 
     private enum CodingKeys: String, CodingKey {
-        case key, value, status, mustWriteReason
+        case key, value, status
     }
 
     public required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.key = try container.decode(String.self, forKey: .key)
         self.value = try? container.decodeIfPresent(String.self, forKey: .value)
-        self.mustWriteReason = try? container.decodeIfPresent(String.self, forKey: .mustWriteReason)
 
         super.init()
 
@@ -62,7 +33,6 @@ public class AccountOnFileAttribute: NSObject, Codable {
         try? container.encode(key, forKey: .key)
         try? container.encodeIfPresent(value, forKey: .value)
         try? container.encode(getAccountOnFileAttributeString(status: status), forKey: .status)
-        try? container.encodeIfPresent(mustWriteReason, forKey: .mustWriteReason)
     }
 
     private func getAccountOnFileAttributeStatus(status: String?) -> AccountOnFileAttributeStatus {
@@ -74,7 +44,7 @@ public class AccountOnFileAttribute: NSObject, Codable {
         case "MUST_WRITE":
             return .mustWrite
         default:
-            Macros.DLog(message: "AccountOnFileAttribute status: \(status ?? "") is invalid")
+            Logger.log("AccountOnFileAttribute status: \(status ?? "") is invalid")
             return .readOnly
         }
     }

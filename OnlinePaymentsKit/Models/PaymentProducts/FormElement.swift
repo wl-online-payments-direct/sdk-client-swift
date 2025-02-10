@@ -7,52 +7,15 @@
 import Foundation
 
 @objc(OPFormElement)
-public class FormElement: NSObject, Codable, ResponseObjectSerializable {
+public class FormElement: NSObject, Codable {
     @objc public var type: FormElementType = .textType
-    @available(
-        *,
-        deprecated,
-         message: "In a future release, this property will be removed since it is not returned from the API."
-    )
-    @objc public var valueMapping = [ValueMappingItem]()
-
-    @available(*, deprecated, message: "In a future release, this initializer will be removed.")
-    @objc required public init?(json: [String: Any]) {
-        switch json["type"] as? String {
-        case "text"?:
-            type = .textType
-        case "currency"?:
-            type = .currencyType
-        case "list"?:
-            type = .listType
-        case "date"?:
-            type = .dateType
-        case "boolean"?:
-            type = .boolType
-        default:
-            Macros.DLog(message: "FormElementType type: \(json["type"]!) is invalid")
-            return nil
-        }
-
-        if let input = json["valueMapping"] as? [[String: Any]] {
-            for valueInput in input {
-                if let item = ValueMappingItem(json: valueInput) {
-                    valueMapping.append(item)
-                }
-            }
-        }
-    }
 
     private enum CodingKeys: String, CodingKey {
-        case type, valueMapping
+        case type
     }
 
     public required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-
-        if let valueMapping = try? container.decodeIfPresent([ValueMappingItem].self, forKey: .valueMapping) {
-            self.valueMapping = valueMapping
-        }
 
         super.init()
 
@@ -63,7 +26,6 @@ public class FormElement: NSObject, Codable, ResponseObjectSerializable {
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try? container.encode(getFormElementTypeString(type: type), forKey: .type)
-        try? container.encode(valueMapping, forKey: .valueMapping)
     }
 
     private func getFormElementType(type: String?) -> FormElementType {
@@ -79,7 +41,7 @@ public class FormElement: NSObject, Codable, ResponseObjectSerializable {
         case "date":
             return FormElementType.dateType
         default:
-            Macros.DLog(message: "FormElementType type: \(type ?? "") is invalid")
+            Logger.log("FormElementType type: \(type ?? "") is invalid")
             return FormElementType.textType
         }
     }

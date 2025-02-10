@@ -1,7 +1,7 @@
 //
 // Do not remove or alter the notices in this preamble.
 // This software code is created for Online Payments on 16/07/2020
-// Copyright © 2020 Global Collect Services. All rights reserved.
+// Copyright © 2025 Global Collect Services. All rights reserved.
 // 
 
 import XCTest
@@ -25,6 +25,7 @@ class IINDetailsResponseTestCase: XCTestCase {
 
     override func setUp() {
         super.setUp()
+
         stub(
             condition: isHost("\(host)") &&
             isPath("/client/v1/customer-id/services/getIINdetails") &&
@@ -41,8 +42,8 @@ class IINDetailsResponseTestCase: XCTestCase {
                 ],
                 "cardType": "Debit"
             ] as [String: Any]
-            return
-            HTTPStubsResponse(jsonObject: response, statusCode: 200, headers: ["Content-Type": "application/json"])
+
+            return HTTPStubsResponse(jsonObject: response, statusCode: 200, headers: ["Content-Type": "application/json"])
         }
     }
 

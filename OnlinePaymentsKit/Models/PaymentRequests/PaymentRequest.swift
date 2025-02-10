@@ -11,12 +11,6 @@ public class PaymentRequest: NSObject, Codable {
 
     @objc public var paymentProduct: PaymentProduct?
     @objc public var errorMessageIds: [ValidationError] = []
-    @available(
-        *,
-        deprecated,
-        message: "In a future release, this property will be removed. Use errorMessageIds instead."
-    )
-    @objc public var errors: [ValidationError] = []
     @objc public var tokenize = false
 
     @objc public var fieldValues = [String: String]()
@@ -41,7 +35,6 @@ public class PaymentRequest: NSObject, Codable {
 
         self.paymentProduct = try container.decodeIfPresent(PaymentProduct.self, forKey: .paymentProduct)
         self.errorMessageIds = try container.decodeIfPresent([ValidationError].self, forKey: .errorMessageIds) ?? []
-        self.errors = try container.decodeIfPresent([ValidationError].self, forKey: .errorMessageIds) ?? []
         self.tokenize = try container.decode(Bool.self, forKey: .tokenize)
         self.fieldValues =
             try container.decodeIfPresent([String: String].self, forKey: .fieldValues) ?? [String: String]()
@@ -86,6 +79,7 @@ public class PaymentRequest: NSObject, Codable {
         guard let value = getValue(forField: paymentProductFieldId) else {
             return nil
         }
+
         if let mask = mask(forField: paymentProductFieldId) {
             return formatter.formatString(string: value, mask: mask)
         }
@@ -97,6 +91,7 @@ public class PaymentRequest: NSObject, Codable {
         guard let value = getValue(forField: paymentProductFieldId) else {
             return nil
         }
+
         if let mask = mask(forField: paymentProductFieldId) {
             return formatter.unformatString(string: value, mask: mask)
         }
@@ -119,6 +114,7 @@ public class PaymentRequest: NSObject, Codable {
                 }
             }
         }
+
         return false
     }
 
@@ -126,9 +122,12 @@ public class PaymentRequest: NSObject, Codable {
     public func isReadOnly(field paymentProductFieldId: String) -> Bool {
         if !isPartOfAccountOnFile(field: paymentProductFieldId) {
             return false
-        } else if let accountOnFile = accountOnFile {
+        }
+        
+        if let accountOnFile = accountOnFile {
             return accountOnFile.isReadOnly(field: paymentProductFieldId)
         }
+        
         return false
     }
 
@@ -143,20 +142,17 @@ public class PaymentRequest: NSObject, Codable {
     }
 
     @objc public func validate() -> [ValidationError] {
-        errors.removeAll()
         errorMessageIds.removeAll()
 
         guard let paymentProduct = paymentProduct else {
-            errors.append(ValidationErrorInvalidPaymentProduct())
             errorMessageIds.append(ValidationErrorInvalidPaymentProduct())
             return errorMessageIds
         }
 
         for field in paymentProduct.fields.paymentProductFields where
           !isPartOfAccountOnFileAndNotModified(field: field.identifier) {
-                if let fieldValue = unmaskedValue(forField: field.identifier) {
-                    let fieldErrors = field.validateValue(value: fieldValue, for: self)
-                    errors.append(contentsOf: fieldErrors)
+                if unmaskedValue(forField: field.identifier) != nil {
+                    let fieldErrors = field.validateValue(for: self)
                     errorMessageIds.append(contentsOf: fieldErrors)
                 } else {
                     let error =
@@ -165,10 +161,10 @@ public class PaymentRequest: NSObject, Codable {
                             paymentProductFieldId: field.identifier,
                             rule: nil
                         )
-                    errors.append(error)
                     errorMessageIds.append(error)
                 }
         }
+
         return errorMessageIds
     }
 
@@ -178,6 +174,7 @@ public class PaymentRequest: NSObject, Codable {
                 name: NSExceptionName(rawValue: "Invalid payment product"),
                 reason: "Payment product is invalid"
             ).raise()
+
             return nil
         }
 
@@ -197,6 +194,7 @@ public class PaymentRequest: NSObject, Codable {
                 name: NSExceptionName(rawValue: "Invalid payment product"),
                 reason: "Payment product is invalid"
             ).raise()
+
             return nil
         }
 
@@ -211,11 +209,12 @@ public class PaymentRequest: NSObject, Codable {
     }
 
     @objc public func removeValue(forField paymentProductFieldId: String) {
-        guard let paymentProduct = paymentProduct else {
+        guard paymentProduct != nil else {
             NSException(
                 name: NSExceptionName(rawValue: "Cannot remove value from PaymentRequest"),
                 reason: "Payment product is invalid"
             ).raise()
+
             return
         }
 

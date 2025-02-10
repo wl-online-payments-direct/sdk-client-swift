@@ -1,7 +1,7 @@
 //
 // Do not remove or alter the notices in this preamble.
 // This software code is created for Online Payments on 16/07/2020
-// Copyright © 2020 Global Collect Services. All rights reserved.
+// Copyright © 2025 Global Collect Services. All rights reserved.
 // 
 
 import XCTest
@@ -123,10 +123,10 @@ class PaymentProductsTestCase: XCTestCase {
         var displayOrder = 0
         for index in 0..<3 {
             let product = products.paymentProducts[index]
-            if let prodDisplayOrder = product.displayHintsList.first?.displayOrder, displayOrder > prodDisplayOrder {
+            if let prodDisplayOrder = product.displayHints.first?.displayOrder, displayOrder > prodDisplayOrder {
                 XCTFail("Products are not sorted")
             }
-            if let prodDisplayOrder = product.displayHintsList.first?.displayOrder {
+            if let prodDisplayOrder = product.displayHints.first?.displayOrder {
                 displayOrder = prodDisplayOrder
             }
         }

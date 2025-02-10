@@ -29,16 +29,6 @@ public class ValidatorExpirationDate: Validator, ValidationRule {
         super.init(messageId: "expirationDate", validationType: .expirationDate)
     }
 
-    @available(
-        *,
-        deprecated,
-        message: "In a future release, this function will be removed. Please use validate(field:in:) instead."
-    )
-    @objc(validate:forPaymentRequest:)
-    public override func validate(value: String, for request: PaymentRequest) {
-        _ = validate(value: value)
-    }
-
     @objc public func validate(field fieldId: String, in request: PaymentRequest) -> Bool {
         guard let fieldValue = request.getValue(forField: fieldId) else {
             return false

@@ -154,7 +154,6 @@ class PaymentItemsTestCase: XCTestCase {
         let expectation = self.expectation(description: "Response provided")
         session.paymentItems(
             for: context,
-            groupPaymentProducts: true,
             success: { (items) in
                 items.sort()
 
@@ -175,8 +174,8 @@ class PaymentItemsTestCase: XCTestCase {
                 )
 
                 let sortedItems = items.paymentItems.sorted {
-                    guard let displayOrder0 = $0.displayHintsList.first?.displayOrder,
-                          let displayOrder1 = $1.displayHintsList.first?.displayOrder else {
+                    guard let displayOrder0 = $0.displayHints.first?.displayOrder,
+                          let displayOrder1 = $1.displayHints.first?.displayOrder else {
                         return false
                     }
                     return displayOrder0 < displayOrder1
@@ -241,8 +240,8 @@ class PaymentItemsTestCase: XCTestCase {
             if let product = item as? BasicPaymentProduct {
                 XCTAssertTrue(product.identifier == "\(index)", "Identifier was incorrect.")
                 XCTAssertTrue(
-                    product.displayHintsList.first?.displayOrder != nil,
-                    "Display order was nil (\(String(describing: product.displayHintsList.first?.displayOrder)))."
+                    product.displayHints.first?.displayOrder != nil,
+                    "Display order was nil (\(String(describing: product.displayHints.first?.displayOrder)))."
                 )
                 XCTAssertTrue(product.allowsTokenization, "Tokenization was false.")
                 XCTAssertTrue(product.allowsRecurring, "Recurring was false.")

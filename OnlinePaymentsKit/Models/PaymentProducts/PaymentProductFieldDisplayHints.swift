@@ -7,7 +7,7 @@
 import Foundation
 
 @objc(OPPaymentProductFieldDisplayHints)
-public class PaymentProductFieldDisplayHints: NSObject, Codable, ResponseObjectSerializable {
+public class PaymentProductFieldDisplayHints: NSObject, Codable {
 
     @objc public var alwaysShow = false
     @objc public var displayOrder: Int
@@ -17,61 +17,7 @@ public class PaymentProductFieldDisplayHints: NSObject, Codable, ResponseObjectS
     @objc public var tooltip: ToolTip?
     @objc public var label: String?
     @objc public var placeholderLabel: String?
-    @available(
-        *,
-        deprecated,
-        message: "In a future release, this property will be removed since it is not returned from the API."
-    )
-    @objc public var link: URL?
-    @objc public var preferredInputType: PreferredInputType = .noKeyboard
-
-    @available(*, deprecated, message: "In a future release, this initializer will be removed.")
-    @objc required public init?(json: [String: Any]) {
-        guard let input = json["formElement"] as? [String: Any],
-            let formElement = FormElement(json: input) else {
-            return nil
-        }
-        self.formElement = formElement
-
-        if let input = json["alwaysShow"] as? Bool {
-            alwaysShow = input
-        }
-
-        guard let input = json["displayOrder"] as? Int else {
-            return nil
-        }
-        self.displayOrder = input
-
-        if let input = json["mask"] as? String {
-            mask = input
-        }
-
-        if let input = json["obfuscate"] as? Bool {
-            obfuscate = input
-        }
-
-        if let input = json["label"] as? String {
-            label = input
-        }
-
-        if let input = json["placeholderLabel"] as? String {
-            placeholderLabel = input
-        }
-
-        if let input = json["link"]  as? String {
-            link = URL(string: input)
-        }
-
-        if let input = json["tooltip"] as? [String: Any] {
-            tooltip = ToolTip(json: input)
-        }
-
-        super.init()
-
-        if let input = json["preferredInputType"] as? String {
-            preferredInputType = self.getPreferredInputType(preferredInputType: input)
-        }
-    }
+    @objc public var preferredInputType: PreferredInputType = .stringKeyboard
 
     private enum CodingKeys: String, CodingKey {
         case alwaysShow, displayOrder, formElement, mask, obfuscate, tooltip, label,
@@ -93,7 +39,6 @@ public class PaymentProductFieldDisplayHints: NSObject, Codable, ResponseObjectS
         self.tooltip = try? container.decodeIfPresent(ToolTip.self, forKey: .tooltip)
         self.label = try? container.decodeIfPresent(String.self, forKey: .label)
         self.placeholderLabel = try? container.decodeIfPresent(String.self, forKey: .placeholderLabel)
-        self.link = try? container.decodeIfPresent(URL.self, forKey: .link)
 
         super.init()
 
@@ -111,7 +56,6 @@ public class PaymentProductFieldDisplayHints: NSObject, Codable, ResponseObjectS
         try? container.encodeIfPresent(tooltip, forKey: .tooltip)
         try? container.encodeIfPresent(label, forKey: .label)
         try? container.encodeIfPresent(placeholderLabel, forKey: .placeholderLabel)
-        try? container.encodeIfPresent(link, forKey: .link)
         try? container.encode(
             getPreferredInputTypeString(preferredInputType: preferredInputType),
             forKey: .preferredInputType
@@ -147,8 +91,6 @@ public class PaymentProductFieldDisplayHints: NSObject, Codable, ResponseObjectS
             return "PhoneNumberKeyboard"
         case .dateKeyboard:
             return "DateKeyboard"
-        case .noKeyboard:
-            return "NoKeyboard"
         }
     }
 }

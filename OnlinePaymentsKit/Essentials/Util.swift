@@ -94,7 +94,7 @@ internal class Util {
 
     func base64EncodedString(fromDictionary dictionary: [AnyHashable: Any]) -> String? {
         guard let json = try? JSONSerialization.data(withJSONObject: dictionary, options: []) else {
-            Macros.DLog(message: "Unable to serialize dictionary")
+            Logger.log("Unable to serialize dictionary")
             return nil
         }
 

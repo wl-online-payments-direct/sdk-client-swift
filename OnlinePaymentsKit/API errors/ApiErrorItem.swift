@@ -10,12 +10,6 @@ import Foundation
 public class ApiErrorItem: NSObject, Codable {
     @objc public let errorCode: String
     @objc public let category: String?
-    @available(
-        *,
-        deprecated,
-        message: "In a future release, this property will be removed. Use errorCode instead."
-    )
-    @objc public let code: String
     @objc public let httpStatusCode: NSNumber?
     @objc public let id: String?
     @objc public let message: String
@@ -32,7 +26,6 @@ public class ApiErrorItem: NSObject, Codable {
         self.errorCode = try container.decode(String.self, forKey: .errorCode)
 
         self.category = try? container.decodeIfPresent(String.self, forKey: .category)
-        self.code = (try? container.decodeIfPresent(String.self, forKey: .code)) ?? "This error does not contain a code"
 
         if let httpStatusCodeNSNumber = try? container.decodeIfPresent(Int.self, forKey: .httpStatusCode) {
             self.httpStatusCode = httpStatusCodeNSNumber as NSNumber?
@@ -51,7 +44,6 @@ public class ApiErrorItem: NSObject, Codable {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try? container.encode(errorCode, forKey: .errorCode)
         try? container.encodeIfPresent(category, forKey: .category)
-        try? container.encodeIfPresent(code, forKey: .code)
         try? container.encodeIfPresent(httpStatusCode?.intValue, forKey: .httpStatusCode)
         try? container.encodeIfPresent(id, forKey: .id)
         try? container.encodeIfPresent(message, forKey: .message)

@@ -14,7 +14,6 @@ class ApiErrorItemTestCase: XCTestCase {
         {
             "errorCode": "123456",
             "category": "PAYMENT_PLATFORM_ERROR",
-            "code": "123456",
             "httpStatusCode": 404,
             "id": "1",
             "message": "The product could not be found",
@@ -30,7 +29,6 @@ class ApiErrorItemTestCase: XCTestCase {
 
         XCTAssertEqual(apiErrorItem.errorCode, "123456")
         XCTAssertEqual(apiErrorItem.category, "PAYMENT_PLATFORM_ERROR")
-        XCTAssertEqual(apiErrorItem.code, "123456")
         XCTAssertEqual(apiErrorItem.httpStatusCode, 404)
         XCTAssertEqual(apiErrorItem.id, "1")
         XCTAssertEqual(apiErrorItem.message, "The product could not be found")
@@ -52,7 +50,6 @@ class ApiErrorItemTestCase: XCTestCase {
 
         XCTAssertEqual(apiErrorItem.errorCode, "123456")
         XCTAssertNil(apiErrorItem.category)
-        XCTAssertEqual(apiErrorItem.code, "This error does not contain a code")
         XCTAssertNil(apiErrorItem.httpStatusCode)
         XCTAssertNil(apiErrorItem.id)
         XCTAssertEqual(apiErrorItem.message, "This error does not contain a message")

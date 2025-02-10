@@ -7,24 +7,11 @@
 import Foundation
 
 @objc(OPValidatorRegularExpression)
-public class ValidatorRegularExpression: Validator, ValidationRule, ResponseObjectSerializable {
+public class ValidatorRegularExpression: Validator, ValidationRule {
 
     @objc public var regularExpression: NSRegularExpression
 
     internal init(regularExpression: NSRegularExpression) {
-        self.regularExpression = regularExpression
-
-        super.init(messageId: "regularExpression", validationType: .regularExpression)
-    }
-
-    @available(*, deprecated, message: "In a future release, this initializer will be removed.")
-    @objc public required init?(json: [String: Any]) {
-        guard let input = json["regularExpression"] as? String,
-            let regularExpression = try? NSRegularExpression(pattern: input) else {
-            Macros.DLog(message: "Expression: \(json["regularExpression"]!) is invalid")
-            return nil
-        }
-
         self.regularExpression = regularExpression
 
         super.init(messageId: "regularExpression", validationType: .regularExpression)
@@ -39,9 +26,11 @@ public class ValidatorRegularExpression: Validator, ValidationRule, ResponseObje
                 container.decodeIfPresent(String.self, forKey: .regularExpression) ??
                 container.decodeIfPresent(String.self, forKey: .regex),
               let regularExpression = try? NSRegularExpression(pattern: regularExpressionInput) else {
-            Macros.DLog(message: "Regular expression is invalid")
+            Logger.log("Regular expression is invalid")
+
             throw SessionError.RuntimeError("Regular expression is invalid")
         }
+
         self.regularExpression = regularExpression
 
         super.init(messageId: "regularExpression", validationType: .regularExpression)
@@ -53,16 +42,6 @@ public class ValidatorRegularExpression: Validator, ValidationRule, ResponseObje
         try? super.encode(to: encoder)
 
         try? container.encode(regularExpression.pattern, forKey: .regex)
-    }
-
-    @available(
-        *,
-        deprecated,
-        message: "In a future release, this function will be removed. Please use validate(field:in:) instead."
-    )
-    @objc(validate:forPaymentRequest:)
-    public override func validate(value: String, for request: PaymentRequest) {
-        _ = validate(value: value)
     }
 
     @objc public func validate(field fieldId: String, in request: PaymentRequest) -> Bool {

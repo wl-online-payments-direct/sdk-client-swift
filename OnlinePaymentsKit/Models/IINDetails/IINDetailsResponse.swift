@@ -7,52 +7,16 @@
 import Foundation
 
 @objc(OPIINDetailsResponse)
-public class IINDetailsResponse: NSObject, Codable, ResponseObjectSerializable {
+public class IINDetailsResponse: NSObject, Codable {
 
     @objc public var paymentProductId: String?
     @objc public var status: IINStatus = .supported
     @objc public var coBrands = [IINDetail]()
     @objc public var countryCode: String?
-    @available(*, deprecated, message: "In a future release this property will be removed. Use countryCode instead.")
-    @objc public var countryCodeString: String?
     @objc public var allowedInContext = false
     @objc public var cardType: CardType = .credit
 
     private override init() {}
-
-    @available(*, deprecated, message: "In a future release, this initializer will become internal to the SDK.")
-    @objc required public init(json: [String: Any]) {
-        if let input = json["isAllowedInContext"] as? Bool {
-            allowedInContext = input
-        }
-
-        if let input = json["paymentProductId"] as? Int {
-            paymentProductId = "\(input)"
-            if !allowedInContext {
-                status = .existingButNotAllowed
-            }
-        } else {
-            status = .unknown
-        }
-
-        if let input = json["countryCode"] as? String {
-            countryCode = input
-            countryCodeString = input
-        }
-
-        if let input = json["coBrands"] as? [[String: Any]] {
-            coBrands = []
-            for detailInput in input {
-                if let detail = IINDetail(json: detailInput) {
-                    coBrands.append(detail)
-                }
-            }
-        }
-
-        if let input = json["cardType"] as? String {
-            cardType = CardTypeEnumHandler.getCardType(type: input)
-        }
-    }
 
     private enum CodingKeys: String, CodingKey {
         case paymentProductId, coBrands, countryCode, isAllowedInContext, status, cardType
@@ -75,7 +39,6 @@ public class IINDetailsResponse: NSObject, Codable, ResponseObjectSerializable {
         }
 
         if let countryCodeString = try? container.decodeIfPresent(String.self, forKey: .countryCode) {
-            self.countryCodeString = countryCodeString
             self.countryCode = countryCodeString
         }
 

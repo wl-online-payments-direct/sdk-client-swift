@@ -300,12 +300,12 @@ class C2SCommunicatorTestCase: XCTestCase {
                 let product = paymentProduct
                 XCTAssertEqual(product.identifier, "1", "Received product id not as expected")
                 XCTAssertEqual(
-                    product.displayHintsList.first?.displayOrder,
+                    product.displayHints.first?.displayOrder,
                     20,
                     "Received product displayOrder not as expected"
                 )
                 XCTAssertEqual(
-                    product.displayHintsList.first?.logoPath,
+                    product.displayHints.first?.logoPath,
                     "/templates/master/global/css/img/ppimages/pp_logo_1_v1.png",
                     "Received product logoPath not as expected"
                 )

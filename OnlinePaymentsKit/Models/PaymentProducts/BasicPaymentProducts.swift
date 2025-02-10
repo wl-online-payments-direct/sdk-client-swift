@@ -7,9 +7,10 @@
 import Foundation
 
 @objc(OPBasicPaymentProducts)
-public class BasicPaymentProducts: NSObject, Codable, ResponseObjectSerializable {
+public class BasicPaymentProducts: NSObject, Codable {
 
     @objc public var paymentProducts = [BasicPaymentProduct]()
+    
     @objc public var stringFormatter: StringFormatter? {
         get { return paymentProducts.first?.stringFormatter }
         set {
@@ -20,6 +21,7 @@ public class BasicPaymentProducts: NSObject, Codable, ResponseObjectSerializable
             }
         }
     }
+
     @objc public var hasAccountsOnFile: Bool {
         for product in paymentProducts
             where product.accountsOnFile.accountsOnFile.count > 0 {
@@ -41,19 +43,6 @@ public class BasicPaymentProducts: NSObject, Codable, ResponseObjectSerializable
 
     internal override init() {}
 
-    @available(*, deprecated, message: "In a future release, this initializer will be removed.")
-    @objc required public init(json: [String: Any]) {
-        guard let paymentProductsInput = json["paymentProducts"] as? [[String: Any]] else {
-            return
-        }
-
-        for product in paymentProductsInput {
-            if let paymentProduct = BasicPaymentProduct(json: product) {
-                paymentProducts.append(paymentProduct)
-            }
-        }
-    }
-
     private enum CodingKeys: String, CodingKey {
         case paymentProducts
     }
@@ -67,9 +56,10 @@ public class BasicPaymentProducts: NSObject, Codable, ResponseObjectSerializable
 
     @objc public func logoPath(forPaymentProduct identifier: String) -> String? {
         let product = paymentProduct(withIdentifier: identifier)
-        guard let displayHints = product?.displayHintsList.first else {
+        guard let displayHints = product?.displayHints.first else {
             return nil
         }
+
         return displayHints.logoPath
     }
 
@@ -77,13 +67,14 @@ public class BasicPaymentProducts: NSObject, Codable, ResponseObjectSerializable
         for product in paymentProducts where product.identifier.isEqual(identifier) {
             return product
         }
+
         return nil
     }
 
     @objc public func sort() {
         paymentProducts = paymentProducts.sorted {
-            let displayOrder0 = $0.displayHintsList[0].displayOrder
-            let displayOrder1 = $1.displayHintsList[0].displayOrder
+            let displayOrder0 = $0.displayHints[0].displayOrder
+            let displayOrder1 = $1.displayHints[0].displayOrder
 
             return displayOrder0 < displayOrder1
         }
@@ -102,6 +93,7 @@ public class BasicPaymentProducts: NSObject, Codable, ResponseObjectSerializable
           where self.paymentProducts[index] != products.paymentProducts[index] {
             return false
         }
+
         return true
     }
 }

@@ -2,7 +2,7 @@
 // Do not remove or alter the notices in this preamble.
 // This software code is created for Online Payments on 16/07/2020_
 // Copyright © 2020 Global Collect Services. All rights reserved.
-// 
+//
 
 import Alamofire
 import PassKit
@@ -40,22 +40,12 @@ internal class C2SCommunicator {
         failure: @escaping (_ error: Error) -> Void,
         apiFailure: ((_ errorResponse: ErrorResponse) -> Void)? = nil
     ) {
-        let isRecurring = context.isRecurring ? "true" : "false"
-        let URL = configuration.getUrl(version: .v1, apiUrl: "\(configuration.customerId)/products")
-        var params: [String: Any] =
-            [
-                "countryCode": context.countryCode,
-                "currencyCode": context.amountOfMoney.currencyCode,
-                "amount": context.amountOfMoney.totalAmount, "hide": "fields",
-                "isRecurring": isRecurring
-            ]
+        let url = getApiUrl(path: "/products")
+        let params = buildParameters(for: context)
 
-        if !context.locale.isEmpty {
-            params["locale"] = context.locale
-        }
-
+        let strongSelf = self;
         getResponse(
-            forURL: URL,
+            forURL: url,
             withParameters: params,
             success: { (responseObject: BasicPaymentProducts?) in
                 guard var paymentProductsResponse = responseObject else {
@@ -63,7 +53,7 @@ internal class C2SCommunicator {
                     return
                 }
 
-                paymentProductsResponse = self.checkApplePayAvailability(
+                paymentProductsResponse = strongSelf.checkApplePayAvailability(
                     with: paymentProductsResponse,
                     for: context,
                     success: {
@@ -75,12 +65,8 @@ internal class C2SCommunicator {
                     }
                 )
             },
-            failure: { error in
-                failure(error)
-            },
-            apiFailure: { errorResponse in
-                apiFailure?(errorResponse)
-            }
+            failure: failure,
+            apiFailure: apiFailure
         )
     }
 
@@ -91,28 +77,24 @@ internal class C2SCommunicator {
         failure: @escaping (_ error: Error) -> Void,
         apiFailure: ((_ errorResponse: ErrorResponse) -> Void)? = nil
     ) -> BasicPaymentProducts {
-        if let applePayPaymentProduct =
-            paymentProducts.paymentProduct(withIdentifier: SDKConstants.kApplePayIdentifier) {
-            if SDKConstants.systemVersionGreaterThanOrEqualTo("8.0") &&
-                PKPaymentAuthorizationViewController.canMakePayments() {
+
+        if let applePayPaymentProduct = paymentProducts.paymentProduct(withIdentifier: SDKConstants.kApplePayIdentifier) {
+
+            if SDKConstants.systemVersionGreaterThanOrEqualTo("8.0") && PKPaymentAuthorizationViewController.canMakePayments() {
                 paymentProductNetworks(
                     forProduct: SDKConstants.kApplePayIdentifier,
                     context: context,
                     success: {(_ paymentProductNetworks: PaymentProductNetworks) -> Void in
                         if let product = paymentProducts.paymentProducts.firstIndex(of: applePayPaymentProduct),
-                            !PKPaymentAuthorizationViewController.canMakePayments(
-                                usingNetworks: paymentProductNetworks.paymentProductNetworks
-                            ) {
+                           !PKPaymentAuthorizationViewController.canMakePayments(
+                            usingNetworks: paymentProductNetworks.paymentProductNetworks
+                           ) {
                             paymentProducts.paymentProducts.remove(at: product)
                         }
                         success()
                     },
-                    failure: { error in
-                        failure(error)
-                    },
-                    apiFailure: { errorResponse in
-                        apiFailure?(errorResponse)
-                    }
+                    failure: failure,
+                    apiFailure: apiFailure
                 )
             } else {
                 if let product = paymentProducts.paymentProducts.firstIndex(of: applePayPaymentProduct) {
@@ -135,24 +117,15 @@ internal class C2SCommunicator {
         failure: @escaping (_ error: Error) -> Void,
         apiFailure: ((_ errorResponse: ErrorResponse) -> Void)? = nil
     ) {
-        let isRecurring = context.isRecurring ? "true" : "false"
         if context.locale.isEmpty {
             failure(SessionError.RuntimeError("Locale was nil."))
             return
         }
-        let URL = configuration.getUrl(
-            version: .v1,
-            apiUrl: "\(self.configuration.customerId)/products/\(paymentProductId)/networks"
-        )
-        let params: [String: Any] =
-        [
-            "countryCode": context.countryCode,
-            "locale": context.locale,
-            "currencyCode": context.amountOfMoney.currencyCode,
-            "amount": context.amountOfMoney.totalAmount,
-            "hide": "fields",
-            "isRecurring": isRecurring
-        ]
+
+        let URL = getApiUrl(path: "/products/\(paymentProductId)/networks")
+
+        var params = buildParameters(for: context)
+        params["hide"] = "fields"
 
         getResponse(
             forURL: URL,
@@ -162,14 +135,11 @@ internal class C2SCommunicator {
                     failure(SessionError.RuntimeError("Response was empty."))
                     return
                 }
+
                 success(productNetworksResponse)
             },
-            failure: { error in
-                failure(error)
-            },
-            apiFailure: { errorResponse in
-                apiFailure?(errorResponse)
-            }
+            failure: failure,
+            apiFailure: apiFailure
         )
     }
 
@@ -180,43 +150,34 @@ internal class C2SCommunicator {
         failure: @escaping (_ error: Error) -> Void,
         apiFailure: ((_ errorResponse: ErrorResponse) -> Void)? = nil
     ) {
-        checkAvailability(forProduct: paymentProductId, context: context, success: {() -> Void in
-            let isRecurring = context.isRecurring ? "true" : "false"
-            let URL = self.configuration.getUrl(
-                version: .v1,
-                apiUrl: "\(self.configuration.customerId)/products/\(paymentProductId)/"
-            )
-            var params: [String: Any] =
-            [
-                "countryCode": context.countryCode,
-                "currencyCode": context.amountOfMoney.currencyCode,
-                "amount": context.amountOfMoney.totalAmount,
-                "isRecurring": isRecurring
-            ]
+        let strongSelf = self;
+        checkAvailability(
+            forProduct: paymentProductId,
+            context: context,
+            success: {() -> Void in
+                let URL = strongSelf.getApiUrl(path: "/products/\(paymentProductId)/")
+                let params = strongSelf.buildParameters(for: context)
 
-            if !context.locale.isEmpty {
-                params["locale"] = context.locale
-            }
+                strongSelf.getResponse(
+                    forURL: URL,
+                    withParameters: params,
+                    success: { (responseObject: PaymentProduct?) in
+                        guard let paymentProductResponse = responseObject else {
+                            failure(SessionError.RuntimeError("Response was empty."))
+                            return
+                        }
 
-            self.getResponse(forURL: URL, withParameters: params, success: { (responseObject: PaymentProduct?) in
-                guard let paymentProductResponse = responseObject else {
-                    failure(SessionError.RuntimeError("Response was empty."))
-                    return
-                }
+                        strongSelf.fixProductParametersIfRequired(forProduct: paymentProductResponse)
 
-                self.fixProductParametersIfRequired(forProduct: paymentProductResponse)
-
-                success(paymentProductResponse)
-            }, failure: { error in
-                failure(error)
-            }, apiFailure: { errorResponse in
-                apiFailure?(errorResponse)
-            })
-        }, failure: { error in
-            failure(error)
-        }, apiFailure: { errorResponse in
-            apiFailure?(errorResponse)
-        })
+                        success(paymentProductResponse)
+                    },
+                    failure: failure,
+                    apiFailure: apiFailure
+                )
+            },
+            failure: failure,
+            apiFailure: apiFailure
+        )
     }
 
     private func fixProductParametersIfRequired(forProduct paymentProduct: PaymentItem) {
@@ -267,6 +228,7 @@ internal class C2SCommunicator {
         if paymentProductId == SDKConstants.kApplePayIdentifier {
             if SDKConstants.systemVersionGreaterThanOrEqualTo("8.0") &&
                 PKPaymentAuthorizationViewController.canMakePayments() {
+                let strongSelf = self;
                 paymentProductNetworks(
                     forProduct: SDKConstants.kApplePayIdentifier,
                     context: context,
@@ -274,17 +236,13 @@ internal class C2SCommunicator {
                         if !PKPaymentAuthorizationViewController.canMakePayments(
                             usingNetworks: paymentProductNetworks.paymentProductNetworks
                         ) {
-                            failure(self.badRequestError(forProduct: paymentProductId, context: context))
+                            failure(strongSelf.badRequestError(forProduct: paymentProductId, context: context))
                         } else {
                             success()
                         }
                     },
-                    failure: { error in
-                        failure(error)
-                    },
-                    apiFailure: { errorResponse in
-                        apiFailure?(errorResponse)
-                    }
+                    failure: failure,
+                    apiFailure: apiFailure
                 )
             } else {
                 failure(badRequestError(forProduct: paymentProductId, context: context))
@@ -297,35 +255,39 @@ internal class C2SCommunicator {
     func badRequestError(forProduct paymentProductId: String, context: PaymentContext) -> Error {
         let url = createBadRequestErrorURL(forProduct: paymentProductId, context: context)
         let errorUserInfo =
-        [
-            "com.alamofire.serialization.response.error.response":
-            HTTPURLResponse(
-                url: URL(string: url)!,
-                statusCode: 400,
-                httpVersion: nil,
-                headerFields: ["Connection": "close"]
-            )!,
-            "NSErrorFailingURLKey": url,
-            "com.alamofire.serialization.response.error.data": Data(),
-            "NSLocalizedDescription": "Request failed: bad request (400)"
-        ] as [String: Any]
+            [
+                "com.alamofire.serialization.response.error.response":
+                    HTTPURLResponse(
+                        url: URL(string: url)!,
+                        statusCode: 400,
+                        httpVersion: nil,
+                        headerFields: ["Connection": "close"]
+                    )!,
+                "NSErrorFailingURLKey": url,
+                "com.alamofire.serialization.response.error.data": Data(),
+                "NSLocalizedDescription": "Request failed: bad request (400)"
+            ] as [String: Any]
+
         let error =
             NSError(
                 domain: "com.alamofire.serialization.response.error.response",
                 code: -1011,
                 userInfo: errorUserInfo
             )
+
         return error
     }
 
     private func createBadRequestErrorURL(forProduct paymentProductId: String, context: PaymentContext) -> String {
-        let isRecurring = context.isRecurring ? "true" : "false"
-        // swiftlint:disable line_length
-        return configuration.getUrl(
-            version: .v1,
-            apiUrl: "\(configuration.customerId)/products/\(paymentProductId)/?countryCode=\(context.countryCode)&locale=\(context.locale)&currencyCode=\(context.amountOfMoney.currencyCode)&amount=\(UInt(context.amountOfMoney.totalAmount))&isRecurring=\(isRecurring)"
-        )
-        // swiftlint:enable line_length
+        let urlParameters = buildParameters(for: context)
+            .map { key, value in
+                let encodedKey = key.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? key
+                let encodedValue = "\(value)".addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "\(value)"
+
+                return "\(encodedKey)=\(encodedValue)"
+            }.joined(separator: "&")
+
+        return getApiUrl(path: "/products/\(paymentProductId)?\(urlParameters)")
     }
 
     func publicKey(
@@ -333,19 +295,20 @@ internal class C2SCommunicator {
         failure: @escaping (_ error: Error) -> Void,
         apiFailure: ((_ errorResponse: ErrorResponse) -> Void)? = nil
     ) {
-        let URL = configuration.getUrl(version: .v1, apiUrl: "\(configuration.customerId)/crypto/publickey")
-        getResponse(forURL: URL, success: {(_ responseObject: PublicKeyResponse?) -> Void in
-            guard let publicKeyResponse = responseObject else {
-                failure(SessionError.RuntimeError("Response was empty."))
-                return
-            }
+        let URL = getApiUrl(path: "/crypto/publickey")
+        getResponse(
+            forURL: URL,
+            success: {(_ responseObject: PublicKeyResponse?) -> Void in
+                guard let publicKeyResponse = responseObject else {
+                    failure(SessionError.RuntimeError("Response was empty."))
+                    return
+                }
 
-            success(publicKeyResponse)
-        }, failure: { error in
-            failure(error)
-        }, apiFailure: { errorResponse in
-            apiFailure?(errorResponse)
-        })
+                success(publicKeyResponse)
+            },
+            failure: failure,
+            apiFailure: apiFailure
+        )
     }
 
     func paymentProductId(
@@ -355,22 +318,21 @@ internal class C2SCommunicator {
         failure: @escaping (_ error: Error) -> Void,
         apiFailure: ((_ errorResponse: ErrorResponse) -> Void)? = nil
     ) {
-        let URL = configuration.getUrl(version: .v1, apiUrl: "\(configuration.customerId)/services/getIINdetails")
+        let URL = getApiUrl(path: "/services/getIINdetails")
 
-        var parameters: [String: Any] = [:]
-        parameters["bin"] = getIINDigitsFrom(partialCreditCardNumber: partialCreditCardNumber)
+        var parameters: [String: Any] = [
+            "bin": getIINDigitsFrom(partialCreditCardNumber: partialCreditCardNumber)
+        ]
 
         if let context = context {
-            var paymentContext: [String: Any] = [:]
-            paymentContext["isRecurring"] = context.isRecurring ? "true" : "false"
-            paymentContext["countryCode"] = context.countryCode
-
-            var amountOfMoney: [String: Any] = [:]
-            amountOfMoney["amount"] = String(context.amountOfMoney.totalAmount)
-            amountOfMoney["currencyCode"] = context.amountOfMoney.currencyCode
-            paymentContext["amountOfMoney"] = amountOfMoney
-
-            parameters["paymentContext"] = paymentContext
+            parameters["paymentContext"] = [
+                "isRecurring": context.isRecurring ? "true" : "false",
+                "countryCode": context.countryCode,
+                "amountOfMoney": [
+                    "amount": String(context.amountOfMoney.totalAmount),
+                    "currencyCode": context.amountOfMoney.currencyCode
+                ]
+            ]
         }
 
         let additionalAcceptableStatusCodes = IndexSet(integer: 404)
@@ -386,12 +348,8 @@ internal class C2SCommunicator {
 
                 success(iinDetailsResponse)
             },
-            failure: { error in
-                failure(error)
-            },
-            apiFailure: { errorResponse in
-                apiFailure?(errorResponse)
-            }
+            failure: failure,
+            apiFailure: apiFailure
         )
     }
 
@@ -402,12 +360,12 @@ internal class C2SCommunicator {
         } else {
             max = min(partialCreditCardNumber.count, 6)
         }
-        return
-            String(
-                partialCreditCardNumber[
-                    ..<partialCreditCardNumber.index(partialCreditCardNumber.startIndex, offsetBy: max)
-                ]
-            )
+
+        return String(
+            partialCreditCardNumber[
+                ..<partialCreditCardNumber.index(partialCreditCardNumber.startIndex, offsetBy: max)
+            ]
+        )
     }
 
     internal func currencyConversionQuote(
@@ -417,15 +375,14 @@ internal class C2SCommunicator {
         failure: @escaping (_ error: Error) -> Void,
         apiFailure: ((_ errorResponse: ErrorResponse) -> Void)? = nil
     ) {
-        let URL = configuration.getUrl(version: .v2, apiUrl: "\(configuration.customerId)/services/dccrate")
+        let URL = getApiUrl(path: "/services/dccrate")
 
-        var parameters: [String: Any] = [:]
-        parameters["cardSource"] = getCardSourceParameter(cardSource: cardSource)
-
-        var transactionParameter: [String: Any] = [:]
-        transactionParameter["amount"] = getAmountOfMoneyParameter(amountOfMoney: amountOfMoney)
-
-        parameters["transaction"] = transactionParameter
+        let parameters: [String: Any] = [
+            "cardSource": getCardSourceParameter(cardSource: cardSource),
+            "transaction": [
+                "amount": getAmountOfMoneyParameter(amountOfMoney: amountOfMoney)
+            ]
+        ]
 
         postResponse(
             forURL: URL,
@@ -439,12 +396,9 @@ internal class C2SCommunicator {
 
                 success(currencyConversionResponse)
             },
-            failure: { error in
-                failure(error)
-            },
-            apiFailure: { errorResponse in
-                apiFailure?(errorResponse)
-            })
+            failure: failure,
+            apiFailure: apiFailure
+        )
     }
 
     func surchargeCalculation(
@@ -454,15 +408,12 @@ internal class C2SCommunicator {
         failure: @escaping (_ error: Error) -> Void,
         apiFailure: ((_ errorResponse: ErrorResponse) -> Void)? = nil
     ) {
-        let URL = configuration.getUrl(
-            version: .v1,
-            apiUrl: "\(configuration.customerId)/services/surchargecalculation"
-        )
+        let URL = getApiUrl(path: "/services/surchargecalculation")
 
-        var parameters: [String: Any] = [:]
-
-        parameters["amountOfMoney"] = getAmountOfMoneyParameter(amountOfMoney: amountOfMoney)
-        parameters["cardSource"] = getCardSourceParameter(cardSource: cardSource)
+        let parameters: [String: Any] = [
+            "amountOfMoney": getAmountOfMoneyParameter(amountOfMoney: amountOfMoney),
+            "cardSource": getCardSourceParameter(cardSource: cardSource)
+        ]
 
         postResponse(
             forURL: URL,
@@ -486,30 +437,27 @@ internal class C2SCommunicator {
     }
 
     private func getCardSourceParameter(cardSource: CardSource) -> [String: Any] {
-        var cardSourceParameter: [String: Any] = [:]
+        return [
+            "card": cardSource.card.flatMap { card in
+                    var cardDict: [String: Any] = [
+                        "cardNumber": card.cardNumber
+                    ]
 
-        if let card = cardSource.card {
-            var cardParameter: [String: Any] = [:]
-            cardParameter["cardNumber"] = card.cardNumber
-            cardParameter["paymentProductId"] = card.paymentProductId
+                    if let paymentProductId = card.paymentProductId {
+                        cardDict["paymentProductId"] = paymentProductId
+                    }
 
-            cardSourceParameter["card"] = cardParameter
-        }
-
-        if let token = cardSource.token {
-            cardSourceParameter["token"] = token
-        }
-
-        return cardSourceParameter
+                    return cardDict
+                },
+            "token": cardSource.token
+        ].compactMapValues { $0 }
     }
 
     private func getAmountOfMoneyParameter(amountOfMoney: AmountOfMoney) -> [String: Any] {
-        var amountOfMoneyParameter: [String: Any] = [:]
-
-        amountOfMoneyParameter["amount"] = amountOfMoney.totalAmount
-        amountOfMoneyParameter["currencyCode"] = amountOfMoney.currencyCode
-
-        return amountOfMoneyParameter
+        return [
+            "amount": amountOfMoney.totalAmount,
+            "currencyCode": amountOfMoney.totalAmount
+        ]
     }
 
     private func getResponse<T: Codable>(
@@ -523,11 +471,14 @@ internal class C2SCommunicator {
             logRequest(forURL: URL, requestMethod: .get)
         }
 
+        let strongSelf = self;
+
         let successHandler: (T?, Int?) -> Void = { (responseObject, statusCode) -> Void in
-               if self.loggingEnabled {
-                   self.logSuccessResponse(forURL: URL, withResponseCode: statusCode, forResponse: responseObject)
-               }
-               success(responseObject)
+            if strongSelf.loggingEnabled {
+                strongSelf.logSuccessResponse(forURL: URL, withResponseCode: statusCode, forResponse: responseObject)
+            }
+
+            success(responseObject)
         }
 
         networkingWrapper.getResponse(
@@ -537,15 +488,17 @@ internal class C2SCommunicator {
             additionalAcceptableStatusCodes: nil,
             success: successHandler,
             failure: { error in
-                if self.loggingEnabled {
-                    self.logFailureResponse(forURL: URL, forError: error)
+                if strongSelf.loggingEnabled {
+                    strongSelf.logFailureResponse(forURL: URL, forError: error)
                 }
+
                 failure(error)
             },
             apiFailure: { errorResponse in
-                if self.loggingEnabled {
-                    self.logApiFailureResponse(forURL: URL, forApiError: errorResponse)
+                if strongSelf.loggingEnabled {
+                    strongSelf.logApiFailureResponse(forURL: URL, forApiError: errorResponse)
                 }
+
                 apiFailure?(errorResponse)
             }
         )
@@ -563,11 +516,13 @@ internal class C2SCommunicator {
             logRequest(forURL: URL, requestMethod: .post, postBody: parameters as? Parameters)
         }
 
+        let strongSelf = self;
         let successHandler: (T?, Int?) -> Void = { (responseObject, statusCode) -> Void in
-               if self.loggingEnabled {
-                   self.logSuccessResponse(forURL: URL, withResponseCode: statusCode, forResponse: responseObject)
-               }
-               success(responseObject)
+            if strongSelf.loggingEnabled {
+                strongSelf.logSuccessResponse(forURL: URL, withResponseCode: statusCode, forResponse: responseObject)
+            }
+
+            success(responseObject)
         }
 
         networkingWrapper.postResponse(
@@ -577,15 +532,17 @@ internal class C2SCommunicator {
             additionalAcceptableStatusCodes: additionalAcceptableStatusCodes,
             success: successHandler,
             failure: { error in
-                if self.loggingEnabled {
-                    self.logFailureResponse(forURL: URL, forError: error)
+                if strongSelf.loggingEnabled {
+                    strongSelf.logFailureResponse(forURL: URL, forError: error)
                 }
+
                 failure(error)
             },
             apiFailure: { errorResponse in
-                if self.loggingEnabled {
-                    self.logApiFailureResponse(forURL: URL, forApiError: errorResponse)
+                if strongSelf.loggingEnabled {
+                    strongSelf.logApiFailureResponse(forURL: URL, forApiError: errorResponse)
                 }
+
                 apiFailure?(errorResponse)
             }
         )
@@ -684,5 +641,30 @@ internal class C2SCommunicator {
         responseLog += responseBody
 
         print(responseLog)
+    }
+
+    private func getApiUrl(path: String, queryParameters: String? = nil) -> String {
+        var url = "\(configuration.customerId)\(path)"
+        if let queryParameters = queryParameters {
+            url += "?\(queryParameters)"
+        }
+
+        return configuration.getUrl(version: .v1, apiUrl: url)
+    }
+
+    private func buildParameters(for context: PaymentContext) -> [String: Any] {
+        var params: [String: Any] =
+        [
+            "countryCode": context.countryCode,
+            "currencyCode": context.amountOfMoney.currencyCode,
+            "amount": context.amountOfMoney.totalAmount,
+            "isRecurring": context.isRecurring ? "true" : "false"
+        ]
+
+        if !context.locale.isEmpty {
+            params["locale"] = context.locale
+        }
+
+        return params
     }
 }

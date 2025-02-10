@@ -17,11 +17,13 @@ class PaymentRequestTestCase: XCTestCase {
 
     let fieldId = "1"
     var attribute: AccountOnFileAttribute!
-    var session = Session(clientSessionId: "client-session-id",
-                          customerId: "customer-id",
-                          baseURL: "https://example.com",
-                          assetBaseURL: "https://example.com",
-                          appIdentifier: "")
+    var session = Session(
+        clientSessionId: "client-session-id",
+        customerId: "customer-id",
+        baseURL: "https://example.com",
+        assetBaseURL: "https://example.com",
+        appIdentifier: ""
+    )
 
     override func setUp() {
         super.setUp()
@@ -31,16 +33,17 @@ class PaymentRequestTestCase: XCTestCase {
             "fields": [],
             "id": 1,
             "paymentMethod": "card",
-            "displayHints": {
+            "displayHintsList": [{
                 "displayOrder": 20,
                 "label": "Visa",
                 "logo": "/templates/master/global/css/img/ppimages/pp_logo_1_v1.png"
-            },
+            }],
             "usesRedirectionTo3rdParty": false
         }
         """.utf8)
 
-        guard let paymentProduct = try? JSONDecoder().decode(PaymentProduct.self, from: paymentProductJSON) else {
+        guard let paymentProduct = try? JSONDecoder().decode(PaymentProduct.self, from: paymentProductJSON)
+        else {
             XCTFail("Not a valid PaymentProduct")
             return
         }
@@ -51,15 +54,28 @@ class PaymentRequestTestCase: XCTestCase {
         {
             "id": 1,
             "paymentProductId": 1,
-            "attributes": [{
-                "key": "\(fieldId)",
-                "value": "paymentProductFieldValue1",
-                "status": "CAN_WRITE"
-            }]
+            "attributes": [
+                {
+                    "key": "\(fieldId)",
+                    "value": "can_write_field_value",
+                    "status": "CAN_WRITE"
+                },
+                {
+                    "key": "read_only_field",
+                    "value": "read_only_field_value",
+                    "status": "READ_ONLY"
+                },
+                {
+                    "key": "must_write_field",
+                    "value": "must_write_field_value",
+                    "status": "MUST_WRITE"
+                }
+            ]
         }
         """.utf8)
         account = try? JSONDecoder().decode(AccountOnFile.self, from: accountJSON)
-        guard let account else {
+        guard let account
+        else {
             XCTFail("Not a valid AccountOnFile")
             return
         }
@@ -79,17 +95,20 @@ class PaymentRequestTestCase: XCTestCase {
             "type": "numericstring"
         ] as [String: Any]
 
-        guard let fieldJSON = try? JSONSerialization.data(withJSONObject: fieldDictionary) else {
+        guard let fieldJSON = try? JSONSerialization.data(withJSONObject: fieldDictionary)
+        else {
             XCTFail("Not a valid Dictionary")
             return
         }
-        guard let field = try? JSONDecoder().decode(PaymentProductField.self, from: fieldJSON) else {
+
+        guard let field = try? JSONDecoder().decode(PaymentProductField.self, from: fieldJSON)
+        else {
             XCTFail("Not a valid PaymentProductField")
             return
         }
 
         request.paymentProduct?.fields.paymentProductFields.append(field)
-        request.paymentProduct?.paymentProductField(withId: fieldId)?.displayHints.mask =
+        request.paymentProduct?.paymentProductField(withId: field.identifier)?.displayHints.mask =
             "{{9999}} {{9999}} {{9999}} {{9999}} {{9999}}"
         request.setValue(forField: field.identifier, value: "payment1Value")
         request.formatter = StringFormatter()
@@ -121,7 +140,6 @@ class PaymentRequestTestCase: XCTestCase {
             request.maskedValue(forField: "999") == nil,
             "Value was found: \(request.maskedValue(forField: "999")!)."
         )
-
     }
 
     func testRemoveValue() {
@@ -135,7 +153,8 @@ class PaymentRequestTestCase: XCTestCase {
     }
 
     func testIsPartOfAccount() {
-        guard let field = request.fieldValues.first?.key else {
+        guard let field = request.fieldValues.first?.key
+        else {
             XCTFail("There was no field.")
             return
         }
@@ -147,7 +166,8 @@ class PaymentRequestTestCase: XCTestCase {
     }
 
     func testIsReadOnly() {
-        guard let field = request.fieldValues.first?.key else {
+        guard let field = request.fieldValues.first?.key
+        else {
             XCTFail("There was no field.")
             return
         }
@@ -189,21 +209,24 @@ class PaymentRequestTestCase: XCTestCase {
                     """
                 ]
             // swiftlint:enable line_length
-            return
-                HTTPStubsResponse(
+            return HTTPStubsResponse(
                     jsonObject: response,
                     statusCode: 200,
                     headers: ["Content-Type": "application/json"]
                 )
         }
+
         let expectation = self.expectation(description: "Response provided")
 
-        session.prepare(request, success: { (_) in
-            expectation.fulfill()
-        }, failure: { (error) in
-            XCTFail("Prepare failed: \(error).")
-            expectation.fulfill()
-        })
+        session.prepare(
+            request,
+            success: { (_) in
+                expectation.fulfill()
+            }, failure: { (error) in
+                XCTFail("Prepare failed: \(error).")
+                expectation.fulfill()
+            }
+        )
 
         waitForExpectations(timeout: 3) { error in
             if let error = error {

@@ -24,9 +24,11 @@ public class ValidatorIBAN: Validator, ValidationRule {
             let numericValue = alphabet.distance(from: alphabet.startIndex, to: index) + 10
             return numericValue
         }
+
         if let myInt = Int(String(mychar)) {
             return myInt
         }
+
         return nil
     }
 
@@ -44,17 +46,8 @@ public class ValidatorIBAN: Validator, ValidationRule {
             let currentResult = currentInt! % modulo
             remainder = String(currentResult) + remainder.dropFirst(9)
         } while remainder.count > 2
-        return (Int(remainder)!) % modulo
-    }
 
-    @available(
-        *,
-        deprecated,
-        message: "In a future release, this function will be removed. Please use validate(field:in:) instead."
-    )
-    @objc(validate:forPaymentRequest:)
-    public override func validate(value: String, for request: PaymentRequest) {
-        _ = validate(value: value)
+        return (Int(remainder)!) % modulo
     }
 
     @objc public func validate(field fieldId: String, in request: PaymentRequest) -> Bool {

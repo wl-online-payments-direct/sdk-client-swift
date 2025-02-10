@@ -1,6 +1,6 @@
 # Online Payments Swift SDK
 
-The Online Payments Swift SDK helps you with accepting payments in your iOS app, supporting iOS 12.0 and up, through the Online Payments platform.
+The Online Payments Swift SDK helps you with accepting payments in your iOS app, supporting iOS 15.6 and up, through the Online Payments platform.
 
 The SDK's main function is to establish a secure channel between your iOS app and our server. This channel processes security credentials to guarantee the safe transit of your customers' data during the payment process.
 
@@ -68,7 +68,7 @@ $ pod install
 You can add the Swift SDK with Carthage, by adding the following to your `Cartfile`:
 
 ```
-$ github "wl-online-payments-direct/sdk-client-swift"
+$ github "online-payments/sdk-client-swift"
 ```
 
 Afterwards, run the following command:
@@ -85,7 +85,7 @@ You can add the Swift SDK with Swift Package Manager, by configuring your projec
 
 1. Go to your project's settings and click the 'Package Dependencies' tab.
 2. Click the '+' to add a new Swift Package dependency.
-3. Enter the Github URL in the search bar: `https://github.com/wl-online-payments-direct/sdk-client-swift`
+3. Enter the Github URL in the search bar: `https://github.com/online-payments/sdk-client-swift`
 4. Additionally, you can also set a version of the package that you wish to include. The default option is to select the latest version from the main branch.
 5. Click 'Add package'
 
@@ -98,7 +98,7 @@ The Online Payments Swift SDK can also be used in Objective-C projects by using 
 
 ## Example apps
 
-For your convenience, we also provide an example application in both SwiftUI and UIKit that can be used as a basis for your own implementation. If you are fine with the look-and-feel of the example app, you do not need to make any changes at all. Take a look at the [SwiftUI](https://github.com/wl-online-payments-direct/sdk-client-swift-example-swiftui) or [UIKit](https://github.com/wl-online-payments-direct/sdk-client-swift-example) example apps.`
+For your convenience, we also provide an example application in both SwiftUI and UIKit that can be used as a basis for your own implementation. If you are fine with the look-and-feel of the example app, you do not need to make any changes at all. Take a look at the [SwiftUI](https://github.com/online-payments/sdk-client-swift-example-swiftui) or [UIKit](https://github.com/online-payments/sdk-client-swift-example) example apps.`
 
 ## Getting started
 
@@ -133,7 +133,6 @@ let paymentContext = PaymentContext(
 ```swift
 session.paymentItems(
     for: paymentContext,
-    groupPaymentProducts: false,
     success: { paymentItems in
         // Display the contents of paymentItems & accountsOnFile to your customer
     },
@@ -148,7 +147,7 @@ session.paymentItems(
 5. Once the customer has selected the desired payment product, retrieve the enriched `PaymentProduct` detailing what information the customer needs to provide to authorize the payment. Display the required information fields to your customer.
 ```swift
 session.paymentProduct(
-    withId: "1",
+    withId: "1", // replace with the id of the payment product that should be fetched
     context: paymentContext,
     success: { paymentProduct in
         // Display the fields to your customer
@@ -229,7 +228,6 @@ The code fragment below shows how to get the `PaymentItems` instance.
 ```swift
 session.paymentItems(
     for: paymentContext,
-    groupPaymentProducts: false,
     success: { paymentItems in
         // Display the contents of paymentItems & accountsOnFile to your customer
     },
@@ -249,13 +247,13 @@ The SDK offers two types to represent information about payment products:
 
 The type `PaymentProduct` contains additional information, such as the specific form fields that the customer is required to fill out. This type is typically used when creating a form that asks the customer for their details. See the [PaymentProduct](#paymentproduct) section for more info.
 
-Below is an example for how to obtain display names and assets for the Visa product.
+Below is an example for how to obtain display names and assets for the Visa product (id: 1).
 ```swift
 let basicPaymentProduct = paymentItems.paymentItem(withIdentifier: "1")
 
 let id = basicPaymentProduct.identifier // 1
-let label = basicPaymentProduct.displayHintsList.first?.label // VISA
-let logoPath = basicPaymentProduct.displayHintsList.first?.logoPath // https://assets.com/path/to/visa/logo.gif
+let label = basicPaymentProduct.displayHints.first?.label // VISA
+let logoPath = basicPaymentProduct.displayHints.first?.logoPath // https://assets.com/path/to/visa/logo.gif
 ```
 
 ### AccountOnFile
@@ -281,7 +279,7 @@ let maskedValue = accountOnFile.maskedValue(forField: "cardNumber")
 Information about the fields of payment products are represented by instances of `PaymentProductField`, which are contained in instances of `PaymentProduct`. The class `PaymentProductField` is described further down below. The `Session` instance can be used to retrieve instances of `PaymentProduct`, as shown in the following code fragment.
 ```swift
 session.paymentProduct(
-    withId: "1",
+    withId: "1", // replace with the id of the payment product that should be fetched
     context: paymentContext,
     success: { paymentProduct in
         // Display the fields to your customer
@@ -502,7 +500,7 @@ If the customer wishes to use an existing `AccountOnFile` for a payment, the sel
 Retrieve all the details about the payment product - including it's fields - that the customer needs to provide based on the selected payment product or account on file. Your app can use this information to create the payment product details screen.
 ```swift
 session.paymentProduct(
-    withId: "1",
+    withId: "1", // replace with the id of the payment product that should be fetched
     context: paymentContext,
     success: { paymentProduct in
         // Display the fields to your customer

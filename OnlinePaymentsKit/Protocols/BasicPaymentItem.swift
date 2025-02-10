@@ -9,8 +9,6 @@ import Foundation
 @objc(OPBasicPaymentItem)
 public protocol BasicPaymentItem {
     @objc var identifier: String { get set }
-    @available(*, deprecated, message: "In the next major release, the type of displayHints will change to List.")
-    @objc var displayHints: PaymentItemDisplayHints { get set }
-    @objc var displayHintsList: [PaymentItemDisplayHints] { get set }
+    @objc var displayHints: [PaymentItemDisplayHints] { get set }
     @objc var accountsOnFile: AccountsOnFile { get set }
 }

@@ -10,19 +10,10 @@ import UIKit
 @objc(OPSDKConstants)
 
 public class SDKConstants: NSObject {
-    
-    @available(
-        *,
-        deprecated,
-        message: "In a future release this constant will be removed. Translations are no longer supported from the SDK."
-    )
-    @objc(kOPSDKLocalizable)
-    public static let kSDKLocalizable = "OPSDKLocalizable"
-
     internal static let kApplePayIdentifier = "302"
 
     internal static let kApiBase = "client/"
-    internal static let kSDKIdentifier = "SwiftClientSDK/v3.0.0"
+    internal static let kSDKIdentifier = "SwiftClientSDK/v4.0.0"
 
 #if SWIFT_PACKAGE
     @objc(kOPSDKBundlePath)

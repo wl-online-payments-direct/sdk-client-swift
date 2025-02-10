@@ -12,12 +12,6 @@ public class Validator: NSObject, Codable {
     @objc public var messageId: String = ""
     @objc public var validationType: ValidationType = .type
 
-    @available(*, deprecated, message: "In a future release, this function will be removed.")
-    @objc(validate:forPaymentRequest:)
-    public func validate(value: String, for: PaymentRequest) {
-        clearErrors()
-    }
-
     internal func validate(value: String, for fieldId: String?) -> Bool {
         clearErrors()
 

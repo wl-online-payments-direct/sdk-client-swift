@@ -8,12 +8,9 @@ import Foundation
 
 @objc(OPStringFormatter)
 public class StringFormatter: NSObject {
-    @available(*, deprecated, message: "In a future release, this property will become private to this class.")
-    @objc public var decimalRegex: NSRegularExpression
-    @available(*, deprecated, message: "In a future release, this property will become private to this class.")
-    @objc public var lowerAlphaRegex: NSRegularExpression
-    @available(*, deprecated, message: "In a future release, this property will become private to this class.")
-    @objc public var upperAlphaRegex: NSRegularExpression
+    private var decimalRegex: NSRegularExpression
+    private var lowerAlphaRegex: NSRegularExpression
+    private var upperAlphaRegex: NSRegularExpression
 
     @objc public override init() {
         guard let decimalRegex = try? NSRegularExpression(pattern: "[0-9]"),
@@ -206,5 +203,4 @@ public class StringFormatter: NSObject {
 
         return relaxedMask
     }
-
 }

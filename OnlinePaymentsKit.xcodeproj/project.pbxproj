@@ -39,6 +39,10 @@
 		7BCE528028BCEA85003E22B1 /* CryptoSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 7BCE527F28BCEA85003E22B1 /* CryptoSwift */; };
 		7BCE528628BCEB4C003E22B1 /* OHHTTPStubsSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 7BCE528528BCEB4C003E22B1 /* OHHTTPStubsSwift */; };
 		7BEC2ACD2A7A920200463F12 /* SurchargeCalculationResponseTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BEC2ACC2A7A920200463F12 /* SurchargeCalculationResponseTestCase.swift */; };
+		80707C952D5526350036CE2C /* OnlinePaymentsKit.podspec in Resources */ = {isa = PBXBuildFile; fileRef = 80707C942D5526350036CE2C /* OnlinePaymentsKit.podspec */; };
+		80CE93342D40022A00452EFE /* EncryptorError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80CE93332D40022A00452EFE /* EncryptorError.swift */; };
+		80CE933C2D478B8600452EFE /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80CE933B2D478B8200452EFE /* Logger.swift */; };
+		80CE933E2D50E57000452EFE /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 80CE933D2D50E57000452EFE /* README.md */; };
 		BFF039352BF75D840005DB37 /* ApiErrorItemTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFF039342BF75D840005DB37 /* ApiErrorItemTestCase.swift */; };
 		F7027A5F24C08B0300DAE78D /* AlamofireWrapperTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7027A5E24C08B0300DAE78D /* AlamofireWrapperTestCase.swift */; };
 		F7027A6524C08BB800DAE78D /* StubSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7027A6424C08BB800DAE78D /* StubSession.swift */; };
@@ -92,7 +96,6 @@
 		F72D5E2D24C0DE0B00CD0942 /* StringFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F72D5E2C24C0DE0B00CD0942 /* StringFormatter.swift */; };
 		F72D5E2F24C0DE3600CD0942 /* BasicPaymentItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = F72D5E2E24C0DE3600CD0942 /* BasicPaymentItem.swift */; };
 		F72D5E3124C0DE4F00CD0942 /* PaymentItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = F72D5E3024C0DE4F00CD0942 /* PaymentItem.swift */; };
-		F72D5E3324C0DE7000CD0942 /* ResponseObjectSerializable.swift in Sources */ = {isa = PBXBuildFile; fileRef = F72D5E3224C0DE7000CD0942 /* ResponseObjectSerializable.swift */; };
 		F72D5E3524C0DE8500CD0942 /* AlamofireWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = F72D5E3424C0DE8500CD0942 /* AlamofireWrapper.swift */; };
 		F72D5E4524C0DF6A00CD0942 /* AccountOnFileAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = F72D5E4024C0DF6900CD0942 /* AccountOnFileAttributes.swift */; };
 		F72D5E4624C0DF6A00CD0942 /* AccountOnFileDisplayHints.swift in Sources */ = {isa = PBXBuildFile; fileRef = F72D5E4124C0DF6900CD0942 /* AccountOnFileDisplayHints.swift */; };
@@ -119,8 +122,6 @@
 		F72D5E8024C0E05400CD0942 /* BasicPaymentProducts.swift in Sources */ = {isa = PBXBuildFile; fileRef = F72D5E6824C0E05400CD0942 /* BasicPaymentProducts.swift */; };
 		F72D5E8124C0E05400CD0942 /* BasicPaymentProduct.swift in Sources */ = {isa = PBXBuildFile; fileRef = F72D5E6924C0E05400CD0942 /* BasicPaymentProduct.swift */; };
 		F72D5E8224C0E05400CD0942 /* PaymentProductNetworks.swift in Sources */ = {isa = PBXBuildFile; fileRef = F72D5E6A24C0E05400CD0942 /* PaymentProductNetworks.swift */; };
-		F72D5E8324C0E05400CD0942 /* ValueMappingItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = F72D5E6B24C0E05400CD0942 /* ValueMappingItem.swift */; };
-		F72D5E8424C0E05400CD0942 /* DisplayElement.swift in Sources */ = {isa = PBXBuildFile; fileRef = F72D5E6C24C0E05400CD0942 /* DisplayElement.swift */; };
 		F72D5E8524C0E05400CD0942 /* LabelTemplateItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = F72D5E6D24C0E05400CD0942 /* LabelTemplateItem.swift */; };
 		F72D5E8824C0E1FE00CD0942 /* PaymentRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = F72D5E8624C0E1FE00CD0942 /* PaymentRequest.swift */; };
 		F72D5E8924C0E1FE00CD0942 /* PreparedPaymentRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = F72D5E8724C0E1FE00CD0942 /* PreparedPaymentRequest.swift */; };
@@ -186,7 +187,6 @@
 		7B576CB82A77CC9C0098FC3F /* SurchargeRate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SurchargeRate.swift; sourceTree = "<group>"; };
 		7B576CBD2A77D72C0098FC3F /* CardSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardSource.swift; sourceTree = "<group>"; };
 		7B576CBF2A77D7870098FC3F /* Card.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Card.swift; sourceTree = "<group>"; };
-		7B7C73362833BA6F006F9BF5 /* OnlinePaymentsKit-Bridging-Swift.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "OnlinePaymentsKit-Bridging-Swift.h"; sourceTree = "<group>"; };
 		7B9A722228B60D33004EF8C2 /* Alamofire.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = Alamofire.xcframework; path = Carthage/Build/Alamofire.xcframework; sourceTree = "<group>"; };
 		7B9A722328B60D33004EF8C2 /* CryptoSwift.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = CryptoSwift.xcframework; path = Carthage/Build/CryptoSwift.xcframework; sourceTree = "<group>"; };
 		7B9A722428B60D33004EF8C2 /* OHHTTPStubs.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = OHHTTPStubs.xcframework; path = Carthage/Build/OHHTTPStubs.xcframework; sourceTree = "<group>"; };
@@ -195,6 +195,10 @@
 		7BBE95682A666B3500B957CB /* ApiError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApiError.swift; sourceTree = "<group>"; };
 		7BBE956A2A666B5900B957CB /* ApiErrorItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApiErrorItem.swift; sourceTree = "<group>"; };
 		7BEC2ACC2A7A920200463F12 /* SurchargeCalculationResponseTestCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SurchargeCalculationResponseTestCase.swift; sourceTree = "<group>"; };
+		80707C942D5526350036CE2C /* OnlinePaymentsKit.podspec */ = {isa = PBXFileReference; lastKnownFileType = text; path = OnlinePaymentsKit.podspec; sourceTree = "<group>"; };
+		80CE93332D40022A00452EFE /* EncryptorError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EncryptorError.swift; sourceTree = "<group>"; };
+		80CE933B2D478B8200452EFE /* Logger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logger.swift; sourceTree = "<group>"; };
+		80CE933D2D50E57000452EFE /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		BFF039342BF75D840005DB37 /* ApiErrorItemTestCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApiErrorItemTestCase.swift; sourceTree = "<group>"; };
 		F7027A5E24C08B0300DAE78D /* AlamofireWrapperTestCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlamofireWrapperTestCase.swift; sourceTree = "<group>"; };
 		F7027A6424C08BB800DAE78D /* StubSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StubSession.swift; sourceTree = "<group>"; };
@@ -248,7 +252,6 @@
 		F72D5E2C24C0DE0B00CD0942 /* StringFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringFormatter.swift; sourceTree = "<group>"; };
 		F72D5E2E24C0DE3600CD0942 /* BasicPaymentItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BasicPaymentItem.swift; sourceTree = "<group>"; };
 		F72D5E3024C0DE4F00CD0942 /* PaymentItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaymentItem.swift; sourceTree = "<group>"; };
-		F72D5E3224C0DE7000CD0942 /* ResponseObjectSerializable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResponseObjectSerializable.swift; sourceTree = "<group>"; };
 		F72D5E3424C0DE8500CD0942 /* AlamofireWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlamofireWrapper.swift; sourceTree = "<group>"; };
 		F72D5E4024C0DF6900CD0942 /* AccountOnFileAttributes.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AccountOnFileAttributes.swift; sourceTree = "<group>"; };
 		F72D5E4124C0DF6900CD0942 /* AccountOnFileDisplayHints.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AccountOnFileDisplayHints.swift; sourceTree = "<group>"; };
@@ -275,8 +278,6 @@
 		F72D5E6824C0E05400CD0942 /* BasicPaymentProducts.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BasicPaymentProducts.swift; sourceTree = "<group>"; };
 		F72D5E6924C0E05400CD0942 /* BasicPaymentProduct.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BasicPaymentProduct.swift; sourceTree = "<group>"; };
 		F72D5E6A24C0E05400CD0942 /* PaymentProductNetworks.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PaymentProductNetworks.swift; sourceTree = "<group>"; };
-		F72D5E6B24C0E05400CD0942 /* ValueMappingItem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ValueMappingItem.swift; sourceTree = "<group>"; };
-		F72D5E6C24C0E05400CD0942 /* DisplayElement.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DisplayElement.swift; sourceTree = "<group>"; };
 		F72D5E6D24C0E05400CD0942 /* LabelTemplateItem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LabelTemplateItem.swift; sourceTree = "<group>"; };
 		F72D5E8624C0E1FE00CD0942 /* PaymentRequest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PaymentRequest.swift; sourceTree = "<group>"; };
 		F72D5E8724C0E1FE00CD0942 /* PreparedPaymentRequest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PreparedPaymentRequest.swift; sourceTree = "<group>"; };
@@ -365,6 +366,7 @@
 		7B112E332AC55AFB00BA0315 /* Errors */ = {
 			isa = PBXGroup;
 			children = (
+				80CE93332D40022A00452EFE /* EncryptorError.swift */,
 				F7027ABD24C0A1CC00DAE78D /* SessionError.swift */,
 				7B112E342AC55B1000BA0315 /* EncryptDataError.swift */,
 			);
@@ -607,7 +609,6 @@
 				F72D5E5724C0E05100CD0942 /* BasicPaymentProductGroups.swift */,
 				F72D5E6824C0E05400CD0942 /* BasicPaymentProducts.swift */,
 				F72D5E5C24C0E05100CD0942 /* DataRestrictions.swift */,
-				F72D5E6C24C0E05400CD0942 /* DisplayElement.swift */,
 				F72D5E5824C0E05100CD0942 /* FormElement.swift */,
 				F72D5E5924C0E05100CD0942 /* LabelTemplate.swift */,
 				F72D5E6D24C0E05400CD0942 /* LabelTemplateItem.swift */,
@@ -622,7 +623,6 @@
 				F72D5E6524C0E05300CD0942 /* PaymentProductGroup.swift */,
 				F72D5E6A24C0E05400CD0942 /* PaymentProductNetworks.swift */,
 				F72D5E5624C0E05100CD0942 /* ToolTip.swift */,
-				F72D5E6B24C0E05400CD0942 /* ValueMappingItem.swift */,
 			);
 			path = PaymentProducts;
 			sourceTree = "<group>";
@@ -630,6 +630,8 @@
 		F7FBD62124C07E1A00D6A2BC = {
 			isa = PBXGroup;
 			children = (
+				80707C942D5526350036CE2C /* OnlinePaymentsKit.podspec */,
+				80CE933D2D50E57000452EFE /* README.md */,
 				7BBE950B2930D70000105564 /* OnlinePaymentsKit.bundle */,
 				F7FBD62D24C07E1A00D6A2BC /* OnlinePaymentsKit */,
 				F7FBD63824C07E1A00D6A2BC /* OnlinePaymentsKitTests */,
@@ -664,7 +666,6 @@
 				F7FBD65C24C082C900D6A2BC /* Wrappers */,
 				F7027AAC24C09F9000DAE78D /* C2SCommunicator.swift */,
 				F7027AAF24C0A01900DAE78D /* C2SCommunicatorConfiguration.swift */,
-				7B7C73362833BA6F006F9BF5 /* OnlinePaymentsKit-Bridging-Swift.h */,
 			);
 			path = OnlinePaymentsKit;
 			sourceTree = "<group>";
@@ -722,7 +723,6 @@
 			children = (
 				F72D5E2E24C0DE3600CD0942 /* BasicPaymentItem.swift */,
 				F72D5E3024C0DE4F00CD0942 /* PaymentItem.swift */,
-				F72D5E3224C0DE7000CD0942 /* ResponseObjectSerializable.swift */,
 			);
 			path = Protocols;
 			sourceTree = "<group>";
@@ -780,6 +780,7 @@
 		F7FBD65C24C082C900D6A2BC /* Wrappers */ = {
 			isa = PBXGroup;
 			children = (
+				80CE933B2D478B8200452EFE /* Logger.swift */,
 				F72D5E3424C0DE8500CD0942 /* AlamofireWrapper.swift */,
 			);
 			path = Wrappers;
@@ -874,8 +875,9 @@
 		F7FBD62224C07E1A00D6A2BC /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
+				BuildIndependentTargetsInParallel = YES;
 				LastSwiftUpdateCheck = 1340;
-				LastUpgradeCheck = 1150;
+				LastUpgradeCheck = 1620;
 				ORGANIZATIONNAME = "";
 				TargetAttributes = {
 					55919B6728AB9859004B6D31 = {
@@ -930,7 +932,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				80CE933E2D50E57000452EFE /* README.md in Resources */,
 				7BBE950C2930D70000105564 /* OnlinePaymentsKit.bundle in Resources */,
+				80707C952D5526350036CE2C /* OnlinePaymentsKit.podspec in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -982,14 +986,15 @@
 				F7027AC824C0A1CC00DAE78D /* SessionError.swift in Sources */,
 				7BBE95672A666AAA00B957CB /* ErrorResponse.swift in Sources */,
 				F72D5E2524C0DD0E00CD0942 /* Util.swift in Sources */,
-				F72D5E8424C0E05400CD0942 /* DisplayElement.swift in Sources */,
 				F72D5E9F24C0E28400CD0942 /* ValidatorExpirationDate.swift in Sources */,
 				F7027AB024C0A01900DAE78D /* C2SCommunicatorConfiguration.swift in Sources */,
 				F7027AAD24C09F9000DAE78D /* C2SCommunicator.swift in Sources */,
 				F72D5EA224C0E28400CD0942 /* ValidatorLuhn.swift in Sources */,
 				7BBE95692A666B3500B957CB /* ApiError.swift in Sources */,
 				F72D5E7024C0E05400CD0942 /* FormElement.swift in Sources */,
+				80CE933C2D478B8600452EFE /* Logger.swift in Sources */,
 				F72D5E7C24C0E05400CD0942 /* PaymentItems.swift in Sources */,
+				80CE93342D40022A00452EFE /* EncryptorError.swift in Sources */,
 				F72D5E2924C0DDA400CD0942 /* String+Extensions.swift in Sources */,
 				F72D5EA624C0E28400CD0942 /* ValidatorIBAN.swift in Sources */,
 				361EC9522B9F586F003D16F6 /* DccProposal.swift in Sources */,
@@ -1018,7 +1023,6 @@
 				F72D5E2F24C0DE3600CD0942 /* BasicPaymentItem.swift in Sources */,
 				7B4056F52AC2AEB100D76C10 /* ValidationType.swift in Sources */,
 				361EC94E2B9F582A003D16F6 /* ConversionResultType.swift in Sources */,
-				F72D5E8324C0E05400CD0942 /* ValueMappingItem.swift in Sources */,
 				7B112E352AC55B1000BA0315 /* EncryptDataError.swift in Sources */,
 				F72D5E5424C0E02300CD0942 /* IINDetail.swift in Sources */,
 				F72D5E8124C0E05400CD0942 /* BasicPaymentProduct.swift in Sources */,
@@ -1037,7 +1041,6 @@
 				F72D5E8824C0E1FE00CD0942 /* PaymentRequest.swift in Sources */,
 				361EC9542B9F5881003D16F6 /* RateDetails.swift in Sources */,
 				F72D5E5524C0E02300CD0942 /* IINDetailsResponse.swift in Sources */,
-				F72D5E3324C0DE7000CD0942 /* ResponseObjectSerializable.swift in Sources */,
 				F7027ACA24C0A1CC00DAE78D /* FieldType.swift in Sources */,
 				7B112E392AC5A2A200BA0315 /* PaymentProduct320SpecificData.swift in Sources */,
 				F72D5E7624C0E05400CD0942 /* PaymentProductFields.swift in Sources */,
@@ -1197,6 +1200,7 @@
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
@@ -1208,6 +1212,7 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -1222,13 +1227,14 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
 			};
@@ -1260,6 +1266,7 @@
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
@@ -1271,6 +1278,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -1279,12 +1287,13 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
 				VALIDATE_PRODUCT = YES;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
@@ -1295,28 +1304,32 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_IDENTITY = "";
 				CODE_SIGN_STYLE = Manual;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = "";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_MODULE_VERIFIER = YES;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = "$(SRCROOT)/OnlinePaymentsKit/Essentials/Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++14";
 				PRODUCT_BUNDLE_IDENTIFIER = com.onlinepayments.OnlinePaymentsKit;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
 				SUPPORTS_MACCATALYST = NO;
-				SWIFT_OBJC_BRIDGING_HEADER = "OnlinePaymentsKit/OnlinePaymentsKit-Bridging-Swift.h";
+				SWIFT_OBJC_BRIDGING_HEADER = "";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -1330,28 +1343,32 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_IDENTITY = "";
 				CODE_SIGN_STYLE = Manual;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = "";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_MODULE_VERIFIER = YES;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = "$(SRCROOT)/OnlinePaymentsKit/Essentials/Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++14";
 				PRODUCT_BUNDLE_IDENTIFIER = com.onlinepayments.OnlinePaymentsKit;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
 				SUPPORTS_MACCATALYST = NO;
-				SWIFT_OBJC_BRIDGING_HEADER = "OnlinePaymentsKit/OnlinePaymentsKit-Bridging-Swift.h";
+				SWIFT_OBJC_BRIDGING_HEADER = "";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				USER_HEADER_SEARCH_PATHS = "$(PROJECT_DIR)";
@@ -1362,12 +1379,11 @@
 		F7FBD64324C07E1A00D6A2BC /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = "";
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = OnlinePaymentsKitTests/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1388,12 +1404,11 @@
 		F7FBD64424C07E1A00D6A2BC /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = "";
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = OnlinePaymentsKitTests/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

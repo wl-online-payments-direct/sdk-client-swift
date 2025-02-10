@@ -34,11 +34,11 @@ class BasicPaymentProductTestCase: XCTestCase {
             "fields": [],
             "id": 1,
             "paymentMethod": "card",
-            "displayHints": {
+            "displayHintsList": [{
                 "displayOrder": 20,
                 "label": "Visa",
                 "logo": "/templates/master/global/css/img/ppimages/pp_logo_1_v1.png"
-            },
+            }],
             "usesRedirectionTo3rdParty": false
         }
         """.utf8)
@@ -57,34 +57,44 @@ class BasicPaymentProductTestCase: XCTestCase {
     }
 
     func testSameBasicPaymentProduct() {
-        let sameProduct = BasicPaymentProduct(json: [
-            "fields": [[:]],
-            "id": 1,
-            "paymentMethod": "card",
-            "displayHints": [
-                "displayOrder": 20,
-                "label": "Visa",
-                "logo": "/templates/master/global/css/img/ppimages/pp_logo_1_v1.png"
-            ],
-            "usesRedirectionTo3rdParty": false
-        ])!
+        guard let sameProduct = try? JSONDecoder().decode(BasicPaymentProduct.self, from: Data("""
+            {
+                "fields": [],
+                "id": 1,
+                "paymentMethod": "card",
+                "displayHintsList": [{
+                    "displayOrder": 20,
+                    "label": "Visa",
+                    "logo": "/templates/master/global/css/img/ppimages/pp_logo_1_v1.png"
+                }],
+                "usesRedirectionTo3rdParty": false
+            }
+            """.utf8)) else {
+            XCTFail("Could not deserialize correct BasicPaymentProduct JSON")
+            return
+        }
 
         XCTAssertTrue(product == sameProduct)
         XCTAssertTrue(product.isEqual(sameProduct))
     }
 
     func testOtherBasicPaymentProduct() {
-        let otherProduct = BasicPaymentProduct(json: [
-            "fields": [[:]],
-            "id": 2,
-            "paymentMethod": "card",
-            "displayHints": [
-                "displayOrder": 21,
-                "label": "MasterCard",
-                "logo": "/templates/master/global/css/img/ppimages/pp_logo_2_v1.png"
-            ],
-            "usesRedirectionTo3rdParty": false
-        ])!
+        guard let otherProduct = try? JSONDecoder().decode(BasicPaymentProduct.self, from: Data("""
+            {
+                "fields": [],
+                "id": 2,
+                "paymentMethod": "card",
+                "displayHintsList": [{
+                    "displayOrder": 21,
+                    "label": "MasterCard",
+                    "logo": "/templates/master/global/css/img/ppimages/pp_logo_2_v1.png"
+                }],
+                "usesRedirectionTo3rdParty": false
+            }
+            """.utf8)) else {
+            XCTFail("Could not deserialize correct BasicPaymentProduct JSON")
+            return
+        }
 
         XCTAssertFalse(product == otherProduct)
         XCTAssertFalse(product.isEqual(otherProduct))

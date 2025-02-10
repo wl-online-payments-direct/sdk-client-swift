@@ -45,6 +45,7 @@ class BasicPaymentProductGroupsTestCase: XCTestCase {
 
             basicPaymentProductGroups.paymentProductGroups.append(basicPaymentProductGroup)
         }
+        
         basicPaymentProductGroups.sort()
     }
 
@@ -105,12 +106,12 @@ class BasicPaymentProductGroupsTestCase: XCTestCase {
         ]
         """.utf8)
 
-        guard let displayHintsList =
+        guard let displayHints =
                 try? JSONDecoder().decode([PaymentItemDisplayHints].self, from: displayHintsListJSON) else {
             XCTFail("Not a valid array of PaymentItemDisplayHints")
             return
         }
-        group.displayHintsList = displayHintsList
+        group.displayHints = displayHints
 
         XCTAssertTrue(basicPaymentProductGroups.logoPath(forProductGroup: "1") != nil, "Logo path was nil.")
         XCTAssertTrue(basicPaymentProductGroups.logoPath(forProductGroup: "999") == nil, "Logo path was not nil.")

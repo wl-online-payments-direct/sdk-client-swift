@@ -7,7 +7,7 @@
 import Foundation
 
 @objc(OPBasicPaymentProductGroups)
-public class BasicPaymentProductGroups: NSObject, Codable, ResponseObjectSerializable {
+public class BasicPaymentProductGroups: NSObject, Codable {
 
     @objc public var paymentProductGroups = [BasicPaymentProductGroup]()
 
@@ -42,20 +42,6 @@ public class BasicPaymentProductGroups: NSObject, Codable, ResponseObjectSeriali
 
     internal override init() {}
 
-    @available(*, deprecated, message: "In a future release, this initializer will be removed.")
-    @objc required public init(json: [String: Any]) {
-        super.init()
-        if let input = json["paymentProductGroups"] as? [[String: Any]] {
-            for groupInput in input {
-                if let group = BasicPaymentProductGroup(json: groupInput) {
-                    paymentProductGroups.append(group)
-                }
-            }
-
-            sort()
-        }
-    }
-
     enum CodingKeys: CodingKey {
         case paymentProductGroups
     }
@@ -71,9 +57,10 @@ public class BasicPaymentProductGroups: NSObject, Codable, ResponseObjectSeriali
     @objc(logoPathForPaymentProductGroup:)
     public func logoPath(forProductGroup identifier: String) -> String? {
         let productGroup = paymentProductGroup(withIdentifier: identifier)
-        guard let displayHints = productGroup?.displayHintsList.first else {
+        guard let displayHints = productGroup?.displayHints.first else {
             return nil
         }
+
         return displayHints.logoPath
     }
 
@@ -81,13 +68,14 @@ public class BasicPaymentProductGroups: NSObject, Codable, ResponseObjectSeriali
         for productGroup in paymentProductGroups where productGroup.identifier.isEqual(identifier) {
             return productGroup
         }
+
         return nil
     }
 
     @objc public func sort() {
         paymentProductGroups = paymentProductGroups.sorted {
-            let displayOrder0 = $0.displayHintsList[0].displayOrder
-            let displayOrder1 = $1.displayHintsList[0].displayOrder
+            let displayOrder0 = $0.displayHints[0].displayOrder
+            let displayOrder1 = $1.displayHints[0].displayOrder
 
             return displayOrder0 < displayOrder1
         }

@@ -7,24 +7,12 @@
 import Foundation
 
 @objc(OPDataRestrictions)
-public class DataRestrictions: NSObject, Codable, ResponseObjectSerializable {
+public class DataRestrictions: NSObject, Codable {
 
     @objc public var isRequired = false
     @objc public var validators = Validators()
 
     internal override init() {}
-
-    @available(*, deprecated, message: "In a future release, this initializer will become removed.")
-    @objc required public init(json: [String: Any]) {
-        super.init()
-
-        if let input = json["isRequired"] as? Bool {
-            isRequired = input
-        }
-        if let input = json["validators"] as? [String: Any] {
-            self.setValidators(input: input)
-        }
-    }
 
     private enum CodingKeys: String, CodingKey {
         case isRequired, validators, validationRules
@@ -41,10 +29,10 @@ public class DataRestrictions: NSObject, Codable, ResponseObjectSerializable {
         if let isRequired = try? container.decodeIfPresent(Bool.self, forKey: .isRequired) {
             self.isRequired = isRequired
         }
+
         if let validators = try? container.decodeIfPresent(Validators.self, forKey: .validators) {
             self.validators = validators
-        } else if var validatorsContainer = try?
-                    container.nestedUnkeyedContainer(forKey: .validationRules) {
+        } else if var validatorsContainer = try? container.nestedUnkeyedContainer(forKey: .validationRules) {
             setValidators(validatorsContainer: &validatorsContainer)
         }
     }
@@ -53,45 +41,6 @@ public class DataRestrictions: NSObject, Codable, ResponseObjectSerializable {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try? container.encode(isRequired, forKey: .isRequired)
         try? container.encode(validators.validators, forKey: .validationRules)
-    }
-
-    private func setValidators(input: [String: Any]) {
-        if input.index(forKey: "luhn") != nil {
-            let validator = ValidatorLuhn()
-            validators.validators.append(validator)
-        }
-        if input.index(forKey: "expirationDate") != nil {
-            let validator = ValidatorExpirationDate()
-            validators.validators.append(validator)
-        }
-        if let range = input["range"] as? [String: Any] {
-            let validator = ValidatorRange(json: range)
-            validators.validators.append(validator)
-        }
-        if let length = input["length"] as? [String: Any] {
-            let validator = ValidatorLength(json: length)
-            validators.validators.append(validator)
-        }
-        if let fixedList = input["fixedList"] as? [String: Any] {
-            let validator = ValidatorFixedList(json: fixedList)
-            validators.validators.append(validator)
-        }
-        if input.index(forKey: "emailAddress") != nil {
-            let validator = ValidatorEmailAddress()
-            validators.validators.append(validator)
-        }
-        if let regularExpression = input["regularExpression"] as? [String: Any],
-            let validator = ValidatorRegularExpression(json: regularExpression) {
-            validators.validators.append(validator)
-        }
-        if (input["termsAndConditions"] as? [String: Any]) != nil {
-            let validator = ValidatorTermsAndConditions()
-            validators.validators.append(validator)
-        }
-        if (input["iban"] as? [String: Any]) != nil {
-            let validator = ValidatorIBAN()
-            validators.validators.append(validator)
-        }
     }
 
     private func setValidators(validatorsContainer: inout UnkeyedDecodingContainer) {

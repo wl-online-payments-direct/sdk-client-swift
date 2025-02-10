@@ -1,7 +1,7 @@
 //
 // Do not remove or alter the notices in this preamble.
 // This software code is created for Online Payments on 16/07/2020
-// Copyright © 2020 Global Collect Services. All rights reserved.
+// Copyright © 2025 Global Collect Services. All rights reserved.
 // 
 
 import XCTest
@@ -281,12 +281,12 @@ class SessionTestCase: XCTestCase {
     private func checkPaymentProductWithNetworks(product: PaymentProduct, isApplePay: Bool) {
         XCTAssertEqual(product.identifier, isApplePay ? "302" : "320", "Received product id not as expected")
         XCTAssertEqual(
-            product.displayHintsList.first?.displayOrder,
+            product.displayHints.first?.displayOrder,
             isApplePay ? 0 : 1,
             "Received product displayOrder not as expected"
         )
         XCTAssertEqual(
-            product.displayHintsList.first?.logoPath,
+            product.displayHints.first?.logoPath,
             isApplePay ?
                 "https://example.com/templates/master/global/css/img/ppimages/pp_logo_1_v1.png" :
                 "https://example.com/templates/master/global/css/img/ppimages/pp_logo_2_v1.png",
@@ -454,7 +454,7 @@ class SessionTestCase: XCTestCase {
                 self.check(paymentProduct: cachedProduct)
 
                 // Check initializeImages
-                XCTAssertNotNil(product.displayHintsList.first?.logoImage)
+                XCTAssertNotNil(product.displayHints.first?.logoImage)
 
                 expectation.fulfill()
             },
@@ -474,12 +474,12 @@ class SessionTestCase: XCTestCase {
     fileprivate func check(paymentProduct product: PaymentProduct) {
         XCTAssertEqual(product.identifier, "1", "Received product id not as expected")
         XCTAssertEqual(
-            product.displayHintsList.first?.displayOrder,
+            product.displayHints.first?.displayOrder,
             20,
             "Received product displayOrder not as expected"
         )
         XCTAssertEqual(
-            product.displayHintsList.first?.logoPath,
+            product.displayHints.first?.logoPath,
             "https://example.com/templates/master/global/css/img/ppimages/pp_logo_1_v1.png",
             "Received product logoPath not as expected"
         )

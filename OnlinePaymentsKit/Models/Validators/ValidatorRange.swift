@@ -7,7 +7,7 @@
 import Foundation
 
 @objc(OPValidatorRange)
-public class ValidatorRange: Validator, ValidationRule, ResponseObjectSerializable {
+public class ValidatorRange: Validator, ValidationRule {
     @objc public var minValue = 0
     @objc public var maxValue = 0
     @objc public var formatter = NumberFormatter()
@@ -15,18 +15,6 @@ public class ValidatorRange: Validator, ValidationRule, ResponseObjectSerializab
     internal init(minValue: Int?, maxValue: Int?) {
         self.minValue = minValue ?? 0
         self.maxValue = maxValue ?? 0
-
-        super.init(messageId: "range", validationType: .range)
-    }
-
-    @available(*, deprecated, message: "In a future release, this initializer will be removed.")
-    @objc required public init(json: [String: Any]) {
-        if let input = json["maxValue"] as? Int {
-            maxValue = input
-        }
-        if let input = json["minValue"] as? Int {
-            minValue = input
-        }
 
         super.init(messageId: "range", validationType: .range)
     }
@@ -50,15 +38,6 @@ public class ValidatorRange: Validator, ValidationRule, ResponseObjectSerializab
         try? container.encode(maxValue, forKey: .maxValue)
     }
 
-    @available(
-        *,
-        deprecated,
-        message: "In a future release, this function will be removed. Please use validate(field:in:) instead."
-    )
-    @objc(validate:forPaymentRequest:)
-    public override func validate(value: String, for request: PaymentRequest) {
-        _ = validate(value: value)
-    }
     @objc public func validate(field fieldId: String, in request: PaymentRequest) -> Bool {
         guard let fieldValue = request.getValue(forField: fieldId) else {
             return false
