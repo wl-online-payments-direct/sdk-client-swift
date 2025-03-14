@@ -91,7 +91,7 @@ class PaymentItemsTestCase: XCTestCase {
                         "paymentProductGroup": "cards",
                         "accountsOnFile": [
                             [
-                                "id": 1,
+                                "id": "1",
                                 "paymentProductId": 3,
                                 "displayHints": [
                                     [
@@ -113,7 +113,7 @@ class PaymentItemsTestCase: XCTestCase {
                                 ]
                             ],
                             [
-                                "id": 2,
+                                "id": "2",
                                 "paymentProductId": 4
                             ]
                         ]
@@ -136,11 +136,11 @@ class PaymentItemsTestCase: XCTestCase {
                         "id": "cards",
                         "accountsOnFile": [
                             [
-                                "id": 1,
+                                "id": "1",
                                 "paymentProductId": 3
                             ],
                             [
-                                "id": 2,
+                                "id": "2",
                                 "paymentProductId": 4
                             ]
                         ]
@@ -213,13 +213,13 @@ class PaymentItemsTestCase: XCTestCase {
         let accountOnFileEmpty = try? JSONDecoder().decode(AccountOnFile.self, from: accountOnFileEmptyJSON)
         XCTAssertTrue(accountOnFileEmpty == nil, "Init of the account on file should have failed.")
 
-        let accountOnFileIdStringIdJSON = Data("""
+        let accountOnFileNoProductIdJSON = Data("""
         {
             "id": "string id"
         }
         """.utf8)
-        let accountOnFileIdStringId = try? JSONDecoder().decode(AccountOnFile.self, from: accountOnFileIdStringIdJSON)
-        XCTAssertTrue(accountOnFileIdStringId == nil, "Init of the account on file should have failed.")
+        let accountOnFileNoProductId = try? JSONDecoder().decode(AccountOnFile.self, from: accountOnFileNoProductIdJSON)
+        XCTAssertTrue(accountOnFileNoProductId == nil, "Init of the account on file should have failed.")
     }
 
     func allPaymentItems(basicItems: [BasicPaymentItem]) {

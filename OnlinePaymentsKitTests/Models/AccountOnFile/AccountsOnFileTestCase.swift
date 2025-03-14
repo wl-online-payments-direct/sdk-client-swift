@@ -18,14 +18,14 @@ class AccountsOnFileTestCase: XCTestCase {
 
         let account1JSON = Data("""
         {
-            "id": 1,
+            "id": "1",
             "paymentProductId": 1
         }
         """.utf8)
 
         let account2JSON = Data("""
         {
-            "id": 2,
+            "id": "2",
             "paymentProductId": 2
         }
         """.utf8)
@@ -179,6 +179,5 @@ class AccountsOnFileTestCase: XCTestCase {
         XCTAssertEqual(foundValue, attr2.value, "Values are not equal.")
 
         XCTAssertTrue(account1.attributes.value(forField: "999").isEmpty, "Value should have been empty.")
-
     }
 }

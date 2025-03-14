@@ -52,7 +52,7 @@ class PaymentRequestTestCase: XCTestCase {
 
         let accountJSON = Data("""
         {
-            "id": 1,
+            "id": "1",
             "paymentProductId": 1,
             "attributes": [
                 {

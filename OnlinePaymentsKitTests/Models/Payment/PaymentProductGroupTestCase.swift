@@ -35,7 +35,7 @@ class PaymentProductGroupTestCase: XCTestCase {
         for index in 1..<6 {
             let accountOnFileJSON = Data("""
             {
-                "id": \(index),
+                "id": "\(index)",
                 "paymentProductId": \(index)
             }
             """.utf8)

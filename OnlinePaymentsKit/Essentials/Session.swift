@@ -347,9 +347,8 @@ public class Session: NSObject {
             jsonDict["paymentProductId"] = productId
         }
 
-        if let accountOnFile = paymentRequest.accountOnFile,
-           let accountId = Int(accountOnFile.identifier) {
-            jsonDict["accountOnFileId"] = accountId
+        if let accountOnFile = paymentRequest.accountOnFile {
+            jsonDict["accountOnFileId"] = accountOnFile.identifier
         }
 
         if paymentRequest.tokenize {

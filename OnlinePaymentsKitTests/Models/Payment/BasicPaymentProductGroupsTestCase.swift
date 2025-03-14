@@ -27,7 +27,7 @@ class BasicPaymentProductGroupsTestCase: XCTestCase {
                     "logo": "/templates/master/global/css/img/ppimages/pp_logo_1_v1.png"
                 ]],
                 "accountsOnFile": [[
-                    "id": index,
+                    "id": "\(index)",
                     "paymentProductId": index
                 ]]
             ] as [String: Any]
@@ -59,7 +59,7 @@ class BasicPaymentProductGroupsTestCase: XCTestCase {
 
         let testAccountOnFileJSON = Data("""
         {
-            "id": 1,
+            "id": "1",
             "paymentProductId": 1
         }
         """.utf8)

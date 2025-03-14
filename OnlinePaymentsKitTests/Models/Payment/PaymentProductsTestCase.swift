@@ -33,7 +33,7 @@ class PaymentProductsTestCase: XCTestCase {
             }],
             "usesRedirectionTo3rdParty": false,
             "accountsOnFile": [{
-                "id": 1,
+                "id": "1",
                 "paymentProductId": 1
             }]
         }
