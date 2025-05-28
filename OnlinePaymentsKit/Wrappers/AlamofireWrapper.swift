@@ -7,9 +7,41 @@
 import Alamofire
 import Foundation
 
+/// A simple wrapper to safely treat IndexSet as Sendable on iOS < 16.
+struct SendableIndexSet: @unchecked Sendable, Sequence {
+    var indexSet: IndexSet
+
+    init(integersIn range: Range<Int>) {
+        self.indexSet = IndexSet(integersIn: range)
+    }
+
+    init(_ indexSet: IndexSet) {
+        self.indexSet = indexSet
+    }
+
+    mutating func formUnion(_ other: IndexSet) {
+        indexSet.formUnion(other)
+    }
+
+    func makeIterator() -> IndexSet.Iterator {
+        indexSet.makeIterator()
+    }
+}
+
+
 internal class AlamofireWrapper {
 
     static let shared = AlamofireWrapper()
+
+    private func getAcceptableStatusCodes(additionalStatusCodes: IndexSet?) -> SendableIndexSet {
+        var acceptableStatusCodes = SendableIndexSet(integersIn: 200..<300)
+
+        if let extra = additionalStatusCodes {
+            acceptableStatusCodes.formUnion(extra)
+        }
+
+        return acceptableStatusCodes
+    }
 
     // swiftlint:disable function_parameter_count
     internal func getResponse<T: Codable>(forURL URL: String,
@@ -20,14 +52,9 @@ internal class AlamofireWrapper {
                                           failure: @escaping (_ error: Error) -> Void,
                                           apiFailure: ((_ errorResponse: ErrorResponse) -> Void)? = nil) {
 
-        let acceptableStatusCodes = NSMutableIndexSet(indexesIn: NSRange(location: 200, length: 100))
-        if let additionalAcceptableStatusCodes = additionalAcceptableStatusCodes {
-            acceptableStatusCodes.add(additionalAcceptableStatusCodes)
-        }
-
         AF
             .request(URL, method: .get, parameters: parameters, headers: headers)
-            .validate(statusCode: acceptableStatusCodes)
+            .validate(statusCode: getAcceptableStatusCodes(additionalStatusCodes: additionalAcceptableStatusCodes))
             .responseDecodable(of: T.self) { response in
                 if let error = response.error {
                     if error.responseCode != nil {
@@ -58,14 +85,9 @@ internal class AlamofireWrapper {
                                            failure: @escaping (_ error: Error) -> Void,
                                            apiFailure: ((_ errorResponse: ErrorResponse) -> Void)? = nil) {
 
-        let acceptableStatusCodes = NSMutableIndexSet(indexesIn: NSRange(location: 200, length: 100))
-        if let additionalAcceptableStatusCodes = additionalAcceptableStatusCodes {
-            acceptableStatusCodes.add(additionalAcceptableStatusCodes)
-        }
-
         AF
             .request(URL, method: .post, parameters: parameters, encoding: JSONEncoding.default, headers: headers)
-            .validate(statusCode: acceptableStatusCodes)
+            .validate(statusCode: getAcceptableStatusCodes(additionalStatusCodes: additionalAcceptableStatusCodes))
             .responseDecodable(of: T.self) { response in
                 if let error = response.error {
                     if error.responseCode != nil {

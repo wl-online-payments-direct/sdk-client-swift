@@ -77,8 +77,8 @@ internal class Encryptor {
     func encryptRSA(plaintext: [UInt8], publicKey: SecKey) throws -> [UInt8] {
         let dataToEncrypt = Data(plaintext)
         
-        let algorithm: SecKeyAlgorithm = .rsaEncryptionOAEPSHA512
-        
+        let algorithm: SecKeyAlgorithm = .rsaEncryptionOAEPSHA1
+
         guard SecKeyIsAlgorithmSupported(publicKey, .encrypt, algorithm) else {
             Logger.log("Algorithm not supported for the provided public key.")
             throw EncryptDataError.algorithmNotSupported
@@ -105,8 +105,8 @@ internal class Encryptor {
     func decryptRSA(ciphertext: [UInt8], privateKey: SecKey) throws -> [UInt8] {
         let dataToDecrypt = Data(ciphertext)
         
-        let algorithm: SecKeyAlgorithm = .rsaEncryptionOAEPSHA512
-        
+        let algorithm: SecKeyAlgorithm = .rsaEncryptionOAEPSHA1
+
         guard SecKeyIsAlgorithmSupported(privateKey, .decrypt, algorithm) else {
             throw EncryptDataError.algorithmNotSupported
         }

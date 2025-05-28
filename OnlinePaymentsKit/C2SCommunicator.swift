@@ -48,16 +48,16 @@ internal class C2SCommunicator {
             forURL: url,
             withParameters: params,
             success: { (responseObject: BasicPaymentProducts?) in
-                guard var paymentProductsResponse = responseObject else {
+                guard let paymentProductsResponse = responseObject else {
                     failure(SessionError.RuntimeError("Response was empty."))
                     return
                 }
 
-                paymentProductsResponse = strongSelf.checkApplePayAvailability(
+                strongSelf.checkApplePayAvailability(
                     with: paymentProductsResponse,
                     for: context,
-                    success: {
-                        success(paymentProductsResponse)
+                    success: { products in
+                        success(products)
                     }, failure: { error in
                         failure(error)
                     }, apiFailure: { errorResponse in
@@ -73,11 +73,10 @@ internal class C2SCommunicator {
     func checkApplePayAvailability(
         with paymentProducts: BasicPaymentProducts,
         for context: PaymentContext,
-        success: @escaping () -> Void,
+        success: @escaping (_ paymentProducts: BasicPaymentProducts) -> Void,
         failure: @escaping (_ error: Error) -> Void,
         apiFailure: ((_ errorResponse: ErrorResponse) -> Void)? = nil
-    ) -> BasicPaymentProducts {
-
+    ) {
         if let applePayPaymentProduct = paymentProducts.paymentProduct(withIdentifier: SDKConstants.kApplePayIdentifier) {
 
             if SDKConstants.systemVersionGreaterThanOrEqualTo("8.0") && PKPaymentAuthorizationViewController.canMakePayments() {
@@ -91,7 +90,7 @@ internal class C2SCommunicator {
                            ) {
                             paymentProducts.paymentProducts.remove(at: product)
                         }
-                        success()
+                        success(paymentProducts)
                     },
                     failure: failure,
                     apiFailure: apiFailure
@@ -101,13 +100,11 @@ internal class C2SCommunicator {
                     paymentProducts.paymentProducts.remove(at: product)
                 }
 
-                success()
+                success(paymentProducts)
             }
         } else {
-            success()
+            success(paymentProducts)
         }
-
-        return paymentProducts
     }
 
     func paymentProductNetworks(

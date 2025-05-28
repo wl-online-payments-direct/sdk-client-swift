@@ -5,6 +5,7 @@
 // 
 
 import XCTest
+import PassKit
 import OHHTTPStubs
 import OHHTTPStubsSwift
 
@@ -28,15 +29,26 @@ class C2SCommunicatorTestCase: XCTestCase {
 
         let applePaymentProductJSON = Data("""
         {
+            "allowsRecurring": false,
+            "allowsTokenization": false,
+            "displayHints": {
+                "displayOrder": 2,
+                "label": "APPLEPAY",
+                "logo": "https://assets.test.cdn.v-psp.com/hpp/44df01245ad87dda3dcf/images/pm/APPLEPAY.gif"
+            },
+            "displayHintsList": [
+                {
+                    "displayOrder": 2,
+                    "label": "APPLEPAY",
+                    "logo": "https://assets.test.cdn.v-psp.com/hpp/44df01245ad87dda3dcf/images/pm/APPLEPAY.gif"
+                }
+            ],
             "fields": [],
             "id": \(Int(SDKConstants.kApplePayIdentifier)!),
-            "paymentMethod": "card",
-            "displayHints": {
-                "displayOrder": 20,
-                "label": "Visa",
-                "logo": "/templates/master/global/css/img/ppimages/pp_logo_1_v1.png"
-            },
-            "usesRedirectionTo3rdParty": false
+            "paymentMethod": "mobile",
+            "usesRedirectionTo3rdParty": false,
+            "paymentProduct302SpecificData": { "networks": ["Visa", "MasterCard"] },
+            "allowsAuthentication": false
         }
         """.utf8)
 
@@ -58,10 +70,10 @@ class C2SCommunicatorTestCase: XCTestCase {
 
         let expectation = self.expectation(description: "Response provided")
 
-        _ = communicator.checkApplePayAvailability(
+        communicator.checkApplePayAvailability(
             with: paymentProducts,
             for: context,
-            success: {
+            success: { _ in
                 expectation.fulfill()
             },
             failure: { (error) in
@@ -95,12 +107,12 @@ class C2SCommunicatorTestCase: XCTestCase {
 
         let expectation = self.expectation(description: "Response provided")
 
-        _ = communicator.checkApplePayAvailability(
+        communicator.checkApplePayAvailability(
             with: paymentProducts,
             for: context,
-            success: {
+            success: { (products) in
+                XCTAssertEqual(products.paymentProducts.count, 1)
                 expectation.fulfill()
-
             },
             failure: { (error) in
                 XCTFail("Unexpected failure while testing checkApplePayAvailability: \(error.localizedDescription)")
