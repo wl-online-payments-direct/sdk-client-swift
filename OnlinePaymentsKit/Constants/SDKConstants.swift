@@ -13,7 +13,7 @@ public class SDKConstants: NSObject {
     internal static let kApplePayIdentifier = "302"
 
     internal static let kApiBase = "client/"
-    internal static let kSDKIdentifier = "SwiftClientSDK/v4.1.0"
+    internal static let kSDKIdentifier = "SwiftClientSDK/v4.1.1"
 
 #if SWIFT_PACKAGE
     @objc(kOPSDKBundlePath)

@@ -680,4 +680,5 @@ class SessionTestCase: XCTestCase {
     func testClientSessionId() {
         XCTAssertEqual(session.clientSessionId, "client-session-id")
     }
+
 }

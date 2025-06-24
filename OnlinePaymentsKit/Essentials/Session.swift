@@ -117,7 +117,7 @@ public class Session: NSObject {
         failure: ((_ error: Error) -> Void)? = nil,
         apiFailure: ((_ errorResponse: ErrorResponse) -> Void)? = nil
     ) {
-        let strongSelf = self;
+        let strongSelf = self
         communicator.paymentProducts(
             forContext: context,
             success: { paymentProducts in
@@ -165,7 +165,7 @@ public class Session: NSObject {
         failure: ((_ error: Error) -> Void)? = nil,
         apiFailure: ((_ errorResponse: ErrorResponse) -> Void)? = nil
     ) {
-        let strongSelf = self;
+        let strongSelf = self
         communicator.paymentProducts(
             forContext: context,
             success: { paymentProducts in
@@ -202,7 +202,7 @@ public class Session: NSObject {
             return
         }
 
-        let strongSelf = self;
+        let strongSelf = self
         communicator.paymentProduct(
             withIdentifier: paymentProductId,
             context: context,
@@ -234,7 +234,7 @@ public class Session: NSObject {
             success?(response)
         } else {
             iinLookupPending = true
-            let strongSelf = self;
+            let strongSelf = self
             communicator.paymentProductId(
                 byPartialCreditCardNumber: partialCreditCardNumber,
                 context: context,
@@ -277,7 +277,7 @@ public class Session: NSObject {
         failure: ((_ error: Error) -> Void)? = nil,
         apiFailure: ((_ errorResponse: ErrorResponse) -> Void)? = nil
     ) {
-        let strongSelf = self;
+        let strongSelf = self
         self.publicKey(
             success: { publicKeyResponse in
                 do {
@@ -310,7 +310,10 @@ public class Session: NSObject {
 
                     let encodedClientMetaInfo = strongSelf.communicator.base64EncodedClientMetaInfo
 
-                    let preparedRequest = PreparedPaymentRequest(encryptedFields: encryptedFields, encodedClientMetaInfo: encodedClientMetaInfo)
+                    let preparedRequest = PreparedPaymentRequest(
+                        encryptedFields: encryptedFields,
+                        encodedClientMetaInfo: encodedClientMetaInfo
+                    )
 
                     success?(preparedRequest)
                 } catch let error as EncryptorError {
@@ -340,7 +343,7 @@ public class Session: NSObject {
 
         var jsonDict: [String: Any] = [
             "clientSessionId": clientSessionId,
-            "nonce": self.encryptor.generateUUID()
+            "nonce": self.encryptor.generateUUID(),
         ]
 
         if let productId = Int(paymentProduct.identifier) {
@@ -360,7 +363,8 @@ public class Session: NSObject {
         }
 
         if let jsonData = try? JSONSerialization.data(withJSONObject: jsonDict, options: []),
-           let jsonString = String(data: jsonData, encoding: .utf8) {
+            let jsonString = String(data: jsonData, encoding: .utf8)
+        {
             return jsonString
         }
 
@@ -394,7 +398,8 @@ public class Session: NSObject {
             },
             apiFailure: { errorResponse in
                 apiFailure?(errorResponse)
-            })
+            }
+        )
     }
 
     @objc public func currencyConversionQuote(
@@ -474,7 +479,7 @@ public class Session: NSObject {
 
     private func keyValuePairs(from dictionary: [String: String]) -> [[String: String]] {
         var keyValuePairs = [[String: String]]()
-        for (key, value) in  dictionary {
+        for (key, value) in dictionary {
             let pair = ["key": key, "value": value]
             keyValuePairs.append(pair)
         }
@@ -482,16 +487,19 @@ public class Session: NSObject {
         return keyValuePairs
     }
 
-    private func setLogoForPaymentItems(for paymentItems: [BasicPaymentItem], completion: @escaping() -> Void) {
+    private func setLogoForPaymentItems(for paymentItems: [BasicPaymentItem], completion: @escaping () -> Void) {
         var counter = 0
         for paymentItem in paymentItems {
             if paymentItem.displayHints.isEmpty == false {
-                setLogoForDisplayHints(for: paymentItem.displayHints, completion: {
-                    counter += 1
-                    if counter == paymentItems.count {
-                        completion()
+                setLogoForDisplayHints(
+                    for: paymentItem.displayHints,
+                    completion: {
+                        counter += 1
+                        if counter == paymentItems.count {
+                            completion()
+                        }
                     }
-                })
+                )
             } else {
                 counter += 1
                 if counter == paymentItems.count {
@@ -503,7 +511,7 @@ public class Session: NSObject {
 
     internal func setLogoForDisplayHints(
         for displayHints: [PaymentItemDisplayHints],
-        completion: @escaping() -> Void
+        completion: @escaping () -> Void
     ) {
         var counter = 0
         for displayHint in displayHints {
@@ -536,10 +544,13 @@ public class Session: NSObject {
             return
         }
 
-        URLSession.shared.dataTask(with: encodedUrl, completionHandler: {data, response, error in
-            DispatchQueue.main.async {
-                completion(data, response, error)
+        URLSession.shared.dataTask(
+            with: encodedUrl,
+            completionHandler: { data, response, error in
+                DispatchQueue.main.async {
+                    completion(data, response, error)
+                }
             }
-        }).resume()
+        ).resume()
     }
 }

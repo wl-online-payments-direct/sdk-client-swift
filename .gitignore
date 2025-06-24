@@ -98,3 +98,5 @@ iOSInjectionProject/
 # xcframework dist folder
 archives
 .dist
+.swiftpm/xcode/xcshareddata/xcschemes/
+*.xcschemes
