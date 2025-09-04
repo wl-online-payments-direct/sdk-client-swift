@@ -2,11 +2,11 @@
 // Do not remove or alter the notices in this preamble.
 // This software code is created for Online Payments on 16/07/2020
 // Copyright © 2025 Global Collect Services. All rights reserved.
-// 
+//
 
-import XCTest
 import OHHTTPStubs
 import OHHTTPStubsSwift
+import XCTest
 
 @testable import OnlinePaymentsKit
 
@@ -31,6 +31,71 @@ class SessionTestCase: XCTestCase {
             countryCode: "NL"
         )
 
+    let paymentProductResponseStub: [String: Any] = [
+        "paymentProducts": [
+            [
+                "id": Int(SDKConstants.kMaestroIdentifier)!,
+                "displayHintsList": [
+                    [
+                        "displayOrder": 1,
+                        "label": "Maestro",
+                        "logo": "https://example.com/maestro.png",
+                    ]
+                ],
+                "paymentMethod": "card",
+                "usesRedirectionTo3rdParty": false,
+            ],
+            [
+                "id": Int(SDKConstants.kIntersolveIdentifier)!,
+                "displayHintsList": [
+                    [
+                        "displayOrder": 2,
+                        "label": "Intersolve",
+                        "logo": "https://example.com/intersolve.png",
+                    ]
+                ],
+                "paymentMethod": "card",
+                "usesRedirectionTo3rdParty": false,
+            ],
+            [
+                "id": Int(SDKConstants.kSodexoSportCultureIdentifier)!,
+                "displayHintsList": [
+                    [
+                        "displayOrder": 3,
+                        "label": "Sodexo Sport Culture",
+                        "logo": "https://example.com/sodexo.png",
+                    ]
+                ],
+                "paymentMethod": "card",
+                "usesRedirectionTo3rdParty": false,
+            ],
+            [
+                "id": Int(SDKConstants.kVVVGiftCardIdentifier)!,
+                "displayHintsList": [
+                    [
+                        "displayOrder": 4,
+                        "label": "VVV Gift Card",
+                        "logo": "https://example.com/vvv.png",
+                    ]
+                ],
+                "paymentMethod": "card",
+                "usesRedirectionTo3rdParty": false,
+            ],
+            [
+                "id": 9999,
+                "displayHintsList": [
+                    [
+                        "displayOrder": 5,
+                        "label": "Test Visible Product",
+                        "logo": "https://example.com/testvisible.png",
+                    ]
+                ],
+                "paymentMethod": "card",
+                "usesRedirectionTo3rdParty": false,
+            ],
+        ]
+    ]
+
     func testPaymentProductsForContext() {
         stub(condition: isHost(host) && isPath("/client/v1/customer-id/products") && isMethodGET()) { _ in
             let response = [
@@ -41,14 +106,14 @@ class SessionTestCase: XCTestCase {
                         "displayHints": [
                             "displayOrder": 20,
                             "label": "Visa",
-                            "logo": "https://example.com/templates/master/global/css/img/ppimages/pp_logo_1_v1.png"
+                            "logo": "https://example.com/templates/master/global/css/img/ppimages/pp_logo_1_v1.png",
                         ],
                         "usesRedirectionTo3rdParty": false,
                         "id": 1,
-                        "maxAmount": 1000000,
+                        "maxAmount": 1_000_000,
                         "mobileIntegrationLevel": "OPTIMISED_SUPPORT",
                         "paymentMethod": "card",
-                        "paymentProductGroup": "cards"
+                        "paymentProductGroup": "cards",
                     ],
                     [
                         "allowsRecurring": true,
@@ -56,14 +121,14 @@ class SessionTestCase: XCTestCase {
                         "displayHints": [
                             "displayOrder": 19,
                             "label": "American Express",
-                            "logo": "https://example.com/templates/master/global/css/img/ppimages/pp_logo_2_v1.png"
+                            "logo": "https://example.com/templates/master/global/css/img/ppimages/pp_logo_2_v1.png",
                         ],
                         "usesRedirectionTo3rdParty": false,
                         "id": 2,
-                        "maxAmount": 1000000,
+                        "maxAmount": 1_000_000,
                         "mobileIntegrationLevel": "OPTIMISED_SUPPORT",
                         "paymentMethod": "card",
-                        "paymentProductGroup": "cards"
+                        "paymentProductGroup": "cards",
                     ],
                     [
                         "allowsRecurring": true,
@@ -71,15 +136,15 @@ class SessionTestCase: XCTestCase {
                         "displayHints": [
                             "displayOrder": 18,
                             "label": "MasterCard",
-                            "logo": "https://example.com/templates/master/global/css/img/ppimages/pp_logo_3_v1.png"
+                            "logo": "https://example.com/templates/master/global/css/img/ppimages/pp_logo_3_v1.png",
                         ],
                         "usesRedirectionTo3rdParty": false,
                         "id": 3,
-                        "maxAmount": 1000000,
+                        "maxAmount": 1_000_000,
                         "mobileIntegrationLevel": "OPTIMISED_SUPPORT",
                         "paymentMethod": "card",
-                        "paymentProductGroup": "cards"
-                    ]
+                        "paymentProductGroup": "cards",
+                    ],
                 ]
             ]
             return
@@ -107,64 +172,68 @@ class SessionTestCase: XCTestCase {
 
     func testPaymentProductNetworksForApplePay() {
         stub(condition: isHost(host) && isPath("/client/v1/customer-id/products/302") && isMethodGET()) { _ in
-            let response = [
-                "allowsRecurring": false,
-                "allowsTokenization": false,
-                "displayHints": [
-                    "displayOrder": 0,
-                    "label": "APPLEPAY",
-                    "logo": "https://example.com/templates/master/global/css/img/ppimages/pp_logo_1_v1.png"
-                ],
-                "displayHintsList": [[
-                    "displayOrder": 0,
-                    "label": "APPLEPAY",
-                    "logo": "https://example.com/templates/master/global/css/img/ppimages/pp_logo_1_v1.png"
-                ]],
-                "fields": [
-                    [
-                        "dataRestrictions": [
-                            "isRequired": true,
-                            "validators": []
-                        ],
-                        "displayHints": [
-                            "alwaysShow": false,
+            let response =
+                [
+                    "allowsRecurring": false,
+                    "allowsTokenization": false,
+                    "displayHints": [
+                        "displayOrder": 0,
+                        "label": "APPLEPAY",
+                        "logo": "https://example.com/templates/master/global/css/img/ppimages/pp_logo_1_v1.png",
+                    ],
+                    "displayHintsList": [
+                        [
                             "displayOrder": 0,
-                            "formElement": [
-                                "type": "text"
+                            "label": "APPLEPAY",
+                            "logo": "https://example.com/templates/master/global/css/img/ppimages/pp_logo_1_v1.png",
+                        ]
+                    ],
+                    "fields": [
+                        [
+                            "dataRestrictions": [
+                                "isRequired": true,
+                                "validators": [],
                             ],
-                            "label": "",
-                            "obfuscate": false,
-                            "placeholderLabel": "",
-                            "preferredInputType": "StringKeyboard",
-                            "tooltip": [
-                                "label": ""
-                            ]
-                        ],
-                        "id": "encryptedPaymentData",
-                        "type": "string"
-                    ]
-                ],
-                "id": 302,
-                "paymentMethod": "mobile",
-                "usesRedirectionTo3rdParty": false,
-                "paymentProduct302SpecificData": [
-                    "networks": [
-                        "Visa",
-                        "MasterCard"
-                    ]
-                ]
+                            "displayHints": [
+                                "alwaysShow": false,
+                                "displayOrder": 0,
+                                "formElement": [
+                                    "type": "text"
+                                ],
+                                "label": "",
+                                "obfuscate": false,
+                                "placeholderLabel": "",
+                                "preferredInputType": "StringKeyboard",
+                                "tooltip": [
+                                    "label": ""
+                                ],
+                            ],
+                            "id": "encryptedPaymentData",
+                            "type": "string",
+                        ]
+                    ],
+                    "id": 302,
+                    "paymentMethod": "mobile",
+                    "usesRedirectionTo3rdParty": false,
+                    "paymentProduct302SpecificData": [
+                        "networks": [
+                            "Visa",
+                            "MasterCard",
+                        ]
+                    ],
                 ] as [String: Any]
             return
                 HTTPStubsResponse(jsonObject: response, statusCode: 200, headers: ["Content-Type": "application/json"])
         }
 
         stub(condition: isHost(host) && isPath("/client/v1/customer-id/products/302/networks") && isMethodGET()) { _ in
-            let response = [
-                "networks": [
-                    "Visa",
-                    "MasterCard"
-                ]
-            ] as [String: Any]
+            let response =
+                [
+                    "networks": [
+                        "Visa",
+                        "MasterCard",
+                    ]
+                ] as [String: Any]
             return
                 HTTPStubsResponse(jsonObject: response, statusCode: 200, headers: ["Content-Type": "application/json"])
         }
@@ -193,65 +262,69 @@ class SessionTestCase: XCTestCase {
 
     func testPaymentProductNetworksForGooglePay() {
         stub(condition: isHost(host) && isPath("/client/v1/customer-id/products/320") && isMethodGET()) { _ in
-            let response = [
-                "allowsRecurring": false,
-                "allowsTokenization": false,
-                "displayHints": [
-                    "displayOrder": 1,
-                    "label": "GOOGLEPAY",
-                    "logo": "https://example.com/templates/master/global/css/img/ppimages/pp_logo_2_v1.png"
-                ],
-                "displayHintsList": [[
-                    "displayOrder": 1,
-                    "label": "GOOGLEPAY",
-                    "logo": "https://example.com/templates/master/global/css/img/ppimages/pp_logo_2_v1.png"
-                ]],
-                "fields": [
-                    [
-                        "dataRestrictions": [
-                            "isRequired": true,
-                            "validators": []
-                        ],
-                        "displayHints": [
-                            "alwaysShow": false,
-                            "displayOrder": 0,
-                            "formElement": [
-                                "type": "text"
-                            ],
-                            "label": "",
-                            "obfuscate": false,
-                            "placeholderLabel": "",
-                            "preferredInputType": "StringKeyboard",
-                            "tooltip": [
-                                "label": ""
-                            ]
-                        ],
-                        "id": "encryptedPaymentData",
-                        "type": "string"
-                    ]
-                ],
-                "id": 320,
-                "paymentMethod": "mobile",
-                "usesRedirectionTo3rdParty": false,
-                "paymentProduct320SpecificData": [
-                    "networks": [
-                        "Visa",
-                        "MasterCard"
+            let response =
+                [
+                    "allowsRecurring": false,
+                    "allowsTokenization": false,
+                    "displayHints": [
+                        "displayOrder": 1,
+                        "label": "GOOGLEPAY",
+                        "logo": "https://example.com/templates/master/global/css/img/ppimages/pp_logo_2_v1.png",
                     ],
-                    "gateway": "googlepaygateway"
-                ]
+                    "displayHintsList": [
+                        [
+                            "displayOrder": 1,
+                            "label": "GOOGLEPAY",
+                            "logo": "https://example.com/templates/master/global/css/img/ppimages/pp_logo_2_v1.png",
+                        ]
+                    ],
+                    "fields": [
+                        [
+                            "dataRestrictions": [
+                                "isRequired": true,
+                                "validators": [],
+                            ],
+                            "displayHints": [
+                                "alwaysShow": false,
+                                "displayOrder": 0,
+                                "formElement": [
+                                    "type": "text"
+                                ],
+                                "label": "",
+                                "obfuscate": false,
+                                "placeholderLabel": "",
+                                "preferredInputType": "StringKeyboard",
+                                "tooltip": [
+                                    "label": ""
+                                ],
+                            ],
+                            "id": "encryptedPaymentData",
+                            "type": "string",
+                        ]
+                    ],
+                    "id": 320,
+                    "paymentMethod": "mobile",
+                    "usesRedirectionTo3rdParty": false,
+                    "paymentProduct320SpecificData": [
+                        "networks": [
+                            "Visa",
+                            "MasterCard",
+                        ],
+                        "gateway": "googlepaygateway",
+                    ],
                 ] as [String: Any]
             return
                 HTTPStubsResponse(jsonObject: response, statusCode: 200, headers: ["Content-Type": "application/json"])
         }
 
         stub(condition: isHost(host) && isPath("/client/v1/customer-id/products/320/networks") && isMethodGET()) { _ in
-            let response = [
-                "networks": [
-                    "Visa",
-                    "MasterCard"
-                ]
-            ] as [String: Any]
+            let response =
+                [
+                    "networks": [
+                        "Visa",
+                        "MasterCard",
+                    ]
+                ] as [String: Any]
             return
                 HTTPStubsResponse(jsonObject: response, statusCode: 200, headers: ["Content-Type": "application/json"])
         }
@@ -287,9 +360,9 @@ class SessionTestCase: XCTestCase {
         )
         XCTAssertEqual(
             product.displayHints.first?.logoPath,
-            isApplePay ?
-                "https://example.com/templates/master/global/css/img/ppimages/pp_logo_1_v1.png" :
-                "https://example.com/templates/master/global/css/img/ppimages/pp_logo_2_v1.png",
+            isApplePay
+                ? "https://example.com/templates/master/global/css/img/ppimages/pp_logo_1_v1.png"
+                : "https://example.com/templates/master/global/css/img/ppimages/pp_logo_2_v1.png",
             "Received product logoPath not as expected"
         )
 
@@ -364,75 +437,81 @@ class SessionTestCase: XCTestCase {
 
     func testPaymentProductWithId() {
         stub(condition: isHost(host) && isPath("/client/v1/customer-id/products/1") && isMethodGET()) { _ in
-            let response = [
-                "allowsRecurring": true,
-                "allowsTokenization": true,
-                "displayHints": [
-                    "displayOrder": 20,
-                    "label": "Visa",
-                    "logo": "https://example.com/templates/master/global/css/img/ppimages/pp_logo_1_v1.png"
-                ],
-                "displayHintsList": [[
-                    "displayOrder": 20,
-                    "label": "Visa",
-                    "logo": "https://example.com/templates/master/global/css/img/ppimages/pp_logo_1_v1.png"
-                ]],
-                "usesRedirectionTo3rdParty": false,
-                "fields": [
-                    [
-                        "dataRestrictions": [
-                            "isRequired": true,
-                            "validators": [
-                                "length": [
-                                    "maxLength": 19,
-                                    "minLength": 12
-                                ],
-                                "luhn": [
+            let response =
+                [
+                    "allowsRecurring": true,
+                    "allowsTokenization": true,
+                    "displayHints": [
+                        "displayOrder": 20,
+                        "label": "Visa",
+                        "logo": "https://example.com/templates/master/global/css/img/ppimages/pp_logo_1_v1.png",
+                    ],
+                    "displayHintsList": [
+                        [
+                            "displayOrder": 20,
+                            "label": "Visa",
+                            "logo": "https://example.com/templates/master/global/css/img/ppimages/pp_logo_1_v1.png",
+                        ]
+                    ],
+                    "usesRedirectionTo3rdParty": false,
+                    "fields": [
+                        [
+                            "dataRestrictions": [
+                                "isRequired": true,
+                                "validators": [
+                                    "length": [
+                                        "maxLength": 19,
+                                        "minLength": 12,
+                                    ],
+                                    "luhn": [
 
-                                ], "expirationDate": [
+                                        ],
+                                    "expirationDate": [
 
+                                        ],
+                                    "regularExpression": [
+                                        "regularExpression": "(?:0[1-9]|1[0-2])[0-9]{2}"
+                                    ],
                                 ],
-                                  "regularExpression": [
-                                    "regularExpression": "(?:0[1-9]|1[0-2])[0-9]{2}"
-                                ]
-                            ]
-                        ],
-                        "displayHints": [
-                            "displayOrder": 10,
-                            "formElement": [
-                                "type": "currency"
                             ],
-                            "label": "Card number:",
-                            "mask": "{{9999}} {{9999}} {{9999}} {{9999}} {{999}}",
-                            "obfuscate": false,
-                            "placeholderLabel": "**** **** **** ****",
-                            "preferredInputType": "IntegerKeyboard",
-                            "tooltip": [
-                                "label": "Last 3 digits on the back of the card",
-                                "image": "https://example.com/templates/master/global/css/img/ppimages/ppf_cvv_v1.png"
-                            ]
-                        ],
-                        "id": "cardNumber",
-                        "type": "numericstring"
-                    ]
-                ],
-                "id": 1,
-                "maxAmount": 1000000,
-                "mobileIntegrationLevel": "OPTIMISED_SUPPORT",
-                "paymentMethod": "card",
-                "paymentProductGroup": "cards"
+                            "displayHints": [
+                                "displayOrder": 10,
+                                "formElement": [
+                                    "type": "currency"
+                                ],
+                                "label": "Card number:",
+                                "mask": "{{9999}} {{9999}} {{9999}} {{9999}} {{999}}",
+                                "obfuscate": false,
+                                "placeholderLabel": "**** **** **** ****",
+                                "preferredInputType": "IntegerKeyboard",
+                                "tooltip": [
+                                    "label": "Last 3 digits on the back of the card",
+                                    "image":
+                                        "https://example.com/templates/master/global/css/img/ppimages/ppf_cvv_v1.png",
+                                ],
+                            ],
+                            "id": "cardNumber",
+                            "type": "numericstring",
+                        ]
+                    ],
+                    "id": 1,
+                    "maxAmount": 1_000_000,
+                    "mobileIntegrationLevel": "OPTIMISED_SUPPORT",
+                    "paymentMethod": "card",
+                    "paymentProductGroup": "cards",
                 ] as [String: Any]
             return
                 HTTPStubsResponse(jsonObject: response, statusCode: 200, headers: ["Content-Type": "application/json"])
         }
 
         stub(
-            condition: isHost(host) &&
-            isPath("/templates/master/global/css/img/ppimages/ppf_cvv_v1.png") &&
-            isMethodGET()
+            condition: isHost(host) && isPath("/templates/master/global/css/img/ppimages/ppf_cvv_v1.png")
+                && isMethodGET()
         ) { _ in
-            let response = [
-                "allowsRecurring": true] as [String: Any]
+            let response =
+                [
+                    "allowsRecurring": true
+                ] as [String: Any]
             return
                 HTTPStubsResponse(jsonObject: response, statusCode: 200, headers: ["Content-Type": "application/json"])
         }
@@ -542,12 +621,11 @@ class SessionTestCase: XCTestCase {
     func testPaymentProductNetworks() {
         let productID = "1"
         stub(
-            condition: isHost("\(host)") &&
-            isPath("/client/v1/customer-id/products/\(productID)/networks") &&
-            isMethodGET()
+            condition: isHost("\(host)") && isPath("/client/v1/customer-id/products/\(productID)/networks")
+                && isMethodGET()
         ) { _ in
             let response = [
-                "networks": [ "amex", "discover", "masterCard", "visa" ]
+                "networks": ["amex", "discover", "masterCard", "visa"]
             ]
             return
                 HTTPStubsResponse(jsonObject: response, statusCode: 200, headers: ["Content-Type": "application/json"])
@@ -576,9 +654,8 @@ class SessionTestCase: XCTestCase {
     func testPaymentProductFailNetworks() {
         let productID = "1"
         stub(
-            condition: isHost("\(host)") &&
-            isPath("/client/v1/customer-id/products/\(productID)/networks") &&
-            isMethodGET()
+            condition: isHost("\(host)") && isPath("/client/v1/customer-id/products/\(productID)/networks")
+                && isMethodGET()
         ) { _ in
             return HTTPStubsResponse(jsonObject: [], statusCode: 200, headers: ["Content-Type": "application/json"])
         }
@@ -607,10 +684,11 @@ class SessionTestCase: XCTestCase {
 
         // Stub for IIN details "supported" status response
         stub(condition: isHost(host)) { _ in
-            let response = [
-                "countryCode": "RU",
-                "paymentProductId": 3,
-                "isAllowedInContext": true
+            let response =
+                [
+                    "countryCode": "RU",
+                    "paymentProductId": 3,
+                    "isAllowedInContext": true,
                 ] as [String: Any]
             return
                 HTTPStubsResponse(jsonObject: response, statusCode: 200, headers: ["Content-Type": "application/json"])
@@ -618,12 +696,17 @@ class SessionTestCase: XCTestCase {
 
         // Test too short partial credit card number
         var expectation = self.expectation(description: "Response provided")
-        session.iinDetails(forPartialCreditCardNumber: "01234", context: context, success: { iinDetailsResponse in
-            XCTAssertEqual(iinDetailsResponse.status.hashValue, IINStatus.notEnoughDigits.hashValue)
-            expectation.fulfill()
-        }, failure: { _ in
-            XCTFail("Bad response")
-        })
+        session.iinDetails(
+            forPartialCreditCardNumber: "01234",
+            context: context,
+            success: { iinDetailsResponse in
+                XCTAssertEqual(iinDetailsResponse.status.hashValue, IINStatus.notEnoughDigits.hashValue)
+                expectation.fulfill()
+            },
+            failure: { _ in
+                XCTFail("Bad response")
+            }
+        )
 
         waitForExpectations(timeout: 3) { error in
             if let error = error {
@@ -633,14 +716,19 @@ class SessionTestCase: XCTestCase {
 
         // Test a successful response with "supported" status
         expectation = self.expectation(description: "Response provided")
-        session.iinDetails(forPartialCreditCardNumber: "012345", context: context, success: { iinDetailsResponse in
-            XCTAssertEqual(iinDetailsResponse.status.hashValue, IINStatus.supported.hashValue)
-            XCTAssertEqual(iinDetailsResponse.countryCode, "RU")
-            XCTAssertEqual(iinDetailsResponse.paymentProductId, "3")
-            expectation.fulfill()
-        }, failure: { _ in
-            XCTFail("Bad response")
-        })
+        session.iinDetails(
+            forPartialCreditCardNumber: "012345",
+            context: context,
+            success: { iinDetailsResponse in
+                XCTAssertEqual(iinDetailsResponse.status.hashValue, IINStatus.supported.hashValue)
+                XCTAssertEqual(iinDetailsResponse.countryCode, "RU")
+                XCTAssertEqual(iinDetailsResponse.paymentProductId, "3")
+                expectation.fulfill()
+            },
+            failure: { _ in
+                XCTFail("Bad response")
+            }
+        )
 
         waitForExpectations(timeout: 3) { error in
             if let error = error {
@@ -650,9 +738,10 @@ class SessionTestCase: XCTestCase {
 
         // Stub for IIN details "existing but not allowed" status response
         stub(condition: isHost(host)) { _ in
-            let response = [
-                "countryCode": "RU",
-                "paymentProductId": 3
+            let response =
+                [
+                    "countryCode": "RU",
+                    "paymentProductId": 3,
                 ] as [String: Any]
             return
                 HTTPStubsResponse(jsonObject: response, statusCode: 200, headers: ["Content-Type": "application/json"])
@@ -661,14 +750,19 @@ class SessionTestCase: XCTestCase {
         // Test a successful response with "existing but not allowed" status
         expectation = self.expectation(description: "Response provided")
         session.iinLookupPending = true
-        session.iinDetails(forPartialCreditCardNumber: "426398", context: context, success: { iinDetailsResponse in
-            XCTAssertEqual(iinDetailsResponse.status.hashValue, IINStatus.existingButNotAllowed.hashValue)
-            XCTAssertEqual(iinDetailsResponse.countryCode, "RU")
-            XCTAssertEqual(iinDetailsResponse.paymentProductId, "3")
-            expectation.fulfill()
-        }, failure: { _ in
-            XCTFail("Bad response")
-        })
+        session.iinDetails(
+            forPartialCreditCardNumber: "426398",
+            context: context,
+            success: { iinDetailsResponse in
+                XCTAssertEqual(iinDetailsResponse.status.hashValue, IINStatus.existingButNotAllowed.hashValue)
+                XCTAssertEqual(iinDetailsResponse.countryCode, "RU")
+                XCTAssertEqual(iinDetailsResponse.paymentProductId, "3")
+                expectation.fulfill()
+            },
+            failure: { _ in
+                XCTFail("Bad response")
+            }
+        )
 
         waitForExpectations(timeout: 3) { error in
             if let error = error {
@@ -679,6 +773,44 @@ class SessionTestCase: XCTestCase {
 
     func testClientSessionId() {
         XCTAssertEqual(session.clientSessionId, "client-session-id")
+    }
+
+    func testFilteredPaymentItems() {
+        stub(condition: isHost(host) && isPath("/client/v1/customer-id/products") && isMethodGET()) { _ in
+            return HTTPStubsResponse(
+                jsonObject: self.paymentProductResponseStub,
+                statusCode: 200,
+                headers: ["Content-Type": "application/json"]
+            )
+        }
+
+        let expectation = self.expectation(description: "Filtered payment items")
+        session.paymentItems(
+            for: context,
+            success: { paymentItems in
+                let ids = paymentItems.paymentItems.map { $0.identifier }
+                XCTAssertFalse(ids.contains(SDKConstants.kMaestroIdentifier), "Maestro product should be filtered out")
+                XCTAssertFalse(
+                    ids.contains(SDKConstants.kIntersolveIdentifier),
+                    "Intersolve product should be filtered out"
+                )
+                XCTAssertFalse(
+                    ids.contains(SDKConstants.kSodexoSportCultureIdentifier),
+                    "Sodexo Sport & Culture product should be filtered out"
+                )
+                XCTAssertFalse(
+                    ids.contains(SDKConstants.kVVVGiftCardIdentifier),
+                    "VVV Giftcard product should be filtered out"
+                )
+                XCTAssertTrue(ids.contains("9999"), "Test Product should be present")
+                expectation.fulfill()
+            },
+            failure: { error in
+                XCTFail("Failed to fetch payment items: \(error.localizedDescription)")
+                expectation.fulfill()
+            }
+        )
+        wait(for: [expectation], timeout: 5)
     }
 
 }

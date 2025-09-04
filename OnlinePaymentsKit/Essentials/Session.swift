@@ -171,6 +171,8 @@ public class Session: NSObject {
             success: { paymentProducts in
                 if paymentProducts.paymentProducts.isEmpty {
                     success?(PaymentItems(products: paymentProducts, groups: nil))
+
+                    return
                 }
 
                 strongSelf.paymentProducts = paymentProducts
@@ -199,6 +201,7 @@ public class Session: NSObject {
 
         if let paymentProduct = paymentProductMapping[key] as? PaymentProduct {
             success?(paymentProduct)
+
             return
         }
 
@@ -489,6 +492,12 @@ public class Session: NSObject {
 
     private func setLogoForPaymentItems(for paymentItems: [BasicPaymentItem], completion: @escaping () -> Void) {
         var counter = 0
+        if paymentItems.isEmpty {
+            completion()
+
+            return
+        }
+
         for paymentItem in paymentItems {
             if paymentItem.displayHints.isEmpty == false {
                 setLogoForDisplayHints(

@@ -26,7 +26,7 @@ internal class C2SCommunicator {
     var headers: HTTPHeaders {
         return [
             "Authorization": "GCS v1Client:\(clientSessionId)",
-            "X-GCS-ClientMetaInfo": base64EncodedClientMetaInfo
+            "X-GCS-ClientMetaInfo": base64EncodedClientMetaInfo,
         ]
     }
 
@@ -43,14 +43,20 @@ internal class C2SCommunicator {
         let url = getApiUrl(path: "/products")
         let params = buildParameters(for: context)
 
-        let strongSelf = self;
+        let strongSelf = self
         getResponse(
             forURL: url,
             withParameters: params,
             success: { (responseObject: BasicPaymentProducts?) in
-                guard let paymentProductsResponse = responseObject else {
+                guard let paymentProductsResponse = responseObject
+                else {
                     failure(SessionError.RuntimeError("Response was empty."))
+
                     return
+                }
+
+                paymentProductsResponse.paymentProducts = paymentProductsResponse.paymentProducts.filter {
+                    !SDKConstants.unsupportedPaymentProducts.contains($0.identifier)
                 }
 
                 strongSelf.checkApplePayAvailability(
@@ -58,9 +64,11 @@ internal class C2SCommunicator {
                     for: context,
                     success: { products in
                         success(products)
-                    }, failure: { error in
+                    },
+                    failure: { error in
                         failure(error)
-                    }, apiFailure: { errorResponse in
+                    },
+                    apiFailure: { errorResponse in
                         apiFailure?(errorResponse)
                     }
                 )
@@ -77,17 +85,21 @@ internal class C2SCommunicator {
         failure: @escaping (_ error: Error) -> Void,
         apiFailure: ((_ errorResponse: ErrorResponse) -> Void)? = nil
     ) {
-        if let applePayPaymentProduct = paymentProducts.paymentProduct(withIdentifier: SDKConstants.kApplePayIdentifier) {
+        if let applePayPaymentProduct = paymentProducts.paymentProduct(withIdentifier: SDKConstants.kApplePayIdentifier)
+        {
 
-            if SDKConstants.systemVersionGreaterThanOrEqualTo("8.0") && PKPaymentAuthorizationViewController.canMakePayments() {
+            if SDKConstants.systemVersionGreaterThanOrEqualTo("8.0")
+                && PKPaymentAuthorizationViewController.canMakePayments()
+            {
                 paymentProductNetworks(
                     forProduct: SDKConstants.kApplePayIdentifier,
                     context: context,
-                    success: {(_ paymentProductNetworks: PaymentProductNetworks) -> Void in
+                    success: { (_ paymentProductNetworks: PaymentProductNetworks) -> Void in
                         if let product = paymentProducts.paymentProducts.firstIndex(of: applePayPaymentProduct),
-                           !PKPaymentAuthorizationViewController.canMakePayments(
-                            usingNetworks: paymentProductNetworks.paymentProductNetworks
-                           ) {
+                            !PKPaymentAuthorizationViewController.canMakePayments(
+                                usingNetworks: paymentProductNetworks.paymentProductNetworks
+                            )
+                        {
                             paymentProducts.paymentProducts.remove(at: product)
                         }
                         success(paymentProducts)
@@ -114,10 +126,6 @@ internal class C2SCommunicator {
         failure: @escaping (_ error: Error) -> Void,
         apiFailure: ((_ errorResponse: ErrorResponse) -> Void)? = nil
     ) {
-        if context.locale.isEmpty {
-            failure(SessionError.RuntimeError("Locale was nil."))
-            return
-        }
 
         let URL = getApiUrl(path: "/products/\(paymentProductId)/networks")
 
@@ -128,8 +136,10 @@ internal class C2SCommunicator {
             forURL: URL,
             withParameters: params,
             success: { (responseObject: PaymentProductNetworks?) in
-                guard let productNetworksResponse = responseObject else {
+                guard let productNetworksResponse = responseObject
+                else {
                     failure(SessionError.RuntimeError("Response was empty."))
+
                     return
                 }
 
@@ -147,11 +157,11 @@ internal class C2SCommunicator {
         failure: @escaping (_ error: Error) -> Void,
         apiFailure: ((_ errorResponse: ErrorResponse) -> Void)? = nil
     ) {
-        let strongSelf = self;
+        let strongSelf = self
         checkAvailability(
             forProduct: paymentProductId,
             context: context,
-            success: {() -> Void in
+            success: { () -> Void in
                 let URL = strongSelf.getApiUrl(path: "/products/\(paymentProductId)/")
                 let params = strongSelf.buildParameters(for: context)
 
@@ -159,8 +169,10 @@ internal class C2SCommunicator {
                     forURL: URL,
                     withParameters: params,
                     success: { (responseObject: PaymentProduct?) in
-                        guard let paymentProductResponse = responseObject else {
+                        guard let paymentProductResponse = responseObject
+                        else {
                             failure(SessionError.RuntimeError("Response was empty."))
+
                             return
                         }
 
@@ -203,9 +215,9 @@ internal class C2SCommunicator {
                 }
             }
 
-            if fieldId ==
-                CARD_NUMBER_FIELD_ID &&
-                (paymentProductField.displayHints.mask == nil || paymentProductField.displayHints.mask!.isEmpty) {
+            if fieldId == CARD_NUMBER_FIELD_ID
+                && (paymentProductField.displayHints.mask == nil || paymentProductField.displayHints.mask!.isEmpty)
+            {
                 if paymentProduct.identifier == AMEX_PRODUCT_ID {
                     paymentProductField.displayHints.mask = AMEX_CARD_NUMBER_MASK
                 } else {
@@ -223,13 +235,14 @@ internal class C2SCommunicator {
         apiFailure: ((_ errorResponse: ErrorResponse) -> Void)? = nil
     ) {
         if paymentProductId == SDKConstants.kApplePayIdentifier {
-            if SDKConstants.systemVersionGreaterThanOrEqualTo("8.0") &&
-                PKPaymentAuthorizationViewController.canMakePayments() {
-                let strongSelf = self;
+            if SDKConstants.systemVersionGreaterThanOrEqualTo("8.0")
+                && PKPaymentAuthorizationViewController.canMakePayments()
+            {
+                let strongSelf = self
                 paymentProductNetworks(
                     forProduct: SDKConstants.kApplePayIdentifier,
                     context: context,
-                    success: {(_ paymentProductNetworks: PaymentProductNetworks) -> Void in
+                    success: { (_ paymentProductNetworks: PaymentProductNetworks) -> Void in
                         if !PKPaymentAuthorizationViewController.canMakePayments(
                             usingNetworks: paymentProductNetworks.paymentProductNetworks
                         ) {
@@ -244,6 +257,8 @@ internal class C2SCommunicator {
             } else {
                 failure(badRequestError(forProduct: paymentProductId, context: context))
             }
+        } else if SDKConstants.unsupportedPaymentProducts.contains(paymentProductId) {
+            failure(SessionError.RuntimeError("Response was empty."))
         } else {
             success()
         }
@@ -262,7 +277,7 @@ internal class C2SCommunicator {
                     )!,
                 "NSErrorFailingURLKey": url,
                 "com.alamofire.serialization.response.error.data": Data(),
-                "NSLocalizedDescription": "Request failed: bad request (400)"
+                "NSLocalizedDescription": "Request failed: bad request (400)",
             ] as [String: Any]
 
         let error =
@@ -279,7 +294,8 @@ internal class C2SCommunicator {
         let urlParameters = buildParameters(for: context)
             .map { key, value in
                 let encodedKey = key.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? key
-                let encodedValue = "\(value)".addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "\(value)"
+                let encodedValue =
+                    "\(value)".addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "\(value)"
 
                 return "\(encodedKey)=\(encodedValue)"
             }.joined(separator: "&")
@@ -295,9 +311,11 @@ internal class C2SCommunicator {
         let URL = getApiUrl(path: "/crypto/publickey")
         getResponse(
             forURL: URL,
-            success: {(_ responseObject: PublicKeyResponse?) -> Void in
-                guard let publicKeyResponse = responseObject else {
+            success: { (_ responseObject: PublicKeyResponse?) -> Void in
+                guard let publicKeyResponse = responseObject
+                else {
                     failure(SessionError.RuntimeError("Response was empty."))
+
                     return
                 }
 
@@ -327,8 +345,8 @@ internal class C2SCommunicator {
                 "countryCode": context.countryCode,
                 "amountOfMoney": [
                     "amount": String(context.amountOfMoney.totalAmount),
-                    "currencyCode": context.amountOfMoney.currencyCode
-                ]
+                    "currencyCode": context.amountOfMoney.currencyCode,
+                ],
             ]
         }
 
@@ -337,9 +355,11 @@ internal class C2SCommunicator {
             forURL: URL,
             withParameters: parameters,
             additionalAcceptableStatusCodes: additionalAcceptableStatusCodes,
-            success: {(responseObject: IINDetailsResponse?) -> Void in
-                guard let iinDetailsResponse = responseObject else {
+            success: { (responseObject: IINDetailsResponse?) -> Void in
+                guard let iinDetailsResponse = responseObject
+                else {
                     failure(SessionError.RuntimeError("Response was empty."))
+
                     return
                 }
 
@@ -378,16 +398,18 @@ internal class C2SCommunicator {
             "cardSource": getCardSourceParameter(cardSource: cardSource),
             "transaction": [
                 "amount": getAmountOfMoneyParameter(amountOfMoney: amountOfMoney)
-            ]
+            ],
         ]
 
         postResponse(
             forURL: URL,
             withParameters: parameters,
             additionalAcceptableStatusCodes: nil,
-            success: {(responseObject: CurrencyConversionResponse?) -> Void in
-                guard let currencyConversionResponse = responseObject else {
+            success: { (responseObject: CurrencyConversionResponse?) -> Void in
+                guard let currencyConversionResponse = responseObject
+                else {
                     failure(SessionError.RuntimeError("Response was empty."))
+
                     return
                 }
 
@@ -409,16 +431,18 @@ internal class C2SCommunicator {
 
         let parameters: [String: Any] = [
             "amountOfMoney": getAmountOfMoneyParameter(amountOfMoney: amountOfMoney),
-            "cardSource": getCardSourceParameter(cardSource: cardSource)
+            "cardSource": getCardSourceParameter(cardSource: cardSource),
         ]
 
         postResponse(
             forURL: URL,
             withParameters: parameters,
             additionalAcceptableStatusCodes: nil,
-            success: {(responseObject: SurchargeCalculationResponse?) -> Void in
-                guard let surchargeCalculationResponse = responseObject else {
+            success: { (responseObject: SurchargeCalculationResponse?) -> Void in
+                guard let surchargeCalculationResponse = responseObject
+                else {
                     failure(SessionError.RuntimeError("Response was empty."))
+
                     return
                 }
 
@@ -436,24 +460,24 @@ internal class C2SCommunicator {
     private func getCardSourceParameter(cardSource: CardSource) -> [String: Any] {
         return [
             "card": cardSource.card.flatMap { card in
-                    var cardDict: [String: Any] = [
-                        "cardNumber": card.cardNumber
-                    ]
+                var cardDict: [String: Any] = [
+                    "cardNumber": card.cardNumber
+                ]
 
-                    if let paymentProductId = card.paymentProductId {
-                        cardDict["paymentProductId"] = paymentProductId
-                    }
+                if let paymentProductId = card.paymentProductId {
+                    cardDict["paymentProductId"] = paymentProductId
+                }
 
-                    return cardDict
-                },
-            "token": cardSource.token
+                return cardDict
+            },
+            "token": cardSource.token,
         ].compactMapValues { $0 }
     }
 
     private func getAmountOfMoneyParameter(amountOfMoney: AmountOfMoney) -> [String: Any] {
         return [
             "amount": amountOfMoney.totalAmount,
-            "currencyCode": amountOfMoney.totalAmount
+            "currencyCode": amountOfMoney.totalAmount,
         ]
     }
 
@@ -468,7 +492,7 @@ internal class C2SCommunicator {
             logRequest(forURL: URL, requestMethod: .get)
         }
 
-        let strongSelf = self;
+        let strongSelf = self
 
         let successHandler: (T?, Int?) -> Void = { (responseObject, statusCode) -> Void in
             if strongSelf.loggingEnabled {
@@ -513,7 +537,7 @@ internal class C2SCommunicator {
             logRequest(forURL: URL, requestMethod: .post, postBody: parameters as? Parameters)
         }
 
-        let strongSelf = self;
+        let strongSelf = self
         let successHandler: (T?, Int?) -> Void = { (responseObject, statusCode) -> Void in
             if strongSelf.loggingEnabled {
                 strongSelf.logSuccessResponse(forURL: URL, withResponseCode: statusCode, forResponse: responseObject)
@@ -550,8 +574,10 @@ internal class C2SCommunicator {
         withResponseCode responseCode: Int?,
         forResponse response: T
     ) {
-        guard let responseData = try? JSONEncoder().encode(response) else {
+        guard let responseData = try? JSONEncoder().encode(response)
+        else {
             print("Success response received, but could not be encoded.")
+
             return
         }
 
@@ -582,11 +608,11 @@ internal class C2SCommunicator {
      */
     private func logRequest(forURL URL: String, requestMethod: HTTPMethod, postBody: Parameters? = nil) {
         var requestLog =
-        """
-        Request URL : \(URL)
-        Request Method : \(requestMethod.rawValue)
-        Request Headers : \n
-        """
+            """
+            Request URL : \(URL)
+            Request Method : \(requestMethod.rawValue)
+            Request Headers : \n
+            """
 
         headers.forEach { header in
             requestLog += " \(header) \n"
@@ -610,10 +636,10 @@ internal class C2SCommunicator {
         isApiError: Bool = false
     ) {
         var responseLog =
-        """
-        Response URL : \(URL)
-        Response Code :
-        """
+            """
+            Response URL : \(URL)
+            Response Code :
+            """
 
         if let responseCode {
             responseLog += " \(responseCode) \n"
@@ -651,16 +677,12 @@ internal class C2SCommunicator {
 
     private func buildParameters(for context: PaymentContext) -> [String: Any] {
         var params: [String: Any] =
-        [
-            "countryCode": context.countryCode,
-            "currencyCode": context.amountOfMoney.currencyCode,
-            "amount": context.amountOfMoney.totalAmount,
-            "isRecurring": context.isRecurring ? "true" : "false"
-        ]
-
-        if !context.locale.isEmpty {
-            params["locale"] = context.locale
-        }
+            [
+                "countryCode": context.countryCode,
+                "currencyCode": context.amountOfMoney.currencyCode,
+                "amount": context.amountOfMoney.totalAmount,
+                "isRecurring": context.isRecurring ? "true" : "false",
+            ]
 
         return params
     }
