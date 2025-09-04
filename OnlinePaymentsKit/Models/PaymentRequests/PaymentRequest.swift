@@ -8,18 +8,13 @@ import Foundation
 
 @objc(OPPaymentRequest)
 public class PaymentRequest: NSObject, Codable {
-
     @objc public var paymentProduct: PaymentProduct?
     @objc public var errorMessageIds: [ValidationError] = []
     @objc public var tokenize = false
-
     @objc public var fieldValues = [String: String]()
     @objc public var formatter = StringFormatter()
-
     @objc public var accountOnFile: AccountOnFile?
-
     @objc public override init() {}
-
     @objc public init(paymentProduct: PaymentProduct, accountOnFile: AccountOnFile? = nil, tokenize: Bool = false) {
         self.paymentProduct = paymentProduct
         self.accountOnFile = accountOnFile
@@ -63,11 +58,12 @@ public class PaymentRequest: NSObject, Codable {
 
         var value: String?
         if let paymentProduct = paymentProduct,
-           let field = paymentProduct.paymentProductField(withId: paymentProductFieldId),
+            let field = paymentProduct.paymentProductField(withId: paymentProductFieldId),
             let fixedListValidator =
                 field.dataRestrictions.validators.validators.filter({ $0 is ValidatorFixedList }).first
-                    as? ValidatorFixedList,
-            let allowedValue = fixedListValidator.allowedValues.first {
+                as? ValidatorFixedList,
+            let allowedValue = fixedListValidator.allowedValues.first
+        {
             value = allowedValue
             setValue(forField: paymentProductFieldId, value: allowedValue)
         }
@@ -76,7 +72,8 @@ public class PaymentRequest: NSObject, Codable {
     }
 
     @objc public func maskedValue(forField paymentProductFieldId: String) -> String? {
-        guard let value = getValue(forField: paymentProductFieldId) else {
+        guard let value = getValue(forField: paymentProductFieldId)
+        else {
             return nil
         }
 
@@ -88,7 +85,8 @@ public class PaymentRequest: NSObject, Codable {
     }
 
     @objc public func unmaskedValue(forField paymentProductFieldId: String) -> String? {
-        guard let value = getValue(forField: paymentProductFieldId) else {
+        guard let value = getValue(forField: paymentProductFieldId)
+        else {
             return nil
         }
 
@@ -106,10 +104,12 @@ public class PaymentRequest: NSObject, Codable {
 
     private func isPartOfAccountOnFileAndNotModified(field paymentProductFieldId: String) -> Bool {
         if let accountOnFile,
-           !accountOnFile.attributes.attributes.isEmpty {
+            !accountOnFile.attributes.attributes.isEmpty
+        {
             for attribute in accountOnFile.attributes.attributes {
-                if attribute.key == paymentProductFieldId &&
-                    (!attribute.isEditingAllowed() || getValue(forField: paymentProductFieldId) == nil) {
+                if attribute.key == paymentProductFieldId
+                    && (!attribute.isEditingAllowed() || getValue(forField: paymentProductFieldId) == nil)
+                {
                     return true
                 }
             }
@@ -123,16 +123,17 @@ public class PaymentRequest: NSObject, Codable {
         if !isPartOfAccountOnFile(field: paymentProductFieldId) {
             return false
         }
-        
+
         if let accountOnFile = accountOnFile {
             return accountOnFile.isReadOnly(field: paymentProductFieldId)
         }
-        
+
         return false
     }
 
     @objc public func mask(forField paymentProductFieldId: String) -> String? {
-        guard let paymentProduct = paymentProduct else {
+        guard let paymentProduct = paymentProduct
+        else {
             return nil
         }
         let field = paymentProduct.paymentProductField(withId: paymentProductFieldId)
@@ -143,33 +144,33 @@ public class PaymentRequest: NSObject, Codable {
 
     @objc public func validate() -> [ValidationError] {
         errorMessageIds.removeAll()
-
         guard let paymentProduct = paymentProduct else {
             errorMessageIds.append(ValidationErrorInvalidPaymentProduct())
             return errorMessageIds
         }
-
-        for field in paymentProduct.fields.paymentProductFields where
-          !isPartOfAccountOnFileAndNotModified(field: field.identifier) {
-                if unmaskedValue(forField: field.identifier) != nil {
-                    let fieldErrors = field.validateValue(for: self)
-                    errorMessageIds.append(contentsOf: fieldErrors)
-                } else {
-                    let error =
-                        ValidationErrorIsRequired(
-                            errorMessage: "required",
-                            paymentProductFieldId: field.identifier,
-                            rule: nil
-                        )
-                    errorMessageIds.append(error)
-                }
+        for field in paymentProduct.fields.paymentProductFields
+        where
+            !isPartOfAccountOnFileAndNotModified(field: field.identifier)
+        {
+            if unmaskedValue(forField: field.identifier) != nil {
+                let fieldErrors = field.validateValue(for: self)
+                errorMessageIds.append(contentsOf: fieldErrors)
+            } else {
+                let error =
+                    ValidationErrorIsRequired(
+                        errorMessage: "required",
+                        paymentProductFieldId: field.identifier,
+                        rule: nil
+                    )
+                errorMessageIds.append(error)
+            }
         }
-
         return errorMessageIds
     }
 
     @objc public var maskedFieldValues: [String: String]? {
-        guard let paymentProduct = paymentProduct else {
+        guard let paymentProduct = paymentProduct
+        else {
             NSException(
                 name: NSExceptionName(rawValue: "Invalid payment product"),
                 reason: "Payment product is invalid"
@@ -189,7 +190,8 @@ public class PaymentRequest: NSObject, Codable {
     }
 
     @objc public var unmaskedFieldValues: [String: String]? {
-        guard let paymentProduct = paymentProduct else {
+        guard let paymentProduct = paymentProduct
+        else {
             NSException(
                 name: NSExceptionName(rawValue: "Invalid payment product"),
                 reason: "Payment product is invalid"
@@ -209,7 +211,8 @@ public class PaymentRequest: NSObject, Codable {
     }
 
     @objc public func removeValue(forField paymentProductFieldId: String) {
-        guard paymentProduct != nil else {
+        guard paymentProduct != nil
+        else {
             NSException(
                 name: NSExceptionName(rawValue: "Cannot remove value from PaymentRequest"),
                 reason: "Payment product is invalid"

@@ -55,39 +55,39 @@ public class PaymentProductField: NSObject, Codable {
 
     private func getFieldType(type: String?) -> FieldType {
         switch type {
-        case "string":
-            return .string
-        case "integer":
-            return .integer
-        case "expirydate":
-            return .expirationDate
-        case "numericstring":
-            return .numericString
-        case "boolean":
-            return .boolString
-        case "date":
-            return .dateString
-        default:
-            let typeDescription = type ?? "nil"
-            Logger.log("PaymentProductField type: \(typeDescription) is invalid")
-            return .string
+            case "string":
+                return .string
+            case "integer":
+                return .integer
+            case "expirydate":
+                return .expirationDate
+            case "numericstring":
+                return .numericString
+            case "boolean":
+                return .boolString
+            case "date":
+                return .dateString
+            default:
+                let typeDescription = type ?? "nil"
+                Logger.log("PaymentProductField type: \(typeDescription) is invalid")
+                return .string
         }
     }
 
     private func getFieldTypeString(type: FieldType) -> String {
         switch type {
-        case .string:
-            return "string"
-        case .integer:
-            return "integer"
-        case .expirationDate:
-            return "expirydate"
-        case .numericString:
-            return "numericstring"
-        case .boolString:
-            return "boolean"
-        case .dateString:
-            return "date"
+            case .string:
+                return "string"
+            case .integer:
+                return "integer"
+            case .expirationDate:
+                return "expirydate"
+            case .numericString:
+                return "numericstring"
+            case .boolString:
+                return "boolean"
+            case .dateString:
+                return "date"
         }
     }
 
@@ -103,9 +103,8 @@ public class PaymentProductField: NSObject, Codable {
                     rule: nil
                 )
             errorMessageIds.append(error)
-        } else if dataRestrictions.isRequired ||
-                    !value.isEqual("") ||
-                    dataRestrictions.validators.variableRequiredness {
+        } else if dataRestrictions.isRequired || !value.isEqual("") || dataRestrictions.validators.variableRequiredness
+        {
             for rule in dataRestrictions.validators.validators {
                 _ = rule.validate(value: value, for: identifier)
                 errorMessageIds.append(contentsOf: rule.errors)
@@ -117,7 +116,8 @@ public class PaymentProductField: NSObject, Codable {
 
     @objc(validateValueforPaymentRequest:)
     public func validateValue(for request: PaymentRequest) -> [ValidationError] {
-        guard let value = request.getValue(forField: identifier) else {
+        guard let value = request.unmaskedValue(forField: identifier)
+        else {
             return validateValue(value: "")
         }
 

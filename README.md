@@ -20,7 +20,7 @@ The SDK's main function is to establish a secure channel between your iOS app an
     - [Carthage](#carthage)
     - [Swift Package Manager](#swift-package-manager)
   - [Objective-C Compatibility](#objective-c-compatibility)
-  - [Example app](#example-app)
+  - [Example app](#example-apps)
   - [Getting started](#getting-started)
   - [Type definitions](#type-definitions)
     - [Session](#session)
@@ -57,7 +57,7 @@ You can add the Swift SDK as a pod to your project by adding the following to yo
 $ pod 'OnlinePaymentsKit'
 ```
 
-Afterwards, run the following command:
+Afterward, run the following command:
 
 ```
 $ pod install
@@ -71,7 +71,7 @@ You can add the Swift SDK with Carthage, by adding the following to your `Cartfi
 $ github "online-payments/sdk-client-swift"
 ```
 
-Afterwards, run the following command:
+Afterward, run the following command:
 
 ```
 $ carthage update --use-xcframeworks
@@ -85,7 +85,7 @@ You can add the Swift SDK with Swift Package Manager, by configuring your projec
 
 1. Go to your project's settings and click the 'Package Dependencies' tab.
 2. Click the '+' to add a new Swift Package dependency.
-3. Enter the Github URL in the search bar: `https://github.com/online-payments/sdk-client-swift`
+3. Enter the GitHub URL in the search bar: `https://github.com/online-payments/sdk-client-swift`
 4. Additionally, you can also set a version of the package that you wish to include. The default option is to select the latest version from the main branch.
 5. Click 'Add package'
 
@@ -213,7 +213,6 @@ session.loggingEnabled = true
 ```swift
 public class PaymentContext {
     var countryCode: String // ISO 3166-1 alpha-2 country code
-    var locale: String // IETF Language Tag + ISO 15897, example: 'nl_NL'
     var amountOfMoney: AmountOfMoney // contains the total amount and the ISO 4217 currency code
     var isRecurring: Bool // Set `true` when payment is recurring. Default false.
 }

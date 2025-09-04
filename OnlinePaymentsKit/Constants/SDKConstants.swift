@@ -11,9 +11,20 @@ import UIKit
 
 public class SDKConstants: NSObject {
     internal static let kApplePayIdentifier = "302"
+    internal static let kMaestroIdentifier = "117"
+    internal static let kIntersolveIdentifier = "5700"
+    internal static let kSodexoSportCultureIdentifier = "5772"
+    internal static let kVVVGiftCardIdentifier = "5784"
 
+    internal static let unsupportedPaymentProducts: [String] = [
+        kMaestroIdentifier,
+        kIntersolveIdentifier,
+        kSodexoSportCultureIdentifier,
+        kVVVGiftCardIdentifier,
+    ]
+    
     internal static let kApiBase = "client/"
-    internal static let kSDKIdentifier = "SwiftClientSDK/v4.1.0"
+    internal static let kSDKIdentifier = "SwiftClientSDK/v4.2.0"
 
 #if SWIFT_PACKAGE
     @objc(kOPSDKBundlePath)

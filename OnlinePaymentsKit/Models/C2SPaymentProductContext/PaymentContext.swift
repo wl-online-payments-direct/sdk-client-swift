@@ -9,6 +9,7 @@ import Foundation
 @objc(OPPaymentContext)
 public class PaymentContext: NSObject, Decodable {
     @objc public var countryCode: String
+    @available(*, deprecated, message: "The 'locale' property is deprecated. Do not use it (no replacement needed).")
     @objc public var locale = String()
     @objc public var amountOfMoney: AmountOfMoney
     @objc public var isRecurring: Bool
@@ -25,14 +26,6 @@ public class PaymentContext: NSObject, Decodable {
         self.amountOfMoney = amountOfMoney
         self.isRecurring = isRecurring
         self.countryCode = countryCode
-
-        if let languageCode = Locale.current.languageCode {
-            self.locale = languageCode.appending("_")
-        }
-
-        if let regionCode = Locale.current.regionCode, !self.locale.isEmpty {
-            self.locale = self.locale.appending(regionCode)
-        }
     }
 
     enum CodingKeys: CodingKey {
@@ -51,14 +44,6 @@ public class PaymentContext: NSObject, Decodable {
         self.amountOfMoney = try container.decode(AmountOfMoney.self, forKey: .amountOfMoney)
 
         self.isRecurring = try container.decodeIfPresent(Bool.self, forKey: .isRecurring) ?? false
-
-        if let languageCode = Locale.current.languageCode {
-            self.locale = languageCode.appending("_")
-        }
-
-        if let regionCode = Locale.current.regionCode, !self.locale.isEmpty {
-            self.locale = self.locale.appending(regionCode)
-        }
     }
 
     @objc public override var description: String {
