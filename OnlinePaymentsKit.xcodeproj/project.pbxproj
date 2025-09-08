@@ -39,6 +39,7 @@
 		7BCE528028BCEA85003E22B1 /* CryptoSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 7BCE527F28BCEA85003E22B1 /* CryptoSwift */; };
 		7BCE528628BCEB4C003E22B1 /* OHHTTPStubsSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 7BCE528528BCEB4C003E22B1 /* OHHTTPStubsSwift */; };
 		7BEC2ACD2A7A920200463F12 /* SurchargeCalculationResponseTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BEC2ACC2A7A920200463F12 /* SurchargeCalculationResponseTestCase.swift */; };
+		8013E71A2E6AD94C00BC0768 /* CHANGELOG.md in Resources */ = {isa = PBXBuildFile; fileRef = 8013E7192E6AD94C00BC0768 /* CHANGELOG.md */; };
 		80707C952D5526350036CE2C /* OnlinePaymentsKit.podspec in Resources */ = {isa = PBXBuildFile; fileRef = 80707C942D5526350036CE2C /* OnlinePaymentsKit.podspec */; };
 		80CE93342D40022A00452EFE /* EncryptorError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80CE93332D40022A00452EFE /* EncryptorError.swift */; };
 		80CE933C2D478B8600452EFE /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80CE933B2D478B8200452EFE /* Logger.swift */; };
@@ -195,6 +196,7 @@
 		7BBE95682A666B3500B957CB /* ApiError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApiError.swift; sourceTree = "<group>"; };
 		7BBE956A2A666B5900B957CB /* ApiErrorItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApiErrorItem.swift; sourceTree = "<group>"; };
 		7BEC2ACC2A7A920200463F12 /* SurchargeCalculationResponseTestCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SurchargeCalculationResponseTestCase.swift; sourceTree = "<group>"; };
+		8013E7192E6AD94C00BC0768 /* CHANGELOG.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = CHANGELOG.md; sourceTree = "<group>"; };
 		80707C942D5526350036CE2C /* OnlinePaymentsKit.podspec */ = {isa = PBXFileReference; lastKnownFileType = text; path = OnlinePaymentsKit.podspec; sourceTree = "<group>"; };
 		80CE93332D40022A00452EFE /* EncryptorError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EncryptorError.swift; sourceTree = "<group>"; };
 		80CE933B2D478B8200452EFE /* Logger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logger.swift; sourceTree = "<group>"; };
@@ -630,6 +632,7 @@
 		F7FBD62124C07E1A00D6A2BC = {
 			isa = PBXGroup;
 			children = (
+				8013E7192E6AD94C00BC0768 /* CHANGELOG.md */,
 				80707C942D5526350036CE2C /* OnlinePaymentsKit.podspec */,
 				80CE933D2D50E57000452EFE /* README.md */,
 				7BBE950B2930D70000105564 /* OnlinePaymentsKit.bundle */,
@@ -935,6 +938,7 @@
 				80CE933E2D50E57000452EFE /* README.md in Resources */,
 				7BBE950C2930D70000105564 /* OnlinePaymentsKit.bundle in Resources */,
 				80707C952D5526350036CE2C /* OnlinePaymentsKit.podspec in Resources */,
+				8013E71A2E6AD94C00BC0768 /* CHANGELOG.md in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

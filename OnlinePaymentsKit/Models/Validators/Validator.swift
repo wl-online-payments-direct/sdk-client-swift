@@ -10,7 +10,7 @@ import Foundation
 public class Validator: NSObject, Codable {
     @objc public var errors: [ValidationError] = []
     @objc public var messageId: String = ""
-    @objc public var validationType: ValidationType = .type
+    @objc public var type: ValidationType = .type
 
     internal func validate(value: String, for fieldId: String?) -> Bool {
         clearErrors()
@@ -28,11 +28,11 @@ public class Validator: NSObject, Codable {
 
     internal init(messageId: String, validationType: ValidationType) {
         self.messageId = messageId
-        self.validationType = validationType
+        self.type = validationType
     }
 
     private enum CodingKeys: String, CodingKey {
-        case messageId, validationType
+        case messageId, type
     }
 
     public required init(from decoder: Decoder) throws {}
@@ -40,7 +40,7 @@ public class Validator: NSObject, Codable {
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encodeIfPresent(messageId, forKey: .messageId)
-        try container.encodeIfPresent(getValidationTypeString(type: validationType), forKey: .validationType)
+        try container.encodeIfPresent(getValidationTypeString(type: type), forKey: .type)
     }
 
     // swiftlint:disable cyclomatic_complexity

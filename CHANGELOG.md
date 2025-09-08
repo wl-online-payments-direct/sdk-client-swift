@@ -1,3 +1,12 @@
+# 4.2.1
+
+## Changed
+
+* Renamed internal properties of Validators for compatibility reasons. Since this is an internal class, it should not
+  affect any consumer.
+* The expiration date validator now accepts values in MMyy and MMyyyy formats, but the validation still depends on the 
+  specific payment product `expiryDate` field validation rules returned from the API.
+
 # 4.2.0
 
 ## Changed
@@ -5,10 +14,10 @@
 Filtering of payment products that cannot be sent in the encrypted customer input has been added to C2sCommunicator. The
 following methods are currently unsupported:
 
-* Maestro
-* Intersolve
-* Sodexo & Sport Culture
-* VVV Giftcard
+* Maestro (117)
+* Intersolve (5700)
+* Sodexo & Sport Culture (5772)
+* VVV Giftcard (5784)
 
 ## Deprecated
 

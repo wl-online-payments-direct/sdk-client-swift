@@ -61,6 +61,6 @@ class ValidatorLuhnTestCase: XCTestCase {
         XCTAssertEqual(validator.errors.count, 1, "Invalid value considered valid")
         XCTAssertEqual(validator.errors[0].errorMessage, "luhn")
         XCTAssertEqual(validator.errors[0].paymentProductFieldId, "cardnumber")
-        XCTAssertEqual(validator.errors[0].rule?.validationType, .luhn)
+        XCTAssertEqual(validator.errors[0].rule?.type, .luhn)
     }
 }

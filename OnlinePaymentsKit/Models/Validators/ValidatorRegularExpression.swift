@@ -17,7 +17,7 @@ public class ValidatorRegularExpression: Validator, ValidationRule {
         super.init(messageId: "regularExpression", validationType: .regularExpression)
     }
 
-    private enum CodingKeys: String, CodingKey { case regularExpression, regex }
+    private enum CodingKeys: String, CodingKey { case regularExpression, regex, pattern }
 
     required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -25,7 +25,8 @@ public class ValidatorRegularExpression: Validator, ValidationRule {
         guard let regularExpressionInput = try?
                 container.decodeIfPresent(String.self, forKey: .regularExpression) ??
                 container.decodeIfPresent(String.self, forKey: .regex),
-              let regularExpression = try? NSRegularExpression(pattern: regularExpressionInput) else {
+              let regularExpression = try? NSRegularExpression(pattern: regularExpressionInput)
+        else {
             Logger.log("Regular expression is invalid")
 
             throw SessionError.RuntimeError("Regular expression is invalid")
@@ -42,10 +43,12 @@ public class ValidatorRegularExpression: Validator, ValidationRule {
         try? super.encode(to: encoder)
 
         try? container.encode(regularExpression.pattern, forKey: .regex)
+        try? container.encode(regularExpression.pattern, forKey: .pattern)
     }
 
     @objc public func validate(field fieldId: String, in request: PaymentRequest) -> Bool {
-        guard let fieldValue = request.getValue(forField: fieldId) else {
+        guard let fieldValue = request.getValue(forField: fieldId)
+        else {
             return false
         }
 
@@ -61,6 +64,7 @@ public class ValidatorRegularExpression: Validator, ValidationRule {
 
         let numberOfMatches =
             regularExpression.numberOfMatches(in: value, range: NSRange(location: 0, length: value.count))
+
         if numberOfMatches != 1 {
             let error =
                 ValidationErrorRegularExpression(

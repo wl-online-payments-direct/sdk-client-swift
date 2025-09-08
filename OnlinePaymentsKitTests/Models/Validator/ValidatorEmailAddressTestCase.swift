@@ -119,7 +119,7 @@ class ValidatorEmailAddressTestCase: XCTestCase {
         XCTAssertEqual(validator.errors.count, 1, "Invalid address is considered valid")
         XCTAssertEqual(validator.errors[0].errorMessage, "emailAddress")
         XCTAssertEqual(validator.errors[0].paymentProductFieldId, "email")
-        XCTAssertEqual(validator.errors[0].rule?.validationType, .emailAddress)
+        XCTAssertEqual(validator.errors[0].rule?.type, .emailAddress)
     }
 
     func testValidateIncorrect2() {
@@ -129,7 +129,7 @@ class ValidatorEmailAddressTestCase: XCTestCase {
         XCTAssertEqual(validator.errors.count, 1, "Invalid address is considered valid")
         XCTAssertEqual(validator.errors[0].errorMessage, "emailAddress")
         XCTAssertEqual(validator.errors[0].paymentProductFieldId, "email")
-        XCTAssertEqual(validator.errors[0].rule?.validationType, .emailAddress)
+        XCTAssertEqual(validator.errors[0].rule?.type, .emailAddress)
     }
 
     func testValidateIncorrect3() {
@@ -139,6 +139,6 @@ class ValidatorEmailAddressTestCase: XCTestCase {
         XCTAssertEqual(validator.errors.count, 1, "Invalid address is considered valid")
         XCTAssertEqual(validator.errors[0].errorMessage, "emailAddress")
         XCTAssertEqual(validator.errors[0].paymentProductFieldId, "email")
-        XCTAssertEqual(validator.errors[0].rule?.validationType, .emailAddress)
+        XCTAssertEqual(validator.errors[0].rule?.type, .emailAddress)
     }
 }

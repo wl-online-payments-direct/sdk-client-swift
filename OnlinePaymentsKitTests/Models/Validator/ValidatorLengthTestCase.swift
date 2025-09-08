@@ -73,7 +73,7 @@ class ValidatorLengthTestCase: XCTestCase {
         XCTAssertEqual(validator.errors.count, 1, "Invalid value considered valid")
         XCTAssertEqual(validator.errors[0].errorMessage, "length")
         XCTAssertEqual(validator.errors[0].paymentProductFieldId, "cvv")
-        XCTAssertEqual(validator.errors[0].rule?.validationType, .length)
+        XCTAssertEqual(validator.errors[0].rule?.type, .length)
     }
 
     func testValidateIncorrect2() {
@@ -83,7 +83,7 @@ class ValidatorLengthTestCase: XCTestCase {
         XCTAssertEqual(validator.errors.count, 1, "Invalid value considered valid")
         XCTAssertEqual(validator.errors[0].errorMessage, "length")
         XCTAssertEqual(validator.errors[0].paymentProductFieldId, "cvv")
-        XCTAssertEqual(validator.errors[0].rule?.validationType, .length)
+        XCTAssertEqual(validator.errors[0].rule?.type, .length)
     }
 
 }

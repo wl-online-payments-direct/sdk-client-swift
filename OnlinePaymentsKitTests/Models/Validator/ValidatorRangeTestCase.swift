@@ -73,7 +73,7 @@ class ValidatorRangeTestCase: XCTestCase {
         XCTAssertEqual(validator.errors.count, 1, "Invalid value considered valid")
         XCTAssertEqual(validator.errors[0].errorMessage, "range")
         XCTAssertEqual(validator.errors[0].paymentProductFieldId, "ccv")
-        XCTAssertEqual(validator.errors[0].rule?.validationType, .range)
+        XCTAssertEqual(validator.errors[0].rule?.type, .range)
     }
 
     func testValidateIncorrect2() {
@@ -83,7 +83,7 @@ class ValidatorRangeTestCase: XCTestCase {
         XCTAssertEqual(validator.errors.count, 1, "Invalid value considered valid")
         XCTAssertEqual(validator.errors[0].errorMessage, "range")
         XCTAssertEqual(validator.errors[0].paymentProductFieldId, "ccv")
-        XCTAssertEqual(validator.errors[0].rule?.validationType, .range)
+        XCTAssertEqual(validator.errors[0].rule?.type, .range)
     }
 
     func testValidateIncorrect3() {
@@ -93,6 +93,6 @@ class ValidatorRangeTestCase: XCTestCase {
         XCTAssertEqual(validator.errors.count, 1, "Invalid value considered valid")
         XCTAssertEqual(validator.errors[0].errorMessage, "range")
         XCTAssertEqual(validator.errors[0].paymentProductFieldId, "ccv")
-        XCTAssertEqual(validator.errors[0].rule?.validationType, .range)
+        XCTAssertEqual(validator.errors[0].rule?.type, .range)
     }
 }

@@ -60,7 +60,7 @@ class ValidatorFixedListTestCase: XCTestCase {
         XCTAssertEqual(validator.errors.count, 1, "Invalid value considered valid")
         XCTAssertEqual(validator.errors[0].errorMessage, "fixedList")
         XCTAssertEqual(validator.errors[0].paymentProductFieldId, "fixedList")
-        XCTAssertEqual(validator.errors[0].rule?.validationType, .fixedList)
+        XCTAssertEqual(validator.errors[0].rule?.type, .fixedList)
     }
 
     func testValidateIncorrect() {
@@ -70,7 +70,7 @@ class ValidatorFixedListTestCase: XCTestCase {
         XCTAssertEqual(validator.errors.count, 1, "Invalid value considered valid")
         XCTAssertEqual(validator.errors[0].errorMessage, "fixedList")
         XCTAssertEqual(validator.errors[0].paymentProductFieldId, "fixedList")
-        XCTAssertEqual(validator.errors[0].rule?.validationType, .fixedList)
+        XCTAssertEqual(validator.errors[0].rule?.type, .fixedList)
     }
 
 }

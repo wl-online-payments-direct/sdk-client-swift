@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
 
   s.name          = "OnlinePaymentsKit"
-  s.version       = "4.2.0"
+  s.version       = "4.2.1"
   s.summary       = "Online payments Swift SDK"
   s.description   = <<-DESC
                     This native iOS SDK facilitates handling payments in your apps

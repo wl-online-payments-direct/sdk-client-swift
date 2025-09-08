@@ -62,7 +62,7 @@ class ValidatorExpirationDateTestCase: XCTestCase {
         XCTAssertEqual(validator.errors.count, 1, "Invalid expiration date considered valid")
         XCTAssertEqual(validator.errors[0].errorMessage, "expirationDate")
         XCTAssertEqual(validator.errors[0].paymentProductFieldId, "expiryDate")
-        XCTAssertEqual(validator.errors[0].rule?.validationType, .expirationDate)
+        XCTAssertEqual(validator.errors[0].rule?.type, .expirationDate)
     }
 
     func testInvalidMonth() {
@@ -72,7 +72,7 @@ class ValidatorExpirationDateTestCase: XCTestCase {
         XCTAssertEqual(validator.errors.count, 1, "Invalid expiration date considered valid")
         XCTAssertEqual(validator.errors[0].errorMessage, "expirationDate")
         XCTAssertEqual(validator.errors[0].paymentProductFieldId, "expiryDate")
-        XCTAssertEqual(validator.errors[0].rule?.validationType, .expirationDate)
+        XCTAssertEqual(validator.errors[0].rule?.type, .expirationDate)
     }
 
     func testInvalidYearTooEarly() {
@@ -82,7 +82,7 @@ class ValidatorExpirationDateTestCase: XCTestCase {
         XCTAssertEqual(validator.errors.count, 1, "Invalid expiration date considered valid")
         XCTAssertEqual(validator.errors[0].errorMessage, "expirationDate")
         XCTAssertEqual(validator.errors[0].paymentProductFieldId, "expiryDate")
-        XCTAssertEqual(validator.errors[0].rule?.validationType, .expirationDate)
+        XCTAssertEqual(validator.errors[0].rule?.type, .expirationDate)
     }
 
     func testInvalidYearTooLate() {
@@ -92,7 +92,7 @@ class ValidatorExpirationDateTestCase: XCTestCase {
         XCTAssertEqual(validator.errors.count, 1, "Invalid expiration date considered valid")
         XCTAssertEqual(validator.errors[0].errorMessage, "expirationDate")
         XCTAssertEqual(validator.errors[0].paymentProductFieldId, "expiryDate")
-        XCTAssertEqual(validator.errors[0].rule?.validationType, .expirationDate)
+        XCTAssertEqual(validator.errors[0].rule?.type, .expirationDate)
     }
 
     func testInvalidInputTooLong() {
@@ -102,7 +102,7 @@ class ValidatorExpirationDateTestCase: XCTestCase {
         XCTAssertEqual(validator.errors.count, 1, "Invalid expiration date considered valid")
         XCTAssertEqual(validator.errors[0].errorMessage, "expirationDate")
         XCTAssertEqual(validator.errors[0].paymentProductFieldId, "expiryDate")
-        XCTAssertEqual(validator.errors[0].rule?.validationType, .expirationDate)
+        XCTAssertEqual(validator.errors[0].rule?.type, .expirationDate)
     }
 
     private var now: Date {

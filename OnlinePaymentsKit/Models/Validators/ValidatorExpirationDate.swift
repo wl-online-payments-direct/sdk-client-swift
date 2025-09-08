@@ -45,7 +45,8 @@ public class ValidatorExpirationDate: Validator, ValidationRule {
         self.clearErrors()
 
         // Test whether the date can be parsed normally
-        guard dateFormatter.date(from: value) != nil else {
+        if dateFormatter.date(from: value) == nil && monthAndFullYearDateFormatter.date(from: value) == nil
+        {
             addExpirationDateError(fieldId: fieldId)
             return false
         }
@@ -77,7 +78,7 @@ public class ValidatorExpirationDate: Validator, ValidationRule {
 
     internal func obtainEnteredDateFromValue(value: String, fieldId: String?) -> Date {
         let year = fullYearDateFormatter.string(from: Date())
-        let valueWithCentury = value.substring(to: 2) + year.substring(to: 2) + value.substring(from: 2)
+        let valueWithCentury = value.count == 6 ? value : value.substring(to: 2) + year.substring(to: 2) + value.substring(from: 2)
         guard let dateMonthAndFullYear = monthAndFullYearDateFormatter.date(from: valueWithCentury) else {
             addExpirationDateError(fieldId: fieldId)
             return Date()

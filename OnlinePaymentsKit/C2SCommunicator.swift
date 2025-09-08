@@ -676,7 +676,7 @@ internal class C2SCommunicator {
     }
 
     private func buildParameters(for context: PaymentContext) -> [String: Any] {
-        var params: [String: Any] =
+        let params: [String: Any] =
             [
                 "countryCode": context.countryCode,
                 "currencyCode": context.amountOfMoney.currencyCode,

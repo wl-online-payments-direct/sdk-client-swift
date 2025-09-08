@@ -165,7 +165,7 @@ internal class Encryptor {
     func encryptAES(data: Data, key: Data, IV: Data) throws -> (Data) {
         let plaintext = convertDataToByteArray(data: data)
 
-        let result = try encryptAES(plaintext: plaintext, key: key.bytes, IV: IV.bytes)
+        let result = try encryptAES(plaintext: plaintext, key: Array(key), IV: Array(IV))
 
         return Data(result)
     }
@@ -183,7 +183,7 @@ internal class Encryptor {
     func decryptAES(data: Data, key: Data, IV: Data) throws -> (Data) {
         let ciphertext = convertDataToByteArray(data: data)
 
-        let result = try decryptAES(ciphertext: ciphertext, key: key.bytes, IV: IV.bytes)
+        let result = try decryptAES(ciphertext: ciphertext, key: Array(key), IV: Array(IV))
 
         return Data(result)
     }

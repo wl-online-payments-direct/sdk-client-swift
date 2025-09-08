@@ -67,7 +67,7 @@ class ValidatorRegularExpressionTestCase: XCTestCase {
         XCTAssertEqual(validator.errors.count, 1, "Invalid value considered valid")
         XCTAssertEqual(validator.errors[0].errorMessage, "regularExpression")
         XCTAssertEqual(validator.errors[0].paymentProductFieldId, "ccv")
-        XCTAssertEqual(validator.errors[0].rule?.validationType, .regularExpression)
+        XCTAssertEqual(validator.errors[0].rule?.type, .regularExpression)
     }
 
 }
