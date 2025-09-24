@@ -12,11 +12,12 @@ class StringFormatterTestCase: XCTestCase {
     let stringFormatter = StringFormatter()
 
     func testFormatStringNumbers() {
-        let input = "1234567890"
         let mask = "{{99}} {{99}} {{99}} {{99}} {{99}}"
-        let output = stringFormatter.formatString(string: input, mask: mask)
-        let expectedOutput = "12 34 56 78 90"
-        XCTAssertEqual(output, expectedOutput, "Masking with numeric characters has failed")
+        var output = stringFormatter.formatString(string: "1234567890", mask: mask)
+        XCTAssertEqual(output, "12 34 56 78 90", "Masking with numeric characters has failed")
+
+        output = stringFormatter.formatString(string: "12345678", mask: mask)
+        XCTAssertEqual(output, "12 34 56 78 ", "Masking should add trailing space when necessary")
     }
 
     func testFormatStringWildcards() {

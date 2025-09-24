@@ -4,7 +4,7 @@
 // Copyright © 2020 Global Collect Services. All rights reserved.
 //
 
-import Alamofire
+internal import Alamofire
 import Foundation
 
 /// A simple wrapper to safely treat IndexSet as Sendable on iOS < 16.

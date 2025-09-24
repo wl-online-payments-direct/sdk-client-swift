@@ -1,3 +1,10 @@
+# 4.2.2
+
+## Changed
+
+* Rebuilt the project with the Xcode 26.0.1 (17A400) and Swift 6.2.
+* The library is now built with the `BUILD_FOR_DISTRIBUTION` flag.
+
 # 4.2.1
 
 ## Changed

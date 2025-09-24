@@ -5,7 +5,7 @@
 //
 
 import Foundation
-import CryptoSwift
+internal import CryptoSwift
 import Security
 
 internal class Encryptor {

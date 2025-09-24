@@ -4,7 +4,7 @@
 // Copyright © 2020 Global Collect Services. All rights reserved.
 //
 
-import Alamofire
+internal import Alamofire
 import PassKit
 
 internal class C2SCommunicator {

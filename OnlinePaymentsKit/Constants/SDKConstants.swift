@@ -24,7 +24,7 @@ public class SDKConstants: NSObject {
     ]
 
     internal static let kApiBase = "client/"
-    internal static let kSDKIdentifier = "SwiftClientSDK/v4.2.1"
+    internal static let kSDKIdentifier = "SwiftClientSDK/v4.2.2"
 
 #if SWIFT_PACKAGE
     @objc(kOPSDKBundlePath)

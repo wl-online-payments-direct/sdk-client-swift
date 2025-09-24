@@ -27,7 +27,16 @@ class ValidatorExpirationDateTestCase: XCTestCase {
                         "formElement": {
                             "type": "date"
                         }
-                    }
+                    },
+                    "dataRestrictions":{
+                        "isRequired":true,
+                        "validators":{
+                           "expirationDate":{},
+                           "regularExpression":{
+                              "regularExpression":"^(0[1-9]|1[0-2])(\\d{2})$"
+                           }
+                        }
+                     }
                 }
             ],
             "id": 1,
@@ -51,6 +60,12 @@ class ValidatorExpirationDateTestCase: XCTestCase {
 
     func testValid() {
         request.setValue(forField: "expiryDate", value: "1244")
+        _ = validator.validate(field: "expiryDate", in: request)
+        XCTAssertEqual(validator.errors.count, 0, "Valid expiration date considered invalid")
+    }
+
+    func testValidFullYear() {
+        request.setValue(forField: "expiryDate", value: "122044")
         _ = validator.validate(field: "expiryDate", in: request)
         XCTAssertEqual(validator.errors.count, 0, "Valid expiration date considered invalid")
     }
@@ -96,7 +111,7 @@ class ValidatorExpirationDateTestCase: XCTestCase {
     }
 
     func testInvalidInputTooLong() {
-        request.setValue(forField: "expiryDate", value: "122044")
+        request.setValue(forField: "expiryDate", value: "122099")
         _ = validator.validate(field: "expiryDate", in: request)
 
         XCTAssertEqual(validator.errors.count, 1, "Invalid expiration date considered valid")

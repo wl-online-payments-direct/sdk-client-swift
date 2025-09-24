@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 54;
+	objectVersion = 90;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -37,13 +37,13 @@
 		7BBE956B2A666B5900B957CB /* ApiErrorItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BBE956A2A666B5900B957CB /* ApiErrorItem.swift */; };
 		7BCE527D28BCEA76003E22B1 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = 7BCE527C28BCEA76003E22B1 /* Alamofire */; };
 		7BCE528028BCEA85003E22B1 /* CryptoSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 7BCE527F28BCEA85003E22B1 /* CryptoSwift */; };
-		7BCE528628BCEB4C003E22B1 /* OHHTTPStubsSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 7BCE528528BCEB4C003E22B1 /* OHHTTPStubsSwift */; };
 		7BEC2ACD2A7A920200463F12 /* SurchargeCalculationResponseTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BEC2ACC2A7A920200463F12 /* SurchargeCalculationResponseTestCase.swift */; };
 		8013E71A2E6AD94C00BC0768 /* CHANGELOG.md in Resources */ = {isa = PBXBuildFile; fileRef = 8013E7192E6AD94C00BC0768 /* CHANGELOG.md */; };
 		80707C952D5526350036CE2C /* OnlinePaymentsKit.podspec in Resources */ = {isa = PBXBuildFile; fileRef = 80707C942D5526350036CE2C /* OnlinePaymentsKit.podspec */; };
 		80CE93342D40022A00452EFE /* EncryptorError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80CE93332D40022A00452EFE /* EncryptorError.swift */; };
 		80CE933C2D478B8600452EFE /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80CE933B2D478B8200452EFE /* Logger.swift */; };
 		80CE933E2D50E57000452EFE /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 80CE933D2D50E57000452EFE /* README.md */; };
+		9D6D85E72E81674200F7DA4C /* OHHTTPStubsSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 7BCE528528BCEB4C003E22B1 /* OHHTTPStubsSwift */; };
 		BFF039352BF75D840005DB37 /* ApiErrorItemTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFF039342BF75D840005DB37 /* ApiErrorItemTestCase.swift */; };
 		F7027A5F24C08B0300DAE78D /* AlamofireWrapperTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7027A5E24C08B0300DAE78D /* AlamofireWrapperTestCase.swift */; };
 		F7027A6524C08BB800DAE78D /* StubSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7027A6424C08BB800DAE78D /* StubSession.swift */; };
@@ -308,28 +308,22 @@
 /* Begin PBXFrameworksBuildPhase section */
 		55919B6528AB9859004B6D31 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
 			files = (
 			);
-			runOnlyForDeploymentPostprocessing = 0;
 		};
 		F7FBD62824C07E1A00D6A2BC /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
 			files = (
 				7BCE527D28BCEA76003E22B1 /* Alamofire in Frameworks */,
-				7BCE528628BCEB4C003E22B1 /* OHHTTPStubsSwift in Frameworks */,
 				7BCE528028BCEA85003E22B1 /* CryptoSwift in Frameworks */,
 			);
-			runOnlyForDeploymentPostprocessing = 0;
 		};
 		F7FBD63124C07E1A00D6A2BC /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
 			files = (
+				9D6D85E72E81674200F7DA4C /* OHHTTPStubsSwift in Frameworks */,
 				F7FBD63524C07E1A00D6A2BC /* OnlinePaymentsKit.framework in Frameworks */,
 			);
-			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
@@ -805,10 +799,8 @@
 /* Begin PBXHeadersBuildPhase section */
 		F7FBD62624C07E1A00D6A2BC /* Headers */ = {
 			isa = PBXHeadersBuildPhase;
-			buildActionMask = 2147483647;
 			files = (
 			);
-			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXHeadersBuildPhase section */
 
@@ -822,8 +814,6 @@
 				55919B6628AB9859004B6D31 /* Resources */,
 			);
 			buildRules = (
-			);
-			dependencies = (
 			);
 			name = KeychainEntitlementsTestApp;
 			productName = KeychainEntitlementsTestApp;
@@ -841,13 +831,10 @@
 			);
 			buildRules = (
 			);
-			dependencies = (
-			);
 			name = OnlinePaymentsKit;
 			packageProductDependencies = (
 				7BCE527C28BCEA76003E22B1 /* Alamofire */,
 				7BCE527F28BCEA85003E22B1 /* CryptoSwift */,
-				7BCE528528BCEB4C003E22B1 /* OHHTTPStubsSwift */,
 			);
 			productName = IngenicoDirectKit;
 			productReference = F7FBD62B24C07E1A00D6A2BC /* OnlinePaymentsKit.framework */;
@@ -868,6 +855,9 @@
 				7B9B702228B8F7D200B8781D /* PBXTargetDependency */,
 			);
 			name = OnlinePaymentsKitTests;
+			packageProductDependencies = (
+				7BCE528528BCEB4C003E22B1 /* OHHTTPStubsSwift */,
+			);
 			productName = IngenicoDirectKitTests;
 			productReference = F7FBD63424C07E1A00D6A2BC /* OnlinePaymentsKitTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
@@ -880,7 +870,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
 				LastSwiftUpdateCheck = 1340;
-				LastUpgradeCheck = 1620;
+				LastUpgradeCheck = 2600;
 				ORGANIZATIONNAME = "";
 				TargetAttributes = {
 					55919B6728AB9859004B6D31 = {
@@ -897,7 +887,6 @@
 				};
 			};
 			buildConfigurationList = F7FBD62524C07E1A00D6A2BC /* Build configuration list for PBXProject "OnlinePaymentsKit" */;
-			compatibilityVersion = "Xcode 9.3";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -910,6 +899,7 @@
 				7BCE527E28BCEA85003E22B1 /* XCRemoteSwiftPackageReference "CryptoSwift" */,
 				7BCE528428BCEB4C003E22B1 /* XCRemoteSwiftPackageReference "OHHTTPStubs" */,
 			);
+			preferredProjectObjectVersion = 90;
 			productRefGroup = F7FBD62C24C07E1A00D6A2BC /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -924,27 +914,22 @@
 /* Begin PBXResourcesBuildPhase section */
 		55919B6628AB9859004B6D31 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
 			files = (
 				55919B7228AB985A004B6D31 /* Preview Assets.xcassets in Resources */,
 				55919B6F28AB985A004B6D31 /* Assets.xcassets in Resources */,
 			);
-			runOnlyForDeploymentPostprocessing = 0;
 		};
 		F7FBD62924C07E1A00D6A2BC /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
 			files = (
 				80CE933E2D50E57000452EFE /* README.md in Resources */,
 				7BBE950C2930D70000105564 /* OnlinePaymentsKit.bundle in Resources */,
 				80707C952D5526350036CE2C /* OnlinePaymentsKit.podspec in Resources */,
 				8013E71A2E6AD94C00BC0768 /* CHANGELOG.md in Resources */,
 			);
-			runOnlyForDeploymentPostprocessing = 0;
 		};
 		F7FBD63224C07E1A00D6A2BC /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
 			files = (
 				F7027A7724C08D4400DAE78D /* paymentProductGroup.json in Resources */,
 				F7027A7324C08D4400DAE78D /* paymentProducts.json in Resources */,
@@ -953,23 +938,19 @@
 				F7027A7624C08D4400DAE78D /* paymentProductGroups.json in Resources */,
 				F7027A7224C08D4400DAE78D /* paymentProductMissingFields.json in Resources */,
 			);
-			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		55919B6428AB9859004B6D31 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
 			files = (
 				55919B6D28AB9859004B6D31 /* ContentView.swift in Sources */,
 				55919B6B28AB9859004B6D31 /* KeychainEntitlementsTestAppApp.swift in Sources */,
 			);
-			runOnlyForDeploymentPostprocessing = 0;
 		};
 		F7FBD62724C07E1A00D6A2BC /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
 			files = (
 				7BBE956B2A666B5900B957CB /* ApiErrorItem.swift in Sources */,
 				F72D5EA024C0E28400CD0942 /* ValidatorLength.swift in Sources */,
@@ -1057,11 +1038,9 @@
 				7B576CB32A77BB2A0098FC3F /* Surcharge.swift in Sources */,
 				F72D5EA724C0E28400CD0942 /* Validator.swift in Sources */,
 			);
-			runOnlyForDeploymentPostprocessing = 0;
 		};
 		F7FBD63024C07E1A00D6A2BC /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
 			files = (
 				F7027A7A24C08D6F00DAE78D /* IINDetailsResponseTestCase.swift in Sources */,
 				F7027A9524C0932B00DAE78D /* PaymentProductFieldTestCase.swift in Sources */,
@@ -1097,7 +1076,6 @@
 				F7027A6B24C08CFC00DAE78D /* StringFormatterTestCase.swift in Sources */,
 				F7027AA024C09ABE00DAE78D /* PreparedPaymentRequestTestCase.swift in Sources */,
 			);
-			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
@@ -1116,7 +1094,7 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
-		55919B7428AB985A004B6D31 /* Debug */ = {
+		55919B7428AB985A004B6D31 /* Debug configuration for PBXNativeTarget "KeychainEntitlementsTestApp" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -1147,7 +1125,7 @@
 			};
 			name = Debug;
 		};
-		55919B7528AB985A004B6D31 /* Release */ = {
+		55919B7528AB985A004B6D31 /* Release configuration for PBXNativeTarget "KeychainEntitlementsTestApp" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -1178,10 +1156,11 @@
 			};
 			name = Release;
 		};
-		F7FBD63D24C07E1A00D6A2BC /* Debug */ = {
+		F7FBD63D24C07E1A00D6A2BC /* Debug configuration for PBXProject "OnlinePaymentsKit" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -1236,6 +1215,7 @@
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -1244,10 +1224,11 @@
 			};
 			name = Debug;
 		};
-		F7FBD63E24C07E1A00D6A2BC /* Release */ = {
+		F7FBD63E24C07E1A00D6A2BC /* Release configuration for PBXProject "OnlinePaymentsKit" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -1295,6 +1276,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.0;
@@ -1304,7 +1286,7 @@
 			};
 			name = Release;
 		};
-		F7FBD64024C07E1A00D6A2BC /* Debug */ = {
+		F7FBD64024C07E1A00D6A2BC /* Debug configuration for PBXNativeTarget "OnlinePaymentsKit" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -1343,7 +1325,7 @@
 			};
 			name = Debug;
 		};
-		F7FBD64124C07E1A00D6A2BC /* Release */ = {
+		F7FBD64124C07E1A00D6A2BC /* Release configuration for PBXNativeTarget "OnlinePaymentsKit" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -1380,7 +1362,7 @@
 			};
 			name = Release;
 		};
-		F7FBD64324C07E1A00D6A2BC /* Debug */ = {
+		F7FBD64324C07E1A00D6A2BC /* Debug configuration for PBXNativeTarget "OnlinePaymentsKitTests" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Manual;
@@ -1405,7 +1387,7 @@
 			};
 			name = Debug;
 		};
-		F7FBD64424C07E1A00D6A2BC /* Release */ = {
+		F7FBD64424C07E1A00D6A2BC /* Release configuration for PBXNativeTarget "OnlinePaymentsKitTests" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Manual;
@@ -1436,37 +1418,33 @@
 		55919B7328AB985A004B6D31 /* Build configuration list for PBXNativeTarget "KeychainEntitlementsTestApp" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				55919B7428AB985A004B6D31 /* Debug */,
-				55919B7528AB985A004B6D31 /* Release */,
+				55919B7428AB985A004B6D31 /* Debug configuration for PBXNativeTarget "KeychainEntitlementsTestApp" */,
+				55919B7528AB985A004B6D31 /* Release configuration for PBXNativeTarget "KeychainEntitlementsTestApp" */,
 			);
-			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 		F7FBD62524C07E1A00D6A2BC /* Build configuration list for PBXProject "OnlinePaymentsKit" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				F7FBD63D24C07E1A00D6A2BC /* Debug */,
-				F7FBD63E24C07E1A00D6A2BC /* Release */,
+				F7FBD63D24C07E1A00D6A2BC /* Debug configuration for PBXProject "OnlinePaymentsKit" */,
+				F7FBD63E24C07E1A00D6A2BC /* Release configuration for PBXProject "OnlinePaymentsKit" */,
 			);
-			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 		F7FBD63F24C07E1A00D6A2BC /* Build configuration list for PBXNativeTarget "OnlinePaymentsKit" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				F7FBD64024C07E1A00D6A2BC /* Debug */,
-				F7FBD64124C07E1A00D6A2BC /* Release */,
+				F7FBD64024C07E1A00D6A2BC /* Debug configuration for PBXNativeTarget "OnlinePaymentsKit" */,
+				F7FBD64124C07E1A00D6A2BC /* Release configuration for PBXNativeTarget "OnlinePaymentsKit" */,
 			);
-			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 		F7FBD64224C07E1A00D6A2BC /* Build configuration list for PBXNativeTarget "OnlinePaymentsKitTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				F7FBD64324C07E1A00D6A2BC /* Debug */,
-				F7FBD64424C07E1A00D6A2BC /* Release */,
+				F7FBD64324C07E1A00D6A2BC /* Debug configuration for PBXNativeTarget "OnlinePaymentsKitTests" */,
+				F7FBD64424C07E1A00D6A2BC /* Release configuration for PBXNativeTarget "OnlinePaymentsKitTests" */,
 			);
-			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */

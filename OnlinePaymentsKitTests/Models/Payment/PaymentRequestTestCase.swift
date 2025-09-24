@@ -131,9 +131,12 @@ class PaymentRequestTestCase: XCTestCase {
                     "isRequired": true,
                     "validators": [
                         "expirationDate": [],
+                        "regularExpression":[
+                           "regularExpression":"^(0[1-9]|1[0-2])(\\d{2})$"
+                        ],
                         "length": [
                             "minLength": 4,
-                            "maxLength": 4,
+                            "maxLength": 6,
                         ],
                     ],
                 ],
