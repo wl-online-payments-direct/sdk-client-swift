@@ -50,7 +50,7 @@ internal extension String {
         return Data(base64Encoded: self)!
     }
 
-    mutating func appendIf(where predicate: (any StringProtocol) -> Bool, text: String) {
+    mutating func appendIf(where predicate: (String) -> Bool, text: String) {
         if predicate(self) {
             append(text)
         }

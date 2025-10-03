@@ -51,7 +51,11 @@ security credentials to guarantee the safe transit of your customers' data durin
 
 ## Installation
 
-The Online Payments Swift SDK is available via multiple installation methods:
+The Online Payments Swift SDK library is built for library distribution, which means it can be used
+in Xcode and Swift versions later than the one used for compilation. The minimal Swift version the
+library supports is 5.3.
+
+The SDK is available via multiple installation methods:
 
 - [Swift Package Manager](#swift-package-manager) (recommended),
 - [CocoaPods](#cocoapods-deprecated) **(deprecated)**,
@@ -172,7 +176,7 @@ section [Payment Steps](#payment-steps) for more details on these steps.
     ```
 
 3. Configure your payment context.
-    
+
     ```swift
     let amountOfMoney = AmountOfMoney(
         totalAmount: 1298, // in cents
@@ -522,8 +526,8 @@ session.prepare(
 ### IINDetails
 
 The first six digits of a payment card number are known as the *Issuer Identification Number (IIN)*. As soon as the
-first six digits of the card number have been captured, you can use the `session.iinDetails` call to retrieve the 
-payment product and network that are associated with the provided IIN. Then you can verify the card type and check if 
+first six digits of the card number have been captured, you can use the `session.iinDetails` call to retrieve the
+payment product and network that are associated with the provided IIN. Then you can verify the card type and check if
 you can accept this card.
 
 An instance of `Session` can be used to check which payment product is associated with an IIN. This is done via the

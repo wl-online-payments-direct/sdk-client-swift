@@ -7,8 +7,7 @@
 internal import Alamofire
 import Foundation
 
-/// A simple wrapper to safely treat IndexSet as Sendable on iOS < 16.
-struct SendableIndexSet: @unchecked Sendable, Sequence {
+struct SendableIndexSet: Sequence {
     var indexSet: IndexSet
 
     init(integersIn range: Range<Int>) {
