@@ -27,10 +27,9 @@ security credentials to guarantee the safe transit of your customers' data durin
     - [Example app](#example-apps)
     - [Getting started](#getting-started)
     - [Type definitions](#type-definitions)
-        - [Session](#session)
-            - [Logging of requests and responses](#logging-of-requests-and-responses)
+        - [OnlinePaymentsSdk](#onlinepaymentssdk)
         - [PaymentContext](#paymentcontext)
-        - [PaymentItems](#paymentitems)
+        - [BasicPaymentProducts](#basicpaymentproducts)
         - [BasicPaymentProduct](#basicpaymentproduct)
         - [AccountOnFile](#accountonfile)
         - [PaymentProduct](#paymentproduct)
@@ -101,26 +100,15 @@ pod install
 
 ### XCFramework
 
-For direct XCFramework integration, you'll need to manually add the required dependencies.
+For direct XCFramework integration:
 
 1. **Download the XCFramework** from
    the [releases page](https://github.com/wl-online-payments-direct/sdk-client-swift/releases)
-2. **Add required dependencies** to your project:
-    - [Alamofire](https://github.com/Alamofire/Alamofire) (5.6.0+)
-    - [CryptoSwift](https://github.com/krzyzanowskim/CryptoSwift) (1.5.0+)
-3. **Add the XCFramework** to your project:
+2. **Add the XCFramework** to your project:
     - Drag `OnlinePaymentsKit.xcframework` into the "Frameworks, Libraries and Embedded Content" section of your target
     - Set it to "Embed & Sign"
 
-**SPM dependencies example:**
-
-```swift
-dependencies: [
-    .package(url: "https://github.com/Alamofire/Alamofire", from: "5.6.0"),
-    .package(url: "https://github.com/krzyzanowskim/CryptoSwift", from: "1.5.0"),
-    // Then add the OnlinePaymentsKit XCFramework to your target
-]
-```
+> **Note:** All dependencies (Alamofire, CryptoSwift) are statically linked into the XCFramework, so you don't need to add them separately.
 
 ### Carthage
 
@@ -165,13 +153,21 @@ section [Payment Steps](#payment-steps) for more details on these steps.
 2. Initialize the SDK using the session details.
 
     ```swift
-    let session = Session(
+    let sessionData = SessionData(
         clientSessionId: "47e9dc332ca24273818be2a46072e006",
         customerId: "9991-0d93d6a0e18443bd871c89ec6d38a873",
-        baseURL: "https://clientapi.com",
-        assetBaseURL: "https://assets.com",
+        clientApiUrl: "https://clientapi.com",
+        assetUrl: "https://assets.com"
+    )
+
+    let configuration = SdkConfiguration(
         appIdentifier: "My Application/v2.0.4",
         loggingEnabled: true // set this to false in production
+    )
+
+    let sdk = try OnlinePaymentsSdk(
+        sessionData: sessionData,
+        configuration: configuration
     )
     ```
 
@@ -179,10 +175,10 @@ section [Payment Steps](#payment-steps) for more details on these steps.
 
     ```swift
     let amountOfMoney = AmountOfMoney(
-        totalAmount: 1298, // in cents
+        amount: 1298, // in cents
         currencyCode: "EUR" // three letter currency code as defined in ISO 4217
     )
-    
+
     let paymentContext = PaymentContext(
         amountOfMoney: amountOfMoney,
         isRecurring: false, // true, if it is a recurring payment
@@ -190,20 +186,17 @@ section [Payment Steps](#payment-steps) for more details on these steps.
     )
     ```
 
-4. Retrieve the available Payment Products. Display the `BasicPaymentItem` and `AccountOnFile` lists and request your
+4. Retrieve the available Payment Products. Display the `BasicPaymentProduct` and `AccountOnFile` lists and request your
    customer to select one.
 
     ```swift
-    session.paymentItems(
-        for: paymentContext,
-        success: { paymentItems in
-            // Display the contents of paymentItems & accountsOnFile to your customer
+    sdk.basicPaymentProducts(
+        forContext: paymentContext,
+        success: { basicPaymentProducts in
+            // Display the contents of basicPaymentProducts & accountsOnFile to your customer
         },
         failure: { error in
             // Inform the customer that something went wrong while retrieving the available Payment Products
-        },
-        apiFailure: { errorResponse in
-            // Inform the customer that the API threw an error while retrieving the available Payment Products
         }
     )
     ```
@@ -213,17 +206,14 @@ section [Payment Steps](#payment-steps) for more details on these steps.
    customer.
 
     ```swift
-    session.paymentProduct(
-        withId: "1", // replace with the id of the payment product that should be fetched
-        context: paymentContext,
+    sdk.paymentProduct(
+        withId: 1, // replace with the id of the payment product that should be fetched
+        paymentContext: paymentContext,
         success: { paymentProduct in
             // Display the fields to your customer
         },
         failure: { error in
             // Handle failure of retrieving a Payment Product by id
-        },
-        apiFailure: { errorResponse in
-            // Handle API failure of retrieving a Payment Product by id
         }
     )
     ```
@@ -231,26 +221,23 @@ section [Payment Steps](#payment-steps) for more details on these steps.
 6. Save the customer's input for the required information fields in a `PaymentRequest`. These should be unmasked values.
 
     ```swift
-    let paymentRequest = PaymentRequest()
-    
-    paymentRequest.setValue(forField: "cardNumber", value: "12451254457545")
-    paymentRequest.setValue(forField: "cvv", value: "123")
-    paymentRequest.setValue(forField: "expiryDate", value: "1225")
+    let paymentRequest = PaymentRequest(paymentProduct: paymentProduct)
+
+    try paymentRequest.field(id: "cardNumber").setValue(value: "12451254457545")
+    try paymentRequest.field(id: "cvv").setValue(value: "123")
+    try paymentRequest.field(id: "expiryDate").setValue(value: "1230")
     ```
 
 7. Validate and encrypt the payment request. The encrypted customer data should then be sent to your server.
 
     ```swift
-    session.prepare(
+    sdk.encryptPaymentRequest(
         paymentRequest,
-        success: { preparedPaymentRequest in
-            // Forward the encryptedFields to your server
+        success: { encryptedRequest in
+            // Forward the encryptedRequest.encryptedCustomerInput to your server
         },
         failure: { error in
             // Handle failure of encrypting Payment Request
-        },
-        apiFailure: { errorResponse in
-            // Handle API failure of encrypting Payment Request
         }
     )
     ```
@@ -260,35 +247,32 @@ section [Payment Steps](#payment-steps) for more details on these steps.
 
 ## Type definitions
 
-### Session
+### OnlinePaymentsSdk
 
-For all interactions with the SDK an instance of `Session` is required. The following code fragment shows how `Session`
-is initialized. The session details are obtained by performing a Create Client Session call using the Server API.
+For all interactions with the SDK an instance of `OnlinePaymentsSdk` is required. The following code fragment shows how
+`OnlinePaymentsSdk` is initialized. The session details are obtained by performing a Create Client Session call using
+the Server API.
 
 ```swift
-let session = Session(
+let sessionData = SessionData(
     clientSessionId: "47e9dc332ca24273818be2a46072e006",
     customerId: "9991-0d93d6a0e18443bd871c89ec6d38a873",
-    baseURL: "https://clientapi.com",
-    assetBaseURL: "https://assets.com",
-    appIdentifier: "Swift Example Application/v2.0.4",
-    loggingEnabled: true // set this to false in production
+    clientApiUrl: "https://clientapi.com",
+    assetUrl: "https://assets.com"
+)
+
+let configuration = SdkConfiguration(
+    appIdentifier: "Swift Example Application/v2.0.4"
+)
+
+let sdk = try OnlinePaymentsSdk(
+    sessionData: sessionData,
+    configuration: configuration
 )
 ```
 
-Almost all methods that are offered by `Session` are simple wrappers around the Client API. They create the request and
+All methods offered by `OnlinePaymentsSdk` are wrappers around the Client API. They create the request and
 convert the response to Swift objects that may contain convenience functions.
-
-#### Logging of requests and responses
-
-You are able to log requests made to the server and responses received from the server. By default, logging is disabled,
-and it is important to always disable it in production. You are able to enable the logging in two ways. Either by
-setting its value when creating a Session (as shown in the code fragment above) or by setting its value after the
-Session was already created.
-
-```swift
-session.loggingEnabled = true
-```
 
 ### PaymentContext
 
@@ -303,27 +287,24 @@ public class PaymentContext {
 }
 ```
 
-### PaymentItems
+### BasicPaymentProducts
 
-This object contains the available Payment Items for the current payment. Use the `session.paymentItems` function to
+This object contains the available Payment Products for the current payment. Use the `sdk.basicPaymentProducts` function to
 request the data.
 
-The object you will receive is `PaymentItems`, which contains three lists. One for all available `BasicPaymentItem`s,
-one for all grouped `BasicPaymentItem`s, and one that contains all `AccountOnFile`s.
+The object you will receive is `BasicPaymentProducts`, which contains a list of all available `BasicPaymentProduct`s
+and their associated `AccountOnFile`s.
 
-The code fragment below shows how to get the `PaymentItems` instance.
+The code fragment below shows how to get the `BasicPaymentProducts` instance.
 
 ```swift
-session.paymentItems(
-    for: paymentContext,
-    success: { paymentItems in
-        // Display the contents of paymentItems & accountsOnFile to your customer
+sdk.basicPaymentProducts(
+    forContext: paymentContext,
+    success: { basicPaymentProducts in
+        // Display the contents of basicPaymentProducts & accountsOnFile to your customer
     },
     failure: { error in
         // Inform the customer that something went wrong while retrieving the available Payment Products
-    },
-    apiFailure: { errorResponse in
-        // Inform the customer that the API threw an error while retrieving the available Payment Products
     }
 )
 ```
@@ -341,11 +322,11 @@ the [PaymentProduct](#paymentproduct) section for more info.
 Below is an example of how to get display names and assets for the Visa product (id: 1).
 
 ```swift
-let basicPaymentProduct = paymentItems.paymentItem(withIdentifier: "1")
+let basicPaymentProduct = basicPaymentProducts.paymentProduct(withId: 1)
 
-let id = basicPaymentProduct.identifier // 1
-let label = basicPaymentProduct.displayHints.first?.label // VISA
-let logoPath = basicPaymentProduct.displayHints.first?.logoPath // https://assets.com/path/to/visa/logo.gif
+let id = basicPaymentProduct.id // 1
+let label = basicPaymentProduct.label // VISA
+let logoPath = basicPaymentProduct.logo // https://assets.com/path/to/visa/logo.gif
 ```
 
 ### AccountOnFile
@@ -359,15 +340,15 @@ product.
 
 ```swift
 // All available accounts on file for the payment product
-let allAccountsOnFile = basicPaymentProduct.accountsOnFile.accountsOnFile
+let allAccountsOnFile = basicPaymentProduct.accountsOnFile
 
 // Get specific account on file for the payment product
-let accountOnFile = basicPaymentProduct.accountOnFile(withIdentifier: "123")
+let accountOnFile = basicPaymentProduct.accountOnFile(withId: "123")
 
 // Shows a mask based formatted value for the obfuscated cardNumber.
 // The mask that is used is defined in the displayHints of this accountOnFile
 // If the mask for the "cardNumber" field is {{9999}} {{9999}} {{9999}} {{9999}}, then the result would be **** **** **** 7412
-let maskedValue = accountOnFile.maskedValue(forField: "cardNumber")
+let maskedValue = accountOnFile.getValue(forField: "cardNumber")
 ```
 
 ### PaymentProduct
@@ -380,20 +361,17 @@ Each payment product can have several fields that need to be completed to proces
 
 Information about the fields of payment products is represented by instances of `PaymentProductField`, which are
 contained in instances of `PaymentProduct`. The class `PaymentProductField` is described further down below. The
-`Session` instance can be used to retrieve instances of `PaymentProduct`, as shown in the following code fragment.
+`OnlinePaymentsSdk` instance can be used to retrieve instances of `PaymentProduct`, as shown in the following code fragment.
 
 ```swift
-session.paymentProduct(
-    withId: "1", // replace with the id of the payment product that should be fetched
-    context: paymentContext,
+sdk.paymentProduct(
+    withId: 1, // replace with the id of the payment product that should be fetched
+    paymentContext: paymentContext,
     success: { paymentProduct in
         // Display the fields to your customer
     },
     failure: { error in
         // Handle failure of retrieving a Payment Product by id
-    },
-    apiFailure: { errorResponse in
-        // Handle API failure of retrieving a Payment Product by id
     }
 )
 ```
@@ -410,10 +388,10 @@ of the field are inspected to see whether the field is a required field or an op
 hints of the field are inspected to see whether the values a customer provides should be obfuscated in a user interface.
 
 ```swift
-let cvvField = paymentProduct.paymentProductField(withId: "cvv")
+let cvvField = paymentProduct.field(id: "cvv")
 
-let isRequired = cvvField.dataRestrictions.isRequired // state if value is required for this field
-let shouldObfuscate = cvvField.displayHints.obfuscate // state if field value should be obfuscated
+let isRequired = cvvField.isRequired // state if value is required for this field
+let shouldObfuscate = cvvField.shouldObfuscate // state if field value should be obfuscated
 ```
 
 ### PaymentRequest
@@ -460,41 +438,40 @@ paymentRequest.accountOnFile = accountOnFile
 
 Once a payment request has been configured, the value for the payment product's fields can be supplied as shown below.
 The identifiers of the fields, such as "cardNumber" and "cvv" in the example below, are used to set the values of the
-fields using the payment request.
+fields using the payment request. Note that `setValue` can throw an error if an invalid field identifier is provided.
 
 ```swift
-paymentRequest.setValue(forField: "cardNumber", value: "1245 1254 4575 45")
-paymentRequest.setValue(forField: "cvv", value: "123")
-paymentRequest.setValue(forField: "expiryDate", value: "12/25")
+try paymentRequest.setValue(id: "cardNumber", value: "1245 1254 4575 45")
+try paymentRequest.setValue(id: "cvv", value: "123")
+try paymentRequest.setValue(id: "expiryDate", value: "12/25")
+```
+
+You can also use the Fluent API to set a value to a field.
+
+```swift
+try paymentRequest.field(id: "cardNumber").setValue(value: "1245 1254 4575 45")
 ```
 
 #### Validate payment request
 
 Once all values have been supplied, the payment request can be validated. Behind the scenes the validation uses the
-`DataRestrictions` class for each of the fields that were added to the `PaymentRequest`. The `validate()` functions
-returns a list of errors, which indicates any issues that have occurred during validation. This list of errors can also
-be accessed by the `PaymentRequest.errorMessageIds` property. If there are no errors, the payment request can be
-encrypted and sent to our platform via your server. If there are validation errors, the customer should be provided with
-feedback about these errors.
+`DataRestrictions` class for each of the fields that were added to the `PaymentRequest`. The `validate()` function
+returns a validation result which indicates whether the request is valid and contains any validation errors. If there
+are no errors, the payment request can be encrypted and sent to our platform via your server. If there are validation
+errors, the customer should be provided with feedback about these errors.
 
 ```swift
 // validate all fields in the payment request
-let errorMessageIds = paymentRequest.validate()
+let validationResult = paymentRequest.validate()
 
 // check if the payment request is valid
-if errorMessageIds.count == 0 {
+if validationResult.isValid {
     // payment request is valid
 } else {
     // payment request has errors
-}
-```
-
-The validations are the `Validator`s linked to the `PaymentProductField` and are returned as a `ValidationError`, for
-example:
-
-```swift
-paymentRequest.errorMessageIds.forEach { error in
-    // do something with the ValidationError, like displaying it to the user
+    validationResult.errors.forEach { error in
+        // do something with the ValidationError, like displaying it to the user
+    }
 }
 ```
 
@@ -502,20 +479,17 @@ paymentRequest.errorMessageIds.forEach { error in
 
 The `PaymentRequest` is ready for encryption once the `PaymentProduct` is set, the `PaymentProductField` values have
 been provided and validated, and potentially the selected `AccountOnFile` or `tokenize` properties have been set. The
-`PaymentRequest` encryption is done by using `session.prepare`. This will return a `PreparedPaymentRequest` which
-contains the encrypted payment request fields and encoded client meta info.
+`PaymentRequest` encryption is done by using `sdk.encryptPaymentRequest`. This will return an `EncryptedRequest` which
+contains the encrypted customer input and encoded client meta info.
 
 ```swift
-session.prepare(
+sdk.encryptPaymentRequest(
     paymentRequest,
-    success: { preparedPaymentRequest in
-        // Forward the encryptedFields to your server
+    success: { encryptedRequest in
+        // Forward the encryptedRequest.encryptedCustomerInput to your server
     },
     failure: { error in
         // Handle failure of encrypting Payment Request
-    },
-    apiFailure: { errorResponse in
-        // Handle API failure of encrypting Payment Request
     }
 )
 ```
@@ -526,12 +500,12 @@ session.prepare(
 ### IINDetails
 
 The first six digits of a payment card number are known as the *Issuer Identification Number (IIN)*. As soon as the
-first six digits of the card number have been captured, you can use the `session.iinDetails` call to retrieve the
+first six digits of the card number have been captured, you can use the `sdk.iinDetails` call to retrieve the
 payment product and network that are associated with the provided IIN. Then you can verify the card type and check if
 you can accept this card.
 
-An instance of `Session` can be used to check which payment product is associated with an IIN. This is done via the
-`session.iinDetails` function. The result of this check is an instance of `IINDetailsResponse`. This class has a
+An instance of `OnlinePaymentsSdk` can be used to check which payment product is associated with an IIN. This is done via the
+`iinDetails` function. The result of this check is an instance of `IINDetailsResponse`. This class has a
 property status that indicates the result of the check and a property `paymentProductId` that indicates which payment
 product is associated with the IIN. The returned `paymentProductId` can be used to provide visual feedback to the
 customer by showing the appropriate payment product logo.
@@ -546,18 +520,15 @@ are:
   allowed for the current payment.
 
 ```swift
-session.iinDetails(
-    forPartialCreditCardNumber: "123456",
-    context: paymentContext,
+sdk.iinDetails(
+    forPartialCardNumber: "123456",
+    paymentContext: paymentContext,
     success: { iinDetailsResponse in
         // check the status of the associated payment product
         let iinStatus = iinDetailsResponse.status
     },
     failure: { error in
         // Handle failure of retrieving IIN details
-    },
-    apiFailure: { errorResponse in
-        // Handle API failure of retrieving IIN details
     }
 )
 ```
@@ -594,17 +565,24 @@ This is done using information such as session and customer identifiers, connect
 like currency and total amount.
 
 ```swift
-let session = Session(
+let sessionData = SessionData(
     clientSessionId: "47e9dc332ca24273818be2a46072e006",
     customerId: "9991-0d93d6a0e18443bd871c89ec6d38a873",
-    baseURL: "https://clientapi.com",
-    assetBaseURL: "https://assets.com",
-    appIdentifier: "Swift Example Application/v2.0.4",
-    loggingEnabled: true // set this to false in production
+    clientApiUrl: "https://clientapi.com",
+    assetUrl: "https://assets.com"
+)
+
+let configuration = SdkConfiguration(
+    appIdentifier: "Swift Example Application/v2.0.4"
+)
+
+let sdk = try OnlinePaymentsSdk(
+    sessionData: sessionData,
+    configuration: configuration
 )
 
 let amountOfMoney = AmountOfMoney(
-    totalAmount: 1298, // in cents
+    amount: 1298, // in cents
     currencyCode: "EUR" // ISO 4217 currency code
 )
 
@@ -615,14 +593,14 @@ let paymentContext = PaymentContext(
 )
 ```
 
-> A successful response from Create Session can be used directly as input for the Session constructor.
+> A successful response from Create Session can be used directly to construct the SessionData object.
 
-- `clientSessionId` / `customerId` properties are used to authentication purposes. These can be obtained by your server
+- `clientSessionId` / `customerId` properties are used for authentication purposes. These can be obtained by your server
   using one of our available Server SDKs.
-- The `baseURL` and `assetBaseURL` are the URLs the SDK should connect to. The SDK communicates with two types of
+- The `clientApiUrl` and `assetUrl` are the URLs the SDK should connect to. The SDK communicates with two types of
   servers to perform its tasks. One type of server offers the Client API as discussed above. And the other type of
   server stores the static resources used by the SDK, such as the logos of payment products.
-- Payment information (`paymentContext`) is not needed to construct a session, but you will need to provide it when
+- Payment information (`paymentContext`) is not needed to construct the SDK instance, but you will need to provide it when
   requesting any payment product information. The payment products that the customer can choose from depend on the
   provided payment information, so the Client SDK needs this information to be able to do its job. The payment
   information that is needed is:
@@ -637,17 +615,13 @@ Retrieve the payment products and accounts on file that can be used for this pay
 to create the payment product selection screen.
 
 ```swift
-session.paymentItems(
-    for: paymentContext,
-    groupPaymentProducts: false,
-    success: { paymentItems in
-        // Display the contents of paymentItems & accountsOnFile to your customer
+sdk.basicPaymentProducts(
+    forContext: paymentContext,
+    success: { basicPaymentProducts in
+        // Display the contents of basicPaymentProducts & accountsOnFile to your customer
     },
     failure: { error in
         // Inform the customer that something went wrong while retrieving the available Payment Products
-    },
-    apiFailure: { errorResponse in
-        // Inform the customer that the API threw an error while retrieving the available Payment Products
     }
 )
 ```
@@ -672,17 +646,14 @@ the selected payment product or account on file. Your app can use this informati
 screen.
 
 ```swift
-session.paymentProduct(
-    withId: "1", // replace with the id of the payment product that should be fetched
-    context: paymentContext,
+sdk.paymentProduct(
+    withId: 1, // replace with the id of the payment product that should be fetched
+    paymentContext: paymentContext,
     success: { paymentProduct in
         // Display the fields to your customer
     },
     failure: { error in
         // Handle failure of retrieving a Payment Product by id
-    },
-    apiFailure: { errorResponse in
-        // Handle API failure of retrieving a Payment Product by id
     }
 )
 ```
@@ -699,24 +670,21 @@ skipped.
 
 ### 4. Encrypt payment information
 
-Encrypt all the provided payment information in the `PaymentRequest` using `session.prepare`. This function will return
-a `PreparedPaymentRequest` which contains the encrypted payment request fields and encoded client meta info. The
-encrypted fields result is in a format that can be processed by the Server API. The only thing you need to provide to
-the SDK is the values the customer provided in your screens. Once you have retrieved the encrypted fields String from
-the `PreparedPaymentRequest`, your application should send it to your server, which in turn should forward it to the
+Encrypt all the provided payment information in the `PaymentRequest` using `sdk.encryptPaymentRequest`. This function will return
+an `EncryptedRequest` which contains the encrypted customer input and encoded client meta info. The
+encrypted data is in a format that can be processed by the Server API. The only thing you need to provide to
+the SDK is the values the customer provided in your screens. Once you have retrieved the encrypted customer input from
+the `EncryptedRequest`, your application should send it to your server, which in turn should forward it to the
 Server API.
 
 ```swift
-session.prepare(
+sdk.encryptPaymentRequest(
     paymentRequest,
-    success: { preparedPaymentRequest in
-        // Forward the encryptedFields to your server
+    success: { encryptedRequest in
+        // Forward the encryptedCustomerInput to your server
     },
     failure: { error in
         // Handle failure of encrypting Payment Request
-    },
-    apiFailure: { errorResponse in
-        // Handle API failure of encrypting Payment Request
     }
 )
 ```

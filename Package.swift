@@ -1,8 +1,14 @@
 // swift-tools-version:5.5
-// Do not remove or alter the notices in this preamble.
-// This software code is created for Online Payments on 16/07/2020
-// Copyright © 2025 Global Collect Services. All rights reserved.
-//
+/*
+ * Do not remove or alter the notices in this preamble.
+ *
+ * Copyright © 2026 Worldline and/or its affiliates.
+ *
+ * All rights reserved. License grant and user rights and obligations according to the applicable license agreement.
+ *
+ * Please contact Worldline for questions regarding license and user rights.
+ */
+
 import Foundation
 import PackageDescription
 

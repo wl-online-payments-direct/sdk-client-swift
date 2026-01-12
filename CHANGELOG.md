@@ -1,3 +1,166 @@
+# 5.0.0
+
+## Breaking Changes
+
+### API Redesign
+
+The SDK has been completely redesigned to provide a cleaner, more Swift-idiomatic API. The main `Session` class has been renamed to `OnlinePaymentsSdk` and the initialization and method signatures have been updated.
+
+**Old API (Session):**
+```swift
+let session = Session(
+    clientSessionId: "47e9dc332ca24273818be2a46072e006",
+    customerId: "9991-0d93d6a0e18443bd871c89ec6d38a873",
+    baseURL: "https://clientapi.com",
+    assetBaseURL: "https://assets.com",
+    appIdentifier: "My Application/v2.0.4",
+    loggingEnabled: true
+)
+```
+
+**New API (OnlinePaymentsSdk):**
+```swift
+let sessionData = SessionData(
+    clientSessionId: "47e9dc332ca24273818be2a46072e006",
+    customerId: "9991-0d93d6a0e18443bd871c89ec6d38a873",
+    clientApiUrl: "https://clientapi.com",
+    assetUrl: "https://assets.com"
+)
+
+let configuration = SdkConfiguration(
+    appIdentifier: "My Application/v2.0.4"
+)
+
+let sdk = try OnlinePaymentsSdk(
+    sessionData: sessionData,
+    configuration: configuration
+)
+```
+
+### Method Signature Changes
+
+All SDK methods now only use two callbacks (`success` and `failure`) instead of three (`success`, `failure`, and `apiFailure`). The method names have been kept as similar as possible to the previous version to minimize migration effort.
+
+| Old Method (Session)                                                                                               | New Method (OnlinePaymentsSdk)                                                                |
+|--------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------|
+| `session.paymentItems(for:groupPaymentProducts:success:failure:apiFailure:)`                                       | `sdk.basicPaymentProducts(forContext:success:failure:)`                                       |
+| `session.paymentProduct(withId:context:success:failure:apiFailure:)`                                               | `sdk.paymentProduct(withId:paymentContext:success:failure:)`                                  |
+| `session.paymentProductNetworks(forProductId:context:success:failure:apiFailure:)`                                 | `sdk.paymentProductNetworks(forProductId:paymentContext:success:failure:)`                    |
+| `session.iinDetails(forPartialCreditCardNumber:context:success:failure:apiFailure:)`                               | `sdk.iinDetails(forPartialCardNumber:paymentContext:success:failure:)`                        |
+| `session.prepare(_:success:failure:apiFailure:)`                                                                   | `sdk.encryptPaymentRequest(_:success:failure:)`                                               |
+| `session.publicKey(success:failure:apiFailure:)`                                                                   | `sdk.publicKey(success:failure:)`                                                             |
+| `session.surchargeCalculation(amountOfMoney:partialCreditCardNumber:paymentProductId:success:failure:apiFailure:)` | `sdk.surchargeCalculation(amountOfMoney:partialCardNumber:paymentProductId:success:failure:)` |
+| `session.surchargeCalculation(amountOfMoney:token:success:failure:apiFailure:)`                                    | `sdk.surchargeCalculation(amountOfMoney:token:success:failure:)`                              |
+
+**Example migration:**
+
+Old API:
+```swift
+session.paymentItems(
+    for: paymentContext,
+    groupPaymentProducts: false,
+    success: { paymentItems in
+        // Display payment items
+    },
+    failure: { error in
+        // Handle SDK error
+    },
+    apiFailure: { errorResponse in
+        // Handle API error
+    }
+)
+```
+
+New API:
+```swift
+sdk.basicPaymentProducts(
+    forContext: paymentContext,
+    success: { basicPaymentProducts in
+        // Display payment products
+    },
+    failure: { error in
+        // Handle all errors (SDK and API errors are now unified)
+    }
+)
+```
+
+### Type Changes
+
+Payment product identifiers have been changed from `String` to `Int?` to align with the API specification:
+
+* `BasicPaymentProduct.identifier` (String) → `BasicPaymentProduct.id` (Int?)
+  * For Objective-C compatibility, use the `idValue: NSNumber?` property
+* `PaymentProduct.identifier` (String) → `PaymentProduct.id` (Int?)
+  * For Objective-C compatibility, use the `idValue: NSNumber?` property
+* `IINDetailsResponse.paymentProductId` changed from `String?` to `Int?`
+  * For Objective-C compatibility, use the `paymentProductIdValue: NSNumber?` property
+
+Additional type changes
+
+* `EncryptedRequest.encryptedFields` is changed to `EncryptedRequest.encryptedCustomerInput` to be aligned with the property
+  expected on the server side.
+
+### PaymentRequest API Changes
+
+The method for setting field values has been updated:
+
+Old API:
+```swift
+paymentRequest.setValue(forField: "cardNumber", value: "4242424242424242")
+```
+
+New API:
+```swift
+try paymentRequest.field(id: "cardNumber").setValue(value: "4242424242424242")
+```
+
+### Removed Parameters
+
+* The `groupPaymentProducts` parameter has been removed from the payment products retrieval method. Payment products are no longer grouped.
+* The `apiFailure` callback has been removed from all methods. API errors are now reported through the unified `failure` callback.
+
+## Changed
+
+* Comprehensive documentation is added to all public methods following Swift API Design Guidelines.
+* Internal architecture refactored with a clean separation of concerns (Domain, Infrastructure, Services layers).
+* Encryption logic optimized by extracting common code into shared methods.
+* Test infrastructure improved with better fixture loading and mock support.
+
+## Added
+
+* `SessionData` class for encapsulating session initialization parameters.
+* `SdkConfiguration` class for SDK configuration options (replaces individual parameters).
+* `encryptTokenRequest(_:success:failure:)` method for tokenization support.
+* `currencyConversionQuote(amountOfMoney:partialCardNumber:paymentProductId:success:failure:)` and `currencyConversionQuote(amountOfMoney:token:success:failure:)` methods for Dynamic Currency Conversion.
+
+## Migration Guide
+
+To migrate from version 4.x to 5.0.0:
+
+1. **Update initialization code:**
+   * Replace `Session` with `OnlinePaymentsSdk`
+   * Wrap session parameters in `SessionData` object
+   * Wrap configuration parameters in `SdkConfiguration` object
+   * Handle the throwing initializer with `try`
+
+2. **Update method calls:**
+   * Replace all `session.*` calls with `sdk.*` calls
+   * Remove `groupPaymentProducts` parameter from `paymentItems` calls
+   * Rename `paymentItems(for:...)` to `basicPaymentProducts(forContext:...)`
+   * Update parameter names: `context:` → `paymentContext:`
+   * Merge `failure` and `apiFailure` callbacks into a single `failure` callback
+   * Rename `prepare(_:...)` to `encryptPaymentRequest(_:...)`
+
+3. **Update type references:**
+   * Replace `BasicPaymentProduct.identifier` with `BasicPaymentProduct.id`
+   * Replace `PaymentProduct.identifier` with `PaymentProduct.id`
+   * Update payment product ID comparisons to use `Int?` instead of `String`
+
+4. **Update PaymentRequest usage:**
+   * Change `setValue(forField:value:)` to `field(id:).setValue(value:)` with error handling
+
+For more information, follow the instructions provided in the README.md file.
+
 # 4.2.3
 
 ## Changed

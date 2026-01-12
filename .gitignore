@@ -93,6 +93,9 @@ iOSInjectionProject/
 # MacOS generic
 .DS_STORE
 
+# Environment files with secrets
+.env
+
 # Keep this in git to enable preamble for all project members
 !**/xcshareddata/IDETemplateMacros.plist
 
@@ -101,3 +104,4 @@ archives
 .dist
 .swiftpm/xcode/xcshareddata/xcschemes/
 *.xcschemes
+*.local.*

@@ -1,15 +1,18 @@
-//
-// Do not remove or alter the notices in this preamble.
-// This software code is created for Ingencio ePayments on 16/08/2022
-// Copyright © 2022 Global Collect Services. All rights reserved.
-// 
+/*
+ * Do not remove or alter the notices in this preamble.
+ *
+ * Copyright © 2026 Worldline and/or its affiliates.
+ *
+ * All rights reserved. License grant and user rights and obligations according to the applicable license agreement.
+ *
+ * Please contact Worldline for questions regarding license and user rights.
+ */
 
 import SwiftUI
 
 struct ContentView: View {
     var body: some View {
-        Text("Hello, world!")
-            .padding()
+        Text("Hello, world!").padding()
     }
 }
 
