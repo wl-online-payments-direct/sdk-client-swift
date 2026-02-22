@@ -101,6 +101,7 @@ class ClientServiceTestCase: XCTestCase {
             success: { result in
                 XCTAssertNotNil(result)
                 XCTAssertEqual(result.paymentProductId, 1)
+                XCTAssertEqual(self.mockApiClient.lastPostPath, "/services/getIINdetails")
                 XCTAssertEqual(self.mockApiClient.postCallCount, 1, "Should call API once")
                 
                 let cached: IINDetailsResponse? = self.mockCacheManager.get(key: "getIinDetails-42424242")
@@ -219,6 +220,8 @@ class ClientServiceTestCase: XCTestCase {
                 XCTAssertEqual(result.dccSessionId, "5cd02469177743fb8a0b2c78937ee25f")
                 XCTAssertEqual(result.proposal.baseAmount.amount, 1000)
                 XCTAssertEqual(result.proposal.rate.exchangeRate, 1.57)
+
+                XCTAssertEqual(self.mockApiClient.lastPostPath, "/services/dccrate")
                 XCTAssertEqual(self.mockApiClient.postCallCount, 1, "Should call API once")
                 
                 let cacheKey = "getCurrencyConversionQuote-1000-EUR-6789"
@@ -321,6 +324,7 @@ class ClientServiceTestCase: XCTestCase {
                 XCTAssertEqual(result.surcharges.count, 1)
                 XCTAssertEqual(result.surcharges[0].totalAmount.amount, 1366)
                 XCTAssertEqual(result.surcharges[0].surchargeAmount.amount, 366)
+                XCTAssertEqual(self.mockApiClient.lastPostPath, "/services/surchargecalculation")
                 XCTAssertEqual(self.mockApiClient.postCallCount, 1, "Should call API once")
                 
                 let cacheKey = "getSurchargeCalculation-1000-EUR-6789"

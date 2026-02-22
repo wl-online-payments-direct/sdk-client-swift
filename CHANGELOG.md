@@ -1,3 +1,14 @@
+# 5.0.1
+
+## Added
+
+* Added more unit tests for PaymentRequest
+
+## Changed
+
+* Fixed bug in `PaymentRequest` validation method. Validation now also checks fields with values when `AccountOnFile` 
+  is present.
+
 # 5.0.0
 
 ## Breaking Changes

@@ -118,18 +118,23 @@ import Foundation
         return try queue.sync(flags: .barrier) {
             var allErrors: [ValidationErrorMessage] = []
 
-            if let accountOnFile = accountOnFileStorage, !accountOnFile.getRequiredAttributes().isEmpty {
+            if let accountOnFile = self.accountOnFileStorage {
                 let requiredAttributes = accountOnFile.getRequiredAttributes()
 
-                let requiredFields = paymentProduct.fields.filter {
-                    field in
-                    requiredAttributes.contains {
-                        attr in
-                        field.id == attr.key
+                let fieldsToValidate = try self.paymentProduct.fields.filter { currentField in
+                    let hasUserValue = try self._field(id: currentField.id).value != nil
+
+                    let attribute = accountOnFile.getAttribute(id: currentField.id)
+                    if (attribute == nil) {
+                        return true;
                     }
+
+                    let isMustWrite = requiredAttributes.contains {$0.key == currentField.id}
+
+                    return isMustWrite || hasUserValue
                 }
 
-                try validateFields(requiredFields, errors: &allErrors)
+                try validateFields(fieldsToValidate, errors: &allErrors)
             } else {
                 try validateFields(paymentProduct.fields, errors: &allErrors)
             }

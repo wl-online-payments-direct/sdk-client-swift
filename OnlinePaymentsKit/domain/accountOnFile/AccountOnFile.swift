@@ -42,9 +42,25 @@ import Foundation
         return attributeByKey[id]?.value
     }
 
-    public func getRequiredAttributes() -> [AccountOnFileAttribute] {
+    @objc public func getAttribute(id: String) -> AccountOnFileAttribute? {
+        return attributeByKey[id]
+    }
+
+    @objc public func getRequiredAttributes() -> [AccountOnFileAttribute] {
         return attributes.filter {
             $0.status == AccountOnFileAttributeStatus.mustWrite
+        }
+    }
+
+    @objc public func getWritableAttributes() -> [AccountOnFileAttribute] {
+        return attributes.filter {
+            $0.status != AccountOnFileAttributeStatus.readOnly
+        }
+    }
+
+    @objc public func getReadOnlyAttributes() -> [AccountOnFileAttribute] {
+        return attributes.filter {
+            $0.status == AccountOnFileAttributeStatus.readOnly
         }
     }
 

@@ -49,6 +49,18 @@ final class AccountOnFileTests: XCTestCase {
         XCTAssertEqual("111", first.value)
     }
 
+    func testGetWritableAttributes() {
+        let attributes = accountOnFile.getWritableAttributes()
+
+        XCTAssertEqual(2, attributes.count)
+    }
+
+    func testGetReadOnlyAttributes() {
+        let attributes = accountOnFile.getReadOnlyAttributes()
+
+        XCTAssertEqual(5, attributes.count)
+    }
+
     func testIsWritableShouldReturnFalseForCardNumber() {
         XCTAssertFalse(accountOnFile.isWritable(id: "cardNumber"))
     }

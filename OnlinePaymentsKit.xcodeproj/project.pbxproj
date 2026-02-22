@@ -17,6 +17,8 @@
 		8013E71A2E6AD94C00BC0768 /* CHANGELOG.md in Resources */ = {isa = PBXBuildFile; fileRef = 8013E7192E6AD94C00BC0768 /* CHANGELOG.md */; };
 		80707C952D5526350036CE2C /* OnlinePaymentsKit.podspec in Resources */ = {isa = PBXBuildFile; fileRef = 80707C942D5526350036CE2C /* OnlinePaymentsKit.podspec */; };
 		8096B6532F1244B4003B40F0 /* ServiceHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8096B6522F1244B4003B40F0 /* ServiceHelpers.swift */; };
+		8096B6622F4B59D3003B40F0 /* accountOnFileWithMustWriteCvv.json in Resources */ = {isa = PBXBuildFile; fileRef = 8096B6612F4B59D3003B40F0 /* accountOnFileWithMustWriteCvv.json */; };
+		8096B6632F4B59D3003B40F0 /* accountOnFileWithCanWriteCardholderName.json in Resources */ = {isa = PBXBuildFile; fileRef = 8096B6602F4B59D3003B40F0 /* accountOnFileWithCanWriteCardholderName.json */; };
 		80CE933E2D50E57000452EFE /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 80CE933D2D50E57000452EFE /* README.md */; };
 		80FD92832F0FE8DF0071D51C /* ValidatorIBAN.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80FD92752F0FE8DF0071D51C /* ValidatorIBAN.swift */; };
 		80FD92842F0FE8DF0071D51C /* ValidatorTermsAndConditions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80FD927A2F0FE8DF0071D51C /* ValidatorTermsAndConditions.swift */; };
@@ -231,6 +233,8 @@
 		8013E7192E6AD94C00BC0768 /* CHANGELOG.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = CHANGELOG.md; sourceTree = "<group>"; };
 		80707C942D5526350036CE2C /* OnlinePaymentsKit.podspec */ = {isa = PBXFileReference; lastKnownFileType = text; path = OnlinePaymentsKit.podspec; sourceTree = "<group>"; };
 		8096B6522F1244B4003B40F0 /* ServiceHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceHelpers.swift; sourceTree = "<group>"; };
+		8096B6602F4B59D3003B40F0 /* accountOnFileWithCanWriteCardholderName.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = accountOnFileWithCanWriteCardholderName.json; sourceTree = "<group>"; };
+		8096B6612F4B59D3003B40F0 /* accountOnFileWithMustWriteCvv.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = accountOnFileWithMustWriteCvv.json; sourceTree = "<group>"; };
 		80CE933D2D50E57000452EFE /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		80FD92332F0FE8DF0071D51C /* AccountOnFile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountOnFile.swift; sourceTree = "<group>"; };
 		80FD92342F0FE8DF0071D51C /* AccountOnFileAttribute.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountOnFileAttribute.swift; sourceTree = "<group>"; };
@@ -995,6 +999,8 @@
 		80FD938E2F1037810071D51C /* supportingFiles */ = {
 			isa = PBXGroup;
 			children = (
+				8096B6602F4B59D3003B40F0 /* accountOnFileWithCanWriteCardholderName.json */,
+				8096B6612F4B59D3003B40F0 /* accountOnFileWithMustWriteCvv.json */,
 				80FD937B2F1037810071D51C /* accountOnFileVisa.json */,
 				80FD937C2F1037810071D51C /* basicPaymentProduct.json */,
 				80FD937D2F1037810071D51C /* basicPaymentProducts.json */,
@@ -1252,6 +1258,8 @@
 				80FD93992F1037810071D51C /* paymentProduct.json in Resources */,
 				80FD939A2F1037810071D51C /* basicPaymentProduct.json in Resources */,
 				80FD939B2F1037810071D51C /* surchargeCalculationResponse.json in Resources */,
+				8096B6622F4B59D3003B40F0 /* accountOnFileWithMustWriteCvv.json in Resources */,
+				8096B6632F4B59D3003B40F0 /* accountOnFileWithCanWriteCardholderName.json in Resources */,
 				80FD939C2F1037810071D51C /* accountOnFileVisa.json in Resources */,
 				80FD939D2F1037810071D51C /* paymentProducts.json in Resources */,
 				80FD939E2F1037810071D51C /* paymentProductFieldCard.json in Resources */,

@@ -17,6 +17,7 @@ class PaymentRequestTestCase: XCTestCase {
     private var paymentProduct: PaymentProduct!
     private var paymentRequest: PaymentRequest!
     private var accountOnFile: AccountOnFile!
+    private var factory: PaymentProductFactory!
 
     override func setUp() {
         super.setUp()
@@ -25,7 +26,9 @@ class PaymentRequestTestCase: XCTestCase {
             "cardPaymentProduct",
             as: PaymentProductDto.self
         )
-        let factory = PaymentProductFactory()
+
+        factory = PaymentProductFactory()
+
         paymentProduct = factory.createPaymentProduct(from: paymentProductDto)
 
         let accountOnFileDto = try! FixtureLoader.loadJSON(
@@ -157,5 +160,76 @@ class PaymentRequestTestCase: XCTestCase {
 
         XCTAssertTrue(validationResult.isValid)
         XCTAssertEqual(0, validationResult.errors.count)
+    }
+
+    func shouldReturnErrorForCvvWhenItIsMustWriteInAccountOnFileAndUserProvidesNoValueWithAOF() {
+        let accountOnFileDto = try! FixtureLoader.loadJSON(
+            "accountOnFileWithMustWriteCvv",
+            as: AccountOnFileDto.self
+        )
+
+        accountOnFile = factory.createAccountOnFile(from: accountOnFileDto)
+
+        let paymentRequest = PaymentRequest(paymentProduct: paymentProduct, accountOnFile: accountOnFile)
+
+        let result = try! paymentRequest.validate()
+
+        XCTAssertFalse(result.isValid)
+        XCTAssertEqual(1, result.errors.count)
+    }
+
+    func shouldReturnErrorForCvvWhenItIsMustWriteAndUserProvidesInvalidValueWithAOF() {
+        let accountOnFileDto = try! FixtureLoader.loadJSON(
+            "accountOnFileWithMustWriteCvv",
+            as: AccountOnFileDto.self
+        )
+
+        accountOnFile = factory.createAccountOnFile(from: accountOnFileDto)
+
+        let paymentRequest = PaymentRequest(paymentProduct: paymentProduct, accountOnFile: accountOnFile)
+
+        try? paymentRequest.field(id: "cvv").setValue(value: "1")
+
+        let result = try! paymentRequest.validate()
+
+        XCTAssertFalse(result.isValid)
+        XCTAssertEqual(1, result.errors.count)
+    }
+
+    func shouldPassForCvvWhenItIsMustWriteAndUserProvidesValidValueWithAOF() {
+        let accountOnFileDto = try! FixtureLoader.loadJSON(
+            "accountOnFileWithMustWriteCvv",
+            as: AccountOnFileDto.self
+        )
+
+        accountOnFile = factory.createAccountOnFile(from: accountOnFileDto)
+
+        let paymentRequest = PaymentRequest(paymentProduct: paymentProduct, accountOnFile: accountOnFile)
+
+        try? paymentRequest.field(id: "cvv").setValue(value: "123")
+
+        let result = try! paymentRequest.validate()
+
+        XCTAssertTrue(result.isValid)
+        XCTAssertEqual(0, result.errors.count)
+    }
+
+    func shouldPassValidationWhenCardholderNameIsCanWriteAndUserDoesNotProvideValue() {
+        let accountOnFileDto = try! FixtureLoader.loadJSON(
+            "accountOnFileWithCanWriteCardholderName",
+            as: AccountOnFileDto.self
+        )
+
+        accountOnFile = factory.createAccountOnFile(from: accountOnFileDto)
+
+        let paymentRequest = PaymentRequest(paymentProduct: paymentProduct, accountOnFile: accountOnFile)
+
+        try? paymentRequest.field(id: "cvv").setValue(value: "123")
+        try? paymentRequest.field(id: "expiryDate").setValue(value: "12/2026")
+
+        let result = try! paymentRequest.validate()
+
+        XCTAssertTrue(result.isValid)
+        XCTAssertEqual(0, result.errors.count)
     }
 }
