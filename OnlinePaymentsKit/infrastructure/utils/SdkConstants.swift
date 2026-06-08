@@ -1,5 +1,7 @@
-/*
+﻿/*
  * Do not remove or alter the notices in this preamble.
+ *
+ * This software is owned by Worldline and may not be be altered, copied, reproduced, republished, uploaded, posted, transmitted or distributed in any way, without the prior written consent of Worldline.
  *
  * Copyright © 2026 Worldline and/or its affiliates.
  *
@@ -14,5 +16,5 @@ import Foundation
 
 public class SdkConstants: NSObject {
 
-    internal static let kSDKIdentifier = "SwiftClientSDK/v5.0.1"
+    internal static let kSDKIdentifier = "SwiftClientSDK/v5.0.2"
 }
