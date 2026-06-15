@@ -14,11 +14,12 @@ import Foundation
 
 @testable import OnlinePaymentsKit
 
-class MockEncryptionService: EncryptionServiceProtocol {
+class EncryptionServiceMock: EncryptionServiceProtocol {
     func getPublicKey(
         success: @escaping (OnlinePaymentsKit.PublicKeyResponse) -> Void,
         failure: @escaping (OnlinePaymentsKit.SdkError) -> Void
     ) {
+        fatalError("Not implemented: \(#function)")
     }
 
     func encryptPaymentRequest(
@@ -26,6 +27,7 @@ class MockEncryptionService: EncryptionServiceProtocol {
         success: @escaping (OnlinePaymentsKit.EncryptedRequest) -> Void,
         failure: @escaping (OnlinePaymentsKit.SdkError) -> Void
     ) {
+        fatalError("Not implemented: \(#function)")
     }
 
     func encryptTokenRequest(
@@ -33,16 +35,18 @@ class MockEncryptionService: EncryptionServiceProtocol {
         success: @escaping (OnlinePaymentsKit.EncryptedRequest) -> Void,
         failure: @escaping (OnlinePaymentsKit.SdkError) -> Void
     ) {
+        fatalError("Not implemented: \(#function)")
     }
 
 }
 
-class MockPaymentProductService: PaymentProductServiceProtocol {
+class PaymentProductServiceMock: PaymentProductServiceProtocol {
     func paymentProducts(
         forContext context: OnlinePaymentsKit.PaymentContext,
         success: @escaping (OnlinePaymentsKit.BasicPaymentProducts) -> Void,
         failure: @escaping (OnlinePaymentsKit.SdkError) -> Void
     ) {
+        fatalError("Not implemented: \(#function)")
     }
 
     func paymentProduct(
@@ -51,6 +55,7 @@ class MockPaymentProductService: PaymentProductServiceProtocol {
         success: @escaping (OnlinePaymentsKit.PaymentProduct) -> Void,
         failure: @escaping (OnlinePaymentsKit.SdkError) -> Void
     ) {
+        fatalError("Not implemented: \(#function)")
     }
 
     func paymentProductNetworks(
@@ -59,6 +64,7 @@ class MockPaymentProductService: PaymentProductServiceProtocol {
         success: @escaping (OnlinePaymentsKit.PaymentProductNetworks) -> Void,
         failure: @escaping (OnlinePaymentsKit.SdkError) -> Void
     ) {
+        fatalError("Not implemented: \(#function)")
     }
 
     func checkAvailability(
@@ -67,10 +73,11 @@ class MockPaymentProductService: PaymentProductServiceProtocol {
         success: @escaping () -> Void,
         failure: @escaping (OnlinePaymentsKit.SdkError) -> Void
     ) {
+        fatalError("Not implemented: \(#function)")
     }
 }
 
-class MockClientService: ClientServiceProtocol {
+class ClientServiceMock: ClientServiceProtocol {
     var iinLookupPending: Bool = false
 
     func iinDetails(
@@ -79,6 +86,7 @@ class MockClientService: ClientServiceProtocol {
         success: @escaping (OnlinePaymentsKit.IINDetailsResponse) -> Void,
         failure: @escaping (OnlinePaymentsKit.SdkError) -> Void
     ) {
+        fatalError("Not implemented: \(#function)")
     }
 
     func currencyConversionQuote(
@@ -87,6 +95,7 @@ class MockClientService: ClientServiceProtocol {
         success: @escaping (OnlinePaymentsKit.CurrencyConversionResponse) -> Void,
         failure: @escaping (OnlinePaymentsKit.SdkError) -> Void
     ) {
+        fatalError("Not implemented: \(#function)")
     }
 
     func surchargeCalculation(
@@ -95,5 +104,6 @@ class MockClientService: ClientServiceProtocol {
         success: @escaping (OnlinePaymentsKit.SurchargeCalculationResponse) -> Void,
         failure: @escaping (OnlinePaymentsKit.SdkError) -> Void
     ) {
+        fatalError("Not implemented: \(#function)")
     }
 }

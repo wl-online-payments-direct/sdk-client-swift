@@ -186,6 +186,7 @@ class ApiClient: ApiClientProtocol {
             let responseData = try? JSONEncoder().encode(response)
         else {
             Logger.log("Success response received, but could not be encoded.")
+
             return
         }
 

@@ -14,7 +14,7 @@ import XCTest
 
 @testable import OnlinePaymentsKit
 
-class SurchargeCalculationResponseTestCase: XCTestCase {
+class ClientServiceSurchargeTestCase: XCTestCase {
 
     var clientService: ClientService!
     var mockApiClient: ApiClientMock!
@@ -101,11 +101,7 @@ class SurchargeCalculationResponseTestCase: XCTestCase {
             }
         )
 
-        waitForExpectations(timeout: 3) { error in
-            if let error = error {
-                print("Timeout error: \(error.localizedDescription)")
-            }
-        }
+        waitForExpectations(timeout: 3)
     }
 
     func testSurchargeCalculation_WithCardWithoutPaymentProductId() {
@@ -126,11 +122,7 @@ class SurchargeCalculationResponseTestCase: XCTestCase {
             }
         )
 
-        waitForExpectations(timeout: 3) { error in
-            if let error = error {
-                print("Timeout error: \(error.localizedDescription)")
-            }
-        }
+        waitForExpectations(timeout: 3)
     }
 
     func testSurchargeCalculation_WithToken() {
@@ -151,11 +143,7 @@ class SurchargeCalculationResponseTestCase: XCTestCase {
             }
         )
 
-        waitForExpectations(timeout: 3) { error in
-            if let error = error {
-                print("Timeout error: \(error.localizedDescription)")
-            }
-        }
+        waitForExpectations(timeout: 3)
     }
 
     func testNoSurchargeCalculation_WithCardWithPaymentProductId() {
@@ -176,11 +164,7 @@ class SurchargeCalculationResponseTestCase: XCTestCase {
             }
         )
 
-        waitForExpectations(timeout: 3) { error in
-            if let error = error {
-                print("Timeout error: \(error.localizedDescription)")
-            }
-        }
+        waitForExpectations(timeout: 3)
     }
 
     func testNoSurchargeCalculation_WithCardWithoutPaymentProductId() {
@@ -201,11 +185,7 @@ class SurchargeCalculationResponseTestCase: XCTestCase {
             }
         )
 
-        waitForExpectations(timeout: 3) { error in
-            if let error = error {
-                print("Timeout error: \(error.localizedDescription)")
-            }
-        }
+        waitForExpectations(timeout: 3)
     }
 
     func testNoSurchargeCalculation_WithToken() {
@@ -226,11 +206,7 @@ class SurchargeCalculationResponseTestCase: XCTestCase {
             }
         )
 
-        waitForExpectations(timeout: 3) { error in
-            if let error = error {
-                print("Timeout error: \(error.localizedDescription)")
-            }
-        }
+        waitForExpectations(timeout: 3)
     }
 
     private func assertSurchargeResponseValues(response: SurchargeCalculationResponse) {

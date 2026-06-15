@@ -39,6 +39,7 @@ internal class ClientService: ClientServiceProtocol {
         if bin.count < 6 {
             let response = IINDetailsResponse(status: .notEnoughDigits)
             success(response)
+
             return
         }
 
@@ -46,6 +47,7 @@ internal class ClientService: ClientServiceProtocol {
 
         if let cached: IINDetailsResponse = cacheManager.get(key: cacheKey) {
             success(cached)
+
             return
         }
 
@@ -111,6 +113,7 @@ internal class ClientService: ClientServiceProtocol {
 
         if let cached: CurrencyConversionResponse = cacheManager.get(key: cacheKey) {
             success(cached)
+
             return
         }
 
@@ -162,6 +165,7 @@ internal class ClientService: ClientServiceProtocol {
 
         if let cached: SurchargeCalculationResponse = cacheManager.get(key: cacheKey) {
             success(cached)
+
             return
         }
 
@@ -215,6 +219,7 @@ internal class ClientService: ClientServiceProtocol {
         if let card = cardSource.card {
             let cardNumber = card.cardNumber
             let suffix = String(cardNumber.suffix(4))
+
             return suffix
         } else if let token = cardSource.token {
             return token

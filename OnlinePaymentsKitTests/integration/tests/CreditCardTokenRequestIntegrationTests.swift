@@ -11,12 +11,19 @@
  */
 
 import XCTest
+import OHHTTPStubs
+import OHHTTPStubsSwift
 
 @testable import OnlinePaymentsKit
 
 /// Integration tests for credit card tokenization request encryption.
 /// Tests real encryption with actual public keys from the preprod environment.
 class CreditCardTokenRequestIntegrationTests: BaseIntegrationTest {
+
+    override func tearDown() {
+        HTTPStubs.removeAllStubs()
+        super.tearDown()
+    }
 
     func testEncryptTokenRequest_withValidData_shouldReturnEncryptedData() {
         let expectation = expectation(description: "Encrypt token request")
@@ -77,6 +84,7 @@ class CreditCardTokenRequestIntegrationTests: BaseIntegrationTest {
                         case .failure(let error):
                             XCTFail("Token creation should succeed: \(error)")
                         }
+
                         tokenExpectation.fulfill()
                     }
                 },
@@ -109,9 +117,10 @@ class CreditCardTokenRequestIntegrationTests: BaseIntegrationTest {
                     switch result {
                     case .success:
                         XCTFail("Should not create token with invalid data")
-                    case .failure(let error):
-                        XCTAssertNotNil(error)
+                    case .failure:
+                        break
                     }
+
                     tokenExpectation.fulfill()
                 }
             },
@@ -120,9 +129,67 @@ class CreditCardTokenRequestIntegrationTests: BaseIntegrationTest {
                 encryptExpectation.fulfill()
                 tokenExpectation.fulfill()
             }
+
         )
 
         waitForExpectations(timeout: 15.0)
+    }
+
+    func testEncryptTokenRequest_MissingPaymentProductId_ThrowsEncryptionError() {
+        let expectation = expectation(description: "Encrypt token request with missing paymentProductId")
+
+        let tokenRequest = CreditCardTokenRequest()
+        tokenRequest.cardNumber = "4242424242424242"
+        tokenRequest.cardholderName = "Test Cardholder"
+        tokenRequest.securityCode = "123"
+        tokenRequest.expiryDate = "1230"
+
+        sdk.encryptTokenRequest(
+            tokenRequest,
+            success: { _ in
+                XCTFail("Should have failed when paymentProductId is not set")
+                expectation.fulfill()
+            },
+            failure: { error in
+                let encryptionError = error as? EncryptionError
+                XCTAssertNotNil(encryptionError, "Error should be an EncryptionError")
+                XCTAssertTrue(
+                    error.message.contains("payment product ID not set"),
+                    "Error message should mention missing payment product ID, got: \(error.message)"
+                )
+                expectation.fulfill()
+            }
+
+        )
+
+        waitForExpectations(timeout: 10.0)
+    }
+
+    func testEncryptTokenRequest_ValidRequest_ReturnsEncodedClientMetaInfo() {
+        let expectation = expectation(description: "Encrypt token request — encodedClientMetaInfo")
+
+        getValidRequest { tokenRequest in
+            self.sdk.encryptTokenRequest(
+                tokenRequest,
+                success: { encryptedRequest in
+                    XCTAssertNotNil(
+                        encryptedRequest.encodedClientMetaInfo,
+                        "encodedClientMetaInfo should not be null"
+                    )
+                    XCTAssertFalse(
+                        encryptedRequest.encodedClientMetaInfo.isEmpty,
+                        "encodedClientMetaInfo should not be empty"
+                    )
+                    expectation.fulfill()
+                },
+                failure: { error in
+                    XCTFail("Should not fail: \(error)")
+                    expectation.fulfill()
+                }
+            )
+        }
+
+        waitForExpectations(timeout: 10.0)
     }
 
     // MARK: - Helper Methods
@@ -143,17 +210,17 @@ class CreditCardTokenRequestIntegrationTests: BaseIntegrationTest {
             success: { paymentProduct in
                 let request = CreditCardTokenRequest()
                 request.paymentProductId = 1  // VISA
-                request.cardNumber = "4242424242424242"
+                request.cardNumber = TestData.visaCardNumber
                 request.cardholderName = "Test Cardholder"
-                request.securityCode = "123"
+                request.securityCode = TestData.cvv
 
                 // Determine the correct expiry date format (4 or 6 digits)
                 if let expiryField = paymentProduct.field(id: "expiryDate") {
                     let maskedValue = expiryField.applyMask(value: "122030")
-                    let validValue = (maskedValue?.count == 5) ? "1230" : "122030"
+                    let validValue = (maskedValue?.count == 5) ? TestData.expiryDateMMYY : "122030"
                     request.expiryDate = validValue
                 } else {
-                    request.expiryDate = "1230"
+                    request.expiryDate = TestData.expiryDateMMYY
                 }
 
                 completion(request)

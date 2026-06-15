@@ -94,10 +94,6 @@ final class PaymentRequestFieldTests: XCTestCase {
         XCTAssertEqual(paymentRequestField.label, "Card number")
     }
 
-    //    func testPlaceholderShouldReturnTestPlaceholder() {
-    //        XCTAssertEqual(paymentRequestField.placeholder, "Test placeholder")
-    //    }
-
     func testValidateShouldReturnErrorsIfRequiredAndValueNotProvided() {
         let validationResult = paymentRequestField.validate()
 
@@ -112,19 +108,4 @@ final class PaymentRequestFieldTests: XCTestCase {
         XCTAssertTrue(validationResult.isValid)
         XCTAssertEqual(validationResult.errors.count, 0)
     }
-
-    //    func testSetValueShouldThrowCorrectErrorMessageForReadOnlyField() {
-    //        let definition = try! FixtureLoader.loadJSON(
-    //            "paymentProductFieldCard",
-    //            as: PaymentProductField.self
-    //        )
-    //
-    //        let readOnlyField = PaymentRequestField(definition: definition, readOnly: true)
-    //
-    //        XCTAssertThrowsError(try readOnlyField.setValue(value: "4222422242224222")) { error in
-    //            let err = error as? InvalidArgumentException
-    //            XCTAssertNotNil(err)
-    //            XCTAssertEqual(err?.message, "Cannot write \"READ_ONLY\" field: cardNumber")
-    //        }
-    //    }
 }

@@ -17,8 +17,10 @@ import Foundation
     public var paymentProductId: Int?
     @objc public var paymentProductIdValue: NSNumber? {
         guard let paymentProductId = paymentProductId else { return nil }
+
         return NSNumber(value: paymentProductId)
     }
+
     @objc public var status: IINStatus = .supported
     @objc public var coBrands = [IINDetail]()
     @objc public var countryCode: String?

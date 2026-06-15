@@ -213,9 +213,10 @@ final class PaymentProductFactoryTestCase: XCTestCase {
 
         // Then
         let requiredFields = result.requiredFields
-        XCTAssertEqual(requiredFields.count, 2) // cardNumber and expiryDate are required
+        XCTAssertEqual(requiredFields.count, 3)
         XCTAssertTrue(requiredFields.contains { $0.id == "cardNumber" })
         XCTAssertTrue(requiredFields.contains { $0.id == "expiryDate" })
+        XCTAssertTrue(requiredFields.contains { $0.id == "cvv" })
     }
 
     func testCreatePaymentProduct_ShouldInheritFromBasicPaymentProduct() throws {
@@ -255,8 +256,8 @@ final class PaymentProductFactoryTestCase: XCTestCase {
         // Then
         XCTAssertNotNil(result.displayHints)
         XCTAssertEqual(result.displayHints.label, "Card number")
-        XCTAssertEqual(result.displayHints.mask, "{{9999}} {{9999}} {{9999}} {{9999}}")
-        XCTAssertFalse(result.displayHints.obfuscate)
+        XCTAssertEqual(result.displayHints.mask, "{{9999}} {{9999}} {{9999}} {{9999}} {{999}}")
+        XCTAssertTrue(result.displayHints.obfuscate)
         XCTAssertFalse(result.displayHints.alwaysShow)
     }
 
@@ -351,7 +352,7 @@ final class PaymentProductFactoryTestCase: XCTestCase {
 
         // Then
         XCTAssertNotNil(result)
-        XCTAssertEqual(result.id, "test-1")
+        XCTAssertEqual(result.id, "123")
         XCTAssertEqual(result.paymentProductId, 1)
     }
 
@@ -530,5 +531,62 @@ final class PaymentProductFactoryTestCase: XCTestCase {
 
         let cardNumberField = product.field(id: "cardNumber")
         XCTAssertEqual(cardNumberField?.type, .numericString)
+    }
+
+    func testCreateBasicProductsDeduplicatesSharedAccountsOnFile() {
+        let sharedAofId = "shared-aof-id"
+
+        let aofDto1 = AccountOnFileDto(id: sharedAofId, paymentProductId: 1, attributes: nil, displayHints: nil)
+        let aofDto2 = AccountOnFileDto(id: sharedAofId, paymentProductId: 2, attributes: nil, displayHints: nil)
+
+        let productDto1 = BasicPaymentProductDto(
+            id: 1, paymentMethod: "card", displayHints: nil,
+            accountsOnFile: [aofDto1], allowsRecurring: nil, allowsTokenization: nil,
+            maxAmount: nil, minAmount: nil, usesRedirectionTo3rdParty: nil,
+            paymentProduct302SpecificData: nil, paymentProduct320SpecificData: nil,
+            paymentProductGroup: nil
+        )
+        let productDto2 = BasicPaymentProductDto(
+            id: 2, paymentMethod: "card", displayHints: nil,
+            accountsOnFile: [aofDto2], allowsRecurring: nil, allowsTokenization: nil,
+            maxAmount: nil, minAmount: nil, usesRedirectionTo3rdParty: nil,
+            paymentProduct302SpecificData: nil, paymentProduct320SpecificData: nil,
+            paymentProductGroup: nil
+        )
+
+        let dto = BasicPaymentProductsDto(paymentProducts: [productDto1, productDto2])
+        let result = factory.createBasicPaymentProducts(from: dto)
+
+        XCTAssertNotNil(result)
+        XCTAssertEqual(result?.accountsOnFile.count, 1)
+    }
+
+    func testCreateBasicPaymentProductMaps320SpecificData() throws {
+        let dto = try FixtureLoader.loadJSON("basicPaymentProduct", as: BasicPaymentProductDto.self)
+
+        let result = factory.createBasicPaymentProduct(from: dto)
+
+        XCTAssertNotNil(result.paymentProduct320SpecificData)
+        XCTAssertEqual(result.paymentProduct320SpecificData?.gateway, "test gateway")
+        XCTAssertEqual(result.paymentProduct320SpecificData?.networks.count, 3)
+    }
+
+    func testCreatePaymentProductFieldUsesDefaultDisplayHintsValues() {
+        let displayHintsDto = PaymentProductFieldDisplayHintsDto(
+            alwaysShow: nil, displayOrder: nil, formElement: nil, label: nil,
+            link: nil, mask: nil, obfuscate: nil, placeholderLabel: nil,
+            preferredInputType: nil, tooltip: nil
+        )
+        let fieldDto = PaymentProductFieldDto(
+            id: "test-field", type: nil,
+            displayHints: displayHintsDto, dataRestrictions: nil
+        )
+
+        let result = factory.createPaymentProductField(from: fieldDto)
+
+        XCTAssertFalse(result.displayHints.alwaysShow)
+        XCTAssertEqual(result.displayHints.displayOrder, Int.max)
+        XCTAssertFalse(result.displayHints.obfuscate)
+        XCTAssertEqual(result.displayHints.formElement.type, .textType)
     }
 }

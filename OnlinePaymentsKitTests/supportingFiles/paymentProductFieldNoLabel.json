@@ -1,0 +1,14 @@
+{
+  "id": "testFieldId",
+  "type": "string",
+  "displayHints": {
+    "obfuscate": false,
+    "formElement": {
+      "type": "text"
+    }
+  },
+  "dataRestrictions": {
+    "isRequired": false,
+    "validators": {}
+  }
+}

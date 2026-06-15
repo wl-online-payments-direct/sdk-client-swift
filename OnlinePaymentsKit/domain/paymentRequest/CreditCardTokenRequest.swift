@@ -44,12 +44,15 @@ import Foundation
         if let cardNumber = cardNumber {
             values["cardNumber"] = cardNumber
         }
+
         if let cardholderName = cardholderName {
             values["cardholderName"] = cardholderName
         }
+
         if let expiryDate = expiryDate {
             values["expiryDate"] = expiryDate
         }
+
         if let securityCode = securityCode {
             values["cvv"] = securityCode
         }

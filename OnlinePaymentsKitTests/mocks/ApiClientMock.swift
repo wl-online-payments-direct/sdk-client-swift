@@ -23,6 +23,7 @@ class ApiClientMock: ApiClientProtocol {
     var lastPostPath: String?
     var lastGetParameters: Parameters?
     var lastPostParameters: Parameters?
+    var lastPostAdditionalStatusCodes: IndexSet?
 
     var mockGetResponses: [String: Any] = [:]
     var mockGetStatusCode: Int = 200
@@ -51,6 +52,7 @@ class ApiClientMock: ApiClientProtocol {
         if shouldGetFailWithCommunicationError {
             let error = CommunicationError(message: "Mock communication error")
             failure(error)
+
             return
         }
 
@@ -63,6 +65,7 @@ class ApiClientMock: ApiClientProtocol {
                     data: nil
                 )
             failure(error)
+
             return
         }
 
@@ -81,10 +84,12 @@ class ApiClientMock: ApiClientProtocol {
         postCallCount += 1
         lastPostPath = path
         lastPostParameters = parameters
+        lastPostAdditionalStatusCodes = additionalAcceptableStatusCodes
 
         if shouldPostFailWithCommunicationError {
             let error = CommunicationError(message: "Mock communication error")
             failure(error)
+
             return
         }
 
@@ -97,6 +102,7 @@ class ApiClientMock: ApiClientProtocol {
                     data: nil
                 )
             failure(error)
+
             return
         }
 

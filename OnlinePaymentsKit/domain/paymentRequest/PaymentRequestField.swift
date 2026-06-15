@@ -80,6 +80,7 @@ import Foundation
 
     public func validate() -> ValidationResult {
         let errors = definition.validate(value: storedValue)
+
         return ValidationResult(isValid: errors.isEmpty, errors: errors)
     }
 }

@@ -77,7 +77,6 @@ class ClientServiceTestCase: XCTestCase {
             forBin: "42424242",
             forContext: paymentContext,
             success: { result in
-                XCTAssertNotNil(result)
                 XCTAssertEqual(result.paymentProductId, 1)
                 XCTAssertEqual(result.countryCode, "BE")
                 XCTAssertEqual(self.mockApiClient.postCallCount, 0, "Should not call API")
@@ -101,10 +100,10 @@ class ClientServiceTestCase: XCTestCase {
             forBin: "42424242",
             forContext: paymentContext,
             success: { result in
-                XCTAssertNotNil(result)
                 XCTAssertEqual(result.paymentProductId, 1)
                 XCTAssertEqual(self.mockApiClient.lastPostPath, "/services/getIINdetails")
                 XCTAssertEqual(self.mockApiClient.postCallCount, 1, "Should call API once")
+                XCTAssertEqual(self.mockApiClient.lastPostAdditionalStatusCodes, IndexSet(integer: 404))
                 
                 let cached: IINDetailsResponse? = self.mockCacheManager.get(key: "getIinDetails-42424242")
                 XCTAssertNotNil(cached, "Should cache the result")
@@ -129,7 +128,6 @@ class ClientServiceTestCase: XCTestCase {
             forBin: "42424242",
             forContext: nil,
             success: { result in
-                XCTAssertNotNil(result)
                 XCTAssertEqual(result.paymentProductId, 1)
                 expectation.fulfill()
             },
@@ -144,8 +142,7 @@ class ClientServiceTestCase: XCTestCase {
     func testGetIINDetailsReturnsErrorWhenResponseIsEmpty() {
         let expectation = self.expectation(description: "Returns error when response is nil")
         
-        mockApiClient.mockPostResponses["/services/getIINdetails"] = nil
-        
+        // No response registered in mockPostResponses — mock returns nil by default
         clientService.iinDetails(
             forBin: "42424242",
             forContext: paymentContext,
@@ -153,7 +150,6 @@ class ClientServiceTestCase: XCTestCase {
                 XCTFail("Should not succeed")
             },
             failure: { error in
-                XCTAssertNotNil(error)
                 XCTAssertTrue(error.message.contains("Could not fetch IinDetails."))
                 expectation.fulfill()
             }
@@ -174,7 +170,6 @@ class ClientServiceTestCase: XCTestCase {
                 XCTFail("Should not succeed")
             },
             failure: { error in
-                XCTAssertNotNil(error)
                 expectation.fulfill()
             }
         )
@@ -194,7 +189,6 @@ class ClientServiceTestCase: XCTestCase {
             withAmountOfMoney: amountOfMoney,
             forCardSource: cardSource,
             success: { result in
-                XCTAssertNotNil(result)
                 XCTAssertEqual(result.dccSessionId, "5cd02469177743fb8a0b2c78937ee25f")
                 XCTAssertEqual(result.result.result, .allowed)
                 XCTAssertEqual(self.mockApiClient.postCallCount, 0, "Should not call API")
@@ -218,7 +212,6 @@ class ClientServiceTestCase: XCTestCase {
             withAmountOfMoney: amountOfMoney,
             forCardSource: cardSource,
             success: { result in
-                XCTAssertNotNil(result)
                 XCTAssertEqual(result.dccSessionId, "5cd02469177743fb8a0b2c78937ee25f")
                 XCTAssertEqual(result.proposal.baseAmount.amount, 1000)
                 XCTAssertEqual(result.proposal.rate.exchangeRate, 1.57)
@@ -252,7 +245,6 @@ class ClientServiceTestCase: XCTestCase {
             withAmountOfMoney: amountOfMoney,
             forCardSource: tokenCardSource,
             success: { result in
-                XCTAssertNotNil(result)
                 XCTAssertEqual(result.dccSessionId, "5cd02469177743fb8a0b2c78937ee25f")
                 expectation.fulfill()
             },
@@ -263,12 +255,40 @@ class ClientServiceTestCase: XCTestCase {
         
         waitForExpectations(timeout: 2.0)
     }
+
+    func testGetCurrencyConversionQuoteWithCardUsesCardSourceInRequest() {
+        let expectation = self.expectation(description: "Card source shape in DCC request body")
+
+        let card = Card(cardNumber: "4242424242424242", paymentProductId: 1)
+        let cardCardSource = CardSource(card: card)
+
+        let response = try! FixtureLoader.loadJSON("currencyConversionResponse", as: CurrencyConversionResponse.self)
+        mockApiClient.mockPostResponses["/services/dccrate"] = response
+
+        clientService.currencyConversionQuote(
+            withAmountOfMoney: amountOfMoney,
+            forCardSource: cardCardSource,
+            success: { _ in
+                let cardSource = self.mockApiClient.lastPostParameters?["cardSource"] as? [String: Any]
+                XCTAssertNotNil(cardSource)
+                let cardDict = cardSource?["card"] as? [String: Any]
+                XCTAssertNotNil(cardDict, "cardSource.card should be present for a card-based request")
+                XCTAssertEqual(cardDict?["cardNumber"] as? String, "4242424242424242")
+                XCTAssertNil(cardSource?["token"], "cardSource.token should be nil for a card-based request")
+                expectation.fulfill()
+            },
+            failure: { error in
+                XCTFail("Should not fail: \(error.message)")
+            }
+        )
+
+        waitForExpectations(timeout: 2.0)
+    }
     
     func testGetCurrencyConversionQuoteReturnsErrorWhenResponseIsEmpty() {
         let expectation = self.expectation(description: "Returns error when response is nil")
         
-        mockApiClient.mockPostResponses["/services/dccrate"] = nil
-        
+        // No response registered in mockPostResponses — mock returns nil by default
         clientService.currencyConversionQuote(
             withAmountOfMoney: amountOfMoney,
             forCardSource: cardSource,
@@ -276,7 +296,6 @@ class ClientServiceTestCase: XCTestCase {
                 XCTFail("Should not succeed")
             },
             failure: { error in
-                XCTAssertNotNil(error)
                 XCTAssertTrue(error.message.contains("Could not fetch CurrencyConversionQuote."))
                 expectation.fulfill()
             }
@@ -297,7 +316,6 @@ class ClientServiceTestCase: XCTestCase {
             withAmountOfMoney: amountOfMoney,
             forCardSource: cardSource,
             success: { result in
-                XCTAssertNotNil(result)
                 XCTAssertEqual(result.surcharges.count, 1)
                 XCTAssertEqual(result.surcharges[0].paymentProductId, 1)
                 XCTAssertEqual(result.surcharges[0].result, .ok)
@@ -322,7 +340,6 @@ class ClientServiceTestCase: XCTestCase {
             withAmountOfMoney: amountOfMoney,
             forCardSource: cardSource,
             success: { result in
-                XCTAssertNotNil(result)
                 XCTAssertEqual(result.surcharges.count, 1)
                 XCTAssertEqual(result.surcharges[0].totalAmount.amount, 1366)
                 XCTAssertEqual(result.surcharges[0].surchargeAmount.amount, 366)
@@ -346,8 +363,7 @@ class ClientServiceTestCase: XCTestCase {
     func testGetSurchargeCalculationReturnsErrorWhenResponseIsEmpty() {
         let expectation = self.expectation(description: "Returns error when response is nil")
         
-        mockApiClient.mockPostResponses["/services/surchargecalculation"] = nil
-        
+        // No response registered in mockPostResponses — mock returns nil by default
         clientService.surchargeCalculation(
             withAmountOfMoney: amountOfMoney,
             forCardSource: cardSource,
@@ -355,7 +371,6 @@ class ClientServiceTestCase: XCTestCase {
                 XCTFail("Should not succeed")
             },
             failure: { error in
-                XCTAssertNotNil(error)
                 XCTAssertTrue(error.message.contains("Could not fetch SurchargeCalculation."))
                 expectation.fulfill()
             }
@@ -371,7 +386,6 @@ class ClientServiceTestCase: XCTestCase {
             forBin: "12345",
             forContext: paymentContext,
             success: { result in
-                XCTAssertNotNil(result)
                 XCTAssertEqual(result.status, .notEnoughDigits)
                 XCTAssertEqual(self.mockApiClient.postCallCount, 0, "Should not call API")
                 XCTAssertFalse(self.clientService.iinLookupPending, "Should not set pending flag")
@@ -397,7 +411,6 @@ class ClientServiceTestCase: XCTestCase {
             forBin: "42424242",
             forContext: paymentContext,
             success: { result in
-                XCTAssertNotNil(result)
                 XCTAssertFalse(self.clientService.iinLookupPending, "Should clear flag on success")
                 expectation.fulfill()
             },
@@ -443,7 +456,6 @@ class ClientServiceTestCase: XCTestCase {
             forBin: "42424242",
             forContext: paymentContext,
             success: { result in
-                XCTAssertNotNil(result)
                 XCTAssertFalse(self.clientService.iinLookupPending, "Should not set flag for cached result")
                 expectation.fulfill()
             },
@@ -453,5 +465,113 @@ class ClientServiceTestCase: XCTestCase {
         )
         
         waitForExpectations(timeout: 2.0)
+    }
+
+    func testGetIINDetailsFormatsPartialCardNumberBeforeRequest() {
+        let expectation = self.expectation(description: "Partial card number is formatted before request")
+
+        let iinDetails = try! FixtureLoader.loadJSON("iinDetailsResponse", as: IINDetailsResponse.self)
+        mockApiClient.mockPostResponses["/services/getIINdetails"] = iinDetails
+
+        clientService.iinDetails(
+            forBin: "1234567890",
+            forContext: paymentContext,
+            success: { _ in
+                let bin = self.mockApiClient.lastPostParameters?["bin"] as? String
+                XCTAssertEqual(bin, "12345678")
+                expectation.fulfill()
+            },
+            failure: { error in
+                XCTFail("Should not fail: \(error.message)")
+            }
+        )
+
+        waitForExpectations(timeout: 2.0)
+    }
+
+    func testGetIINDetailsMapsExistingButNotAllowedStatus() {
+        let expectation = self.expectation(description: "Maps isAllowedInContext=false to existingButNotAllowed")
+
+        let json = """
+        {
+            "countryCode": "NL",
+            "paymentProductId": 1,
+            "cardType": "Credit",
+            "isAllowedInContext": false
+        }
+        """
+        let notAllowedResponse = try! JSONDecoder().decode(
+            IINDetailsResponse.self,
+            from: json.data(using: .utf8)!
+        )
+        mockApiClient.mockPostResponses["/services/getIINdetails"] = notAllowedResponse
+
+        clientService.iinDetails(
+            forBin: "424242",
+            forContext: paymentContext,
+            success: { result in
+                XCTAssertEqual(result.status, .existingButNotAllowed)
+                expectation.fulfill()
+            },
+            failure: { error in
+                XCTFail("Should not fail: \(error.message)")
+            }
+        )
+
+        waitForExpectations(timeout: 2.0)
+    }
+
+    func testGetSurchargeCalculationWithTokenUsesTokenSourceInRequest() {
+        let expectation = self.expectation(description: "Token source is used in surcharge request body")
+
+        let response = try! FixtureLoader.loadJSON(
+            "surchargeCalculationResponse",
+            as: SurchargeCalculationResponse.self
+        )
+        mockApiClient.mockPostResponses["/services/surchargecalculation"] = response
+
+        let tokenCardSource = CardSource(token: "test-token-123")
+
+        clientService.surchargeCalculation(
+            withAmountOfMoney: amountOfMoney,
+            forCardSource: tokenCardSource,
+            success: { _ in
+                let cardSource = self.mockApiClient.lastPostParameters?["cardSource"] as? [String: Any]
+                XCTAssertNotNil(cardSource)
+                XCTAssertEqual(cardSource?["token"] as? String, "test-token-123")
+                XCTAssertNil(cardSource?["card"])
+                expectation.fulfill()
+            },
+            failure: { error in
+                XCTFail("Should not fail: \(error.message)")
+            }
+        )
+
+        waitForExpectations(timeout: 2.0)
+    }
+
+    func testValidateResponseWithNilDataThrowsResponseError() {
+        var failureCalled = false
+        var receivedError: SdkError?
+
+        validateResponse(
+            nil as String?,
+            statusCode: 200,
+            message: "Test error message",
+            success: { _ in
+                XCTFail("Should not succeed when response data is nil")
+            },
+            failure: { error in
+                failureCalled = true
+                receivedError = error
+            }
+        )
+
+        XCTAssertTrue(failureCalled)
+        XCTAssertTrue(receivedError is ResponseError)
+        if let responseError = receivedError as? ResponseError {
+            XCTAssertEqual(responseError.httpStatusCode, 200)
+            XCTAssertEqual(responseError.message, "Test error message")
+        }
     }
 }

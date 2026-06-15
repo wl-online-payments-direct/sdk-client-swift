@@ -16,7 +16,7 @@ import XCTest
 
 @testable import OnlinePaymentsKit
 
-class IINDetailsResponseTestCase: XCTestCase {
+class ClientServiceIINDetailsTestCase: XCTestCase {
 
     let host = "example.com"
 
@@ -52,6 +52,7 @@ class IINDetailsResponseTestCase: XCTestCase {
         stub(condition: isHost(host) && isMethodPOST()) { request in
             let url = request.url?.absoluteString ?? "nil"
             XCTFail("Service called unexpected endpoint: \(url)")
+
             return HTTPStubsResponse(error: NSError(domain: "Tests", code: 1, userInfo: nil))
         }
 
@@ -89,12 +90,9 @@ class IINDetailsResponseTestCase: XCTestCase {
             failure: { (error) in
                 XCTFail("Unexpected failure while getting IIN Details: \(error.message)")
             }
+
         )
-        waitForExpectations(timeout: 3) { error in
-            if let error = error {
-                print("Timeout error: \(error.localizedDescription)")
-            }
-        }
+        waitForExpectations(timeout: 3)
     }
 
     func testGetIINDetails() {
@@ -127,10 +125,7 @@ class IINDetailsResponseTestCase: XCTestCase {
                 XCTFail("Unexpected failure while getting IIN Details: \(error.message)")
             }
         )
-        waitForExpectations(timeout: 5) { error in
-            if let error = error {
-                print("Timeout error: \(error.localizedDescription)")
-            }
-        }
+        
+        waitForExpectations(timeout: 5)
     }
 }

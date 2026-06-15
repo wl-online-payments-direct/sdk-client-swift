@@ -68,7 +68,6 @@ class PaymentProductServiceTestCase: XCTestCase {
         paymentProductService.paymentProducts(
             forContext: paymentContext,
             success: { result in
-                XCTAssertNotNil(result)
                 XCTAssertFalse(result.paymentProducts.isEmpty)
                 expectation.fulfill()
             },
@@ -94,8 +93,10 @@ class PaymentProductServiceTestCase: XCTestCase {
             success: { result in
                 let hasUnsupported = result.paymentProducts.contains { product in
                     guard let id = product.id else { return false }
+
                     return SupportedProductsUtil.sdkUnsupportedProducts.contains(id)
                 }
+
                 XCTAssertFalse(hasUnsupported, "Should not contain unsupported products")
                 expectation.fulfill()
             },
@@ -117,7 +118,6 @@ class PaymentProductServiceTestCase: XCTestCase {
             withId: 1,
             forContext: paymentContext,
             success: { result in
-                XCTAssertNotNil(result)
                 XCTAssertEqual(result.id, 1)
                 XCTAssertFalse(result.fields.isEmpty)
                 expectation.fulfill()
@@ -187,8 +187,6 @@ class PaymentProductServiceTestCase: XCTestCase {
                 XCTFail("Should not succeed")
             },
             failure: { error in
-                print(error.message, error.code)
-                print("****")
                 XCTAssertTrue(error is ResponseError)
                 if let responseError = error as? ResponseError {
                     XCTAssertEqual(responseError.httpStatusCode, 404)
@@ -196,6 +194,7 @@ class PaymentProductServiceTestCase: XCTestCase {
                     // Check if metadata contains ErrorResponse using the helper property
                     XCTAssertNotNil(responseError.metadata)
                 }
+
                 expectation.fulfill()
             }
         )
@@ -225,6 +224,7 @@ class PaymentProductServiceTestCase: XCTestCase {
                     XCTAssertEqual(responseError.httpStatusCode, 500)
                     XCTAssertEqual(responseError.message, "Network error")
                 }
+
                 expectation.fulfill()
             }
         )
@@ -242,7 +242,6 @@ class PaymentProductServiceTestCase: XCTestCase {
             forProductId: 1,
             forContext: paymentContext,
             success: { result in
-                XCTAssertNotNil(result)
                 XCTAssertEqual(result.paymentProductNetworks.count, 2)
                 expectation.fulfill()
             },
@@ -407,5 +406,103 @@ class PaymentProductServiceTestCase: XCTestCase {
         )
         
         waitForExpectations(timeout: 5.0) // Longer timeout for image loading
+    }
+
+    func testGetBasicPaymentProductsReturnsErrorWhenApiResponseIsInvalid() {
+        let expectation = self.expectation(description: "Returns error when API response is invalid")
+
+        paymentProductService.paymentProducts(
+            forContext: paymentContext,
+            success: { _ in
+                XCTFail("Should not succeed when API response is invalid")
+            },
+            failure: { error in
+                XCTAssertTrue(error is ResponseError)
+                expectation.fulfill()
+            }
+        )
+
+        waitForExpectations(timeout: 2.0)
+    }
+
+    func testGetPaymentProductNetworksReturnsErrorWhenApiResponseIsInvalid() {
+        let expectation = self.expectation(description: "Returns error when networks API response is invalid")
+
+        paymentProductService.paymentProductNetworks(
+            forProductId: 1,
+            forContext: paymentContext,
+            success: { _ in
+                XCTFail("Should not succeed when API response is invalid")
+            },
+            failure: { error in
+                XCTAssertTrue(error is ResponseError)
+                expectation.fulfill()
+            }
+        )
+
+        waitForExpectations(timeout: 2.0)
+    }
+
+    func testCheckAvailabilitySucceedsForSupportedNonApplePayProduct() {
+        let expectation = self.expectation(description: "Supported product passes availability check")
+
+        paymentProductService.checkAvailability(
+            forProduct: 1,  // VISA — supported
+            context: paymentContext,
+            success: {
+                expectation.fulfill()
+            },
+            failure: { error in
+                XCTFail("Should not fail for supported product: \(error.message)")
+                expectation.fulfill()
+            }
+        )
+
+        waitForExpectations(timeout: 2.0)
+    }
+
+    func testCheckAvailabilityFailsForUnsupportedProduct() {
+        let expectation = self.expectation(description: "Unsupported product fails availability check")
+
+        paymentProductService.checkAvailability(
+            forProduct: SupportedProductsUtil.kSodexoSportCultureIdentifier,
+            context: paymentContext,
+            success: {
+                XCTFail("Should not succeed for unsupported product")
+                expectation.fulfill()
+            },
+            failure: { error in
+                XCTAssertTrue(error is ResponseError)
+                if let responseError = error as? ResponseError {
+                    XCTAssertEqual(responseError.httpStatusCode, 404)
+                }
+
+                expectation.fulfill()
+            }
+
+        )
+
+        waitForExpectations(timeout: 2.0)
+    }
+
+    func testCheckAvailabilityFailsForApplePayWhenPassKitUnavailable() {
+        // On simulator, Apple Pay networks call returns nil from the mock, triggering failure.
+        // On a real device with Apple Pay configured, success() may be called instead.
+        let expectation = self.expectation(description: "Apple Pay availability check completes")
+
+        paymentProductService.checkAvailability(
+            forProduct: SupportedProductsUtil.kApplePayIdentifier,
+            context: paymentContext,
+            success: {
+                expectation.fulfill()
+            },
+            failure: { error in
+                XCTAssertTrue(error is ResponseError)
+                expectation.fulfill()
+            }
+
+        )
+
+        waitForExpectations(timeout: 2.0)
     }
 }

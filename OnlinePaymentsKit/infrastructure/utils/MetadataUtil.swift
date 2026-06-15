@@ -40,6 +40,7 @@ internal class MetadataUtil {
         sysctlbyname("hw.machine", nil, &size, nil, 0)
         var machine = [CChar](repeating: 0, count: size)
         sysctlbyname("hw.machine", &machine, &size, nil, 0)
+
         return String(cString: machine)
     }
 
@@ -101,6 +102,7 @@ internal class MetadataUtil {
     func base64EncodedString(fromDictionary dictionary: [AnyHashable: Any]) -> String? {
         guard let json = try? JSONSerialization.data(withJSONObject: dictionary, options: []) else {
             Logger.log("Unable to serialize dictionary")
+
             return nil
         }
 

@@ -18,8 +18,10 @@ import UIKit
     public let id: Int?
     @objc public var idValue: NSNumber? {
         guard let id = id else { return nil }
+
         return NSNumber(value: id)
     }
+
     @objc public let label: String?
     @objc public let logo: String?
     @objc public let displayOrder: Int
@@ -82,6 +84,7 @@ import UIKit
         guard let other = object as? BasicPaymentProduct else {
             return false
         }
+
         return self.id == other.id
     }
 

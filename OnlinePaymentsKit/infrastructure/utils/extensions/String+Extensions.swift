@@ -35,6 +35,7 @@ extension String {
         )
         let start = index(startIndex, offsetBy: range.lowerBound)
         let end = index(start, offsetBy: range.upperBound - range.lowerBound)
+
         return String(self[start..<end])
     }
 
@@ -57,6 +58,7 @@ extension String {
         if let str = string {
             return Data(base64Encoded: str)!
         }
+
         return Data(base64Encoded: self)!
     }
 

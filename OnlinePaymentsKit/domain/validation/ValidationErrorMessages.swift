@@ -34,6 +34,7 @@ extension ValidationErrorMessage {
             "paymentProductFieldId": paymentProductFieldId,
             "type": type,
         ]
+
         return raw.compactMapValues {
             $0
         }

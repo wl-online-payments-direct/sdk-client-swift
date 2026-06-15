@@ -99,6 +99,7 @@ import Foundation
         queue.sync(flags: .barrier) {
             guard let accountOnFile = accountOnFile else {
                 self.accountOnFileStorage = nil
+
                 return
             }
 
@@ -112,6 +113,7 @@ import Foundation
             fieldsToRemove.forEach {
                 _ = fields.removeValue(forKey: $0)
             }
+
             self.accountOnFileStorage = accountOnFile
         }
     }

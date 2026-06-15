@@ -16,7 +16,7 @@ import XCTest
 
 @testable import OnlinePaymentsKit
 
-class OnlinePaymentSdkTests: XCTestCase {
+class OnlinePaymentSdkTestCase: XCTestCase {
     let host = "example.com"
 
     var sdk: OnlinePaymentsSdk!
@@ -34,14 +34,14 @@ class OnlinePaymentSdkTests: XCTestCase {
         countryCode: "NL"
     )
 
-    override func setUp() {
-        super.setUp()
+    override func setUpWithError() throws {
+        try super.setUpWithError()
 
         let config = SdkConfiguration(
             appIdentifier: "test-app",
         )
 
-        sdk = try! OnlinePaymentsSdk(
+        sdk = try OnlinePaymentsSdk(
             sessionData: sessionData,
             configuration: config
         )
@@ -64,7 +64,6 @@ class OnlinePaymentSdkTests: XCTestCase {
         sdk.basicPaymentProducts(
             forContext: context,
             success: { products in
-                XCTAssertNotNil(products)
                 XCTAssertFalse(products.paymentProducts.isEmpty)
                 expectation.fulfill()
             },
@@ -72,13 +71,10 @@ class OnlinePaymentSdkTests: XCTestCase {
                 XCTFail("Unexpected failure: \(error.message)")
                 expectation.fulfill()
             }
+
         )
 
-        waitForExpectations(timeout: 3) { error in
-            if let error = error {
-                print("Timeout error: \(error.localizedDescription)")
-            }
-        }
+        waitForExpectations(timeout: 3)
     }
 
     func testGetBasicPaymentProductsFiltersUnsupportedProducts() {
@@ -107,6 +103,7 @@ class OnlinePaymentSdkTests: XCTestCase {
                     ],
                 ]
             ]
+
             return HTTPStubsResponse(
                 jsonObject: response,
                 statusCode: 200,
@@ -128,6 +125,51 @@ class OnlinePaymentSdkTests: XCTestCase {
                 XCTFail("Should not fail")
                 expectation.fulfill()
             }
+
+        )
+
+        waitForExpectations(timeout: 3)
+    }
+
+    func testGetBasicPaymentProducts_allProductsFilteredOut_shouldReturnError() {
+        stub(condition: isHost(host) && isPath("/client/v1/customer-id/products") && isMethodGET()) { _ in
+            let response = [
+                "paymentProducts": [
+                    [
+                        "id": SupportedProductsUtil.kMaestroIdentifier,
+                        "displayHints": [
+                            "displayOrder": 1,
+                            "label": "Maestro",
+                            "logo": "https://example.com/maestro.png",
+                        ],
+                        "paymentMethod": "card",
+                        "usesRedirectionTo3rdParty": false,
+                    ]
+                ]
+            ]
+
+            return HTTPStubsResponse(
+                jsonObject: response,
+                statusCode: 200,
+                headers: ["Content-Type": "application/json"]
+            )
+        }
+
+        let expectation = self.expectation(description: "All products filtered out returns error")
+
+        sdk.basicPaymentProducts(
+            forContext: context,
+            success: { _ in
+                XCTFail("Should have failed when all products are filtered out")
+                expectation.fulfill()
+            },
+            failure: { error in
+                let responseError = error as? ResponseError
+                XCTAssertNotNil(responseError, "Error should be a ResponseError")
+                XCTAssertEqual(responseError?.httpStatusCode, 404, "Should return 404 when no products remain")
+                expectation.fulfill()
+            }
+
         )
 
         waitForExpectations(timeout: 3)
@@ -154,6 +196,7 @@ class OnlinePaymentSdkTests: XCTestCase {
                 XCTFail("Unexpected failure: \(error.message)")
                 expectation.fulfill()
             }
+
         )
 
         waitForExpectations(timeout: 3)
@@ -180,6 +223,7 @@ class OnlinePaymentSdkTests: XCTestCase {
                 XCTFail("Unexpected failure: \(error.message)")
                 expectation.fulfill()
             }
+
         )
 
         waitForExpectations(timeout: 3)
@@ -197,7 +241,38 @@ class OnlinePaymentSdkTests: XCTestCase {
             },
             failure: { error in
                 XCTFail("Should not fail")
+                expectation.fulfill()
             }
+
+        )
+
+        waitForExpectations(timeout: 3)
+    }
+
+    func testGetIinDetailsReturnsUnknownWhenServerReturns404() {
+        // When IIN endpoint returns 404, ApiClient treats it as a valid response (additionalAcceptableStatusCodes)
+        // and decodes the body. An empty body (no paymentProductId) maps to status = .unknown.
+        stub(
+            condition: isHost(host) && isPath("/client/v1/customer-id/services/getIINdetails") && isMethodPOST()
+        ) { _ in
+
+            return HTTPStubsResponse(data: "{}".data(using: .utf8)!, statusCode: 404, headers: nil)
+        }
+
+        let expectation = self.expectation(description: "IIN 404 maps to unknown")
+
+        sdk.iinDetails(
+            forPartialCardNumber: "012345",
+            paymentContext: context,
+            success: { response in
+                XCTAssertEqual(response.status, IINStatus.unknown, "404 response with no productId should map to .unknown")
+                expectation.fulfill()
+            },
+            failure: { error in
+                XCTFail("Should not fail for 404 — it is an additionalAcceptableStatusCode: \(error.message)")
+                expectation.fulfill()
+            }
+
         )
 
         waitForExpectations(timeout: 3)
@@ -223,6 +298,7 @@ class OnlinePaymentSdkTests: XCTestCase {
             failure: { error in
                 XCTFail("Unexpected failure: \(error.message)")
             }
+
         )
 
         waitForExpectations(timeout: 3)
@@ -239,12 +315,12 @@ class OnlinePaymentSdkTests: XCTestCase {
         sdk.publicKey(
             success: { publicKeyResponse in
                 XCTAssertEqual(publicKeyResponse.keyId, "12345678-aaaa-bbbb-cccc-876543218765")
-                XCTAssertNotNil(publicKeyResponse.publicKey)
                 expectation.fulfill()
             },
             failure: { error in
                 XCTFail("Unexpected failure: \(error.message)")
             }
+
         )
 
         waitForExpectations(timeout: 3)
@@ -265,7 +341,6 @@ class OnlinePaymentSdkTests: XCTestCase {
             partialCardNumber: "424242",
             paymentProductId: NSNumber(value: 1),
             success: { response in
-                XCTAssertNotNil(response)
                 XCTAssertEqual(response.surcharges.count, 1)
                 XCTAssertEqual(response.surcharges[0].paymentProductId, 1)
                 expectation.fulfill()
@@ -273,6 +348,7 @@ class OnlinePaymentSdkTests: XCTestCase {
             failure: { error in
                 XCTFail("Unexpected failure: \(error.message)")
             }
+
         )
 
         waitForExpectations(timeout: 3)
@@ -292,13 +368,60 @@ class OnlinePaymentSdkTests: XCTestCase {
             amountOfMoney: amountOfMoney,
             token: "test-token",
             success: { response in
-                XCTAssertNotNil(response)
                 XCTAssertEqual(response.surcharges.count, 1)
                 XCTAssertEqual(response.surcharges[0].paymentProductId, 1)
                 expectation.fulfill()
             },
             failure: { error in
                 XCTFail("Unexpected failure: \(error.message)")
+            }
+
+        )
+
+        waitForExpectations(timeout: 3)
+    }
+
+    func testSurchargeCalculationUsesCache() {
+        let bundle = Bundle(for: AnyTestBundleMarker.self)
+        let url = bundle.url(forResource: "surchargeCalculationResponse", withExtension: "json")!
+        let json = try! JSONSerialization.jsonObject(with: Data(contentsOf: url))
+
+        var hitCount = 0
+        stub(condition: isHost(host) && isPath("/client/v1/customer-id/services/surchargecalculation") && isMethodPOST()) { _ in
+            hitCount += 1
+            if hitCount > 1 {
+                XCTFail("Cache miss — stub hit \(hitCount) times; second call should have been served from cache")
+            }
+            return HTTPStubsResponse(jsonObject: json, statusCode: 200, headers: ["Content-Type": "application/json"])
+        }
+
+        let amountOfMoney = AmountOfMoney(amount: 100, currencyCode: "EUR")
+        let firstExpectation = expectation(description: "First surcharge call succeeds")
+        let secondExpectation = expectation(description: "Second surcharge call uses cache")
+
+        sdk.surchargeCalculation(
+            amountOfMoney: amountOfMoney,
+            partialCardNumber: "424242",
+            paymentProductId: NSNumber(value: 1),
+            success: { _ in
+                firstExpectation.fulfill()
+
+                self.sdk.surchargeCalculation(
+                    amountOfMoney: amountOfMoney,
+                    partialCardNumber: "424242",
+                    paymentProductId: NSNumber(value: 1),
+                    success: { _ in
+                        secondExpectation.fulfill()
+                    },
+                    failure: { error in
+                        XCTFail("Second surcharge call should not fail: \(error.message)")
+                        secondExpectation.fulfill()
+                    }
+                )
+            },
+            failure: { error in
+                XCTFail("First surcharge call should not fail: \(error.message)")
+                firstExpectation.fulfill()
             }
         )
 
@@ -332,20 +455,20 @@ class OnlinePaymentSdkTests: XCTestCase {
                 self.sdk.encryptPaymentRequest(
                     paymentRequest,
                     success: { encryptedRequest in
-                        XCTAssertNotNil(encryptedRequest.encryptedCustomerInput)
-                        XCTAssertFalse(encryptedRequest.encryptedCustomerInput.isEmpty)
-                        XCTAssertNotNil(encryptedRequest.encodedClientMetaInfo)
-                        XCTAssertFalse(encryptedRequest.encodedClientMetaInfo.isEmpty)
+                                XCTAssertFalse(encryptedRequest.encryptedCustomerInput.isEmpty)
+                                XCTAssertFalse(encryptedRequest.encodedClientMetaInfo.isEmpty)
                         expectation.fulfill()
                     },
                     failure: { error in
                         XCTFail("Unexpected failure: \(error.message)")
                     }
+
                 )
             },
             failure: { error in
                 XCTFail("Failed to get payment product: \(error.message)")
             }
+
         )
 
         waitForExpectations(timeout: 5)
@@ -362,21 +485,20 @@ class OnlinePaymentSdkTests: XCTestCase {
         let tokenRequest = CreditCardTokenRequest()
         tokenRequest.cardNumber = "4242424242424242"
         tokenRequest.securityCode = "123"
-        tokenRequest.expiryDate = "1225"
+        tokenRequest.expiryDate = "1230"
         tokenRequest.paymentProductId = NSNumber(value: 1)
 
         sdk.encryptTokenRequest(
             tokenRequest,
             success: { encryptedRequest in
-                XCTAssertNotNil(encryptedRequest.encryptedCustomerInput)
                 XCTAssertFalse(encryptedRequest.encryptedCustomerInput.isEmpty)
-                XCTAssertNotNil(encryptedRequest.encodedClientMetaInfo)
                 XCTAssertFalse(encryptedRequest.encodedClientMetaInfo.isEmpty)
                 expectation.fulfill()
             },
             failure: { error in
                 XCTFail("Unexpected failure: \(error.message)")
             }
+
         )
 
         waitForExpectations(timeout: 5)
@@ -397,7 +519,6 @@ class OnlinePaymentSdkTests: XCTestCase {
             partialCardNumber: "424242",
             paymentProductId: NSNumber(value: 1),
             success: { response in
-                XCTAssertNotNil(response)
                 XCTAssertEqual(response.dccSessionId, "5cd02469177743fb8a0b2c78937ee25f")
                 XCTAssertEqual(response.proposal.rate.exchangeRate, 1.57)
                 expectation.fulfill()
@@ -406,6 +527,7 @@ class OnlinePaymentSdkTests: XCTestCase {
                 XCTFail("Unexpected failure: \(error.message)")
                 expectation.fulfill()
             }
+
         )
 
         waitForExpectations(timeout: 3)
@@ -425,7 +547,6 @@ class OnlinePaymentSdkTests: XCTestCase {
             amountOfMoney: amountOfMoney,
             token: "test-token",
             success: { response in
-                XCTAssertNotNil(response)
                 XCTAssertEqual(response.dccSessionId, "5cd02469177743fb8a0b2c78937ee25f")
                 XCTAssertEqual(response.proposal.rate.exchangeRate, 1.57)
                 expectation.fulfill()
@@ -434,6 +555,193 @@ class OnlinePaymentSdkTests: XCTestCase {
                 XCTFail("Unexpected failure: \(error.message)")
                 expectation.fulfill()
             }
+
+        )
+
+        waitForExpectations(timeout: 3)
+    }
+
+    func testCurrencyConversionQuoteUsesCache() {
+        let bundle = Bundle(for: AnyTestBundleMarker.self)
+        let url = bundle.url(forResource: "currencyConversionResponse", withExtension: "json")!
+        let json = try! JSONSerialization.jsonObject(with: Data(contentsOf: url))
+
+        var hitCount = 0
+        stub(condition: isHost(host) && isPath("/client/v1/customer-id/services/dccrate") && isMethodPOST()) { _ in
+            hitCount += 1
+            if hitCount > 1 {
+                XCTFail("Cache miss — stub hit \(hitCount) times; second call should have been served from cache")
+            }
+            return HTTPStubsResponse(jsonObject: json, statusCode: 200, headers: ["Content-Type": "application/json"])
+        }
+
+        let amountOfMoney = AmountOfMoney(amount: 100, currencyCode: "EUR")
+        let firstExpectation = expectation(description: "First DCC call succeeds")
+        let secondExpectation = expectation(description: "Second DCC call uses cache")
+
+        sdk.currencyConversionQuote(
+            amountOfMoney: amountOfMoney,
+            partialCardNumber: "424242",
+            paymentProductId: NSNumber(value: 1),
+            success: { _ in
+                firstExpectation.fulfill()
+
+                self.sdk.currencyConversionQuote(
+                    amountOfMoney: amountOfMoney,
+                    partialCardNumber: "424242",
+                    paymentProductId: NSNumber(value: 1),
+                    success: { _ in
+                        secondExpectation.fulfill()
+                    },
+                    failure: { error in
+                        XCTFail("Second DCC call should not fail: \(error.message)")
+                        secondExpectation.fulfill()
+                    }
+                )
+            },
+            failure: { error in
+                XCTFail("First DCC call should not fail: \(error.message)")
+                firstExpectation.fulfill()
+            }
+        )
+
+        waitForExpectations(timeout: 3)
+    }
+
+    func testConstructorCreatesInstance() throws {
+        let instance = try OnlinePaymentsSdk(sessionData: sessionData)
+        XCTAssertNotNil(instance)
+    }
+
+    func testConstructorWithConfigurationCreatesInstance() throws {
+        let config = SdkConfiguration(appIdentifier: "test-app")
+        let instance = try OnlinePaymentsSdk(sessionData: sessionData, configuration: config)
+        XCTAssertNotNil(instance)
+    }
+
+    func testConstructorNormalizesSessionData() throws {
+        let sessionWithTrailingSlash = SessionData(
+            clientSessionId: "client-session-id",
+            customerId: "customer-id",
+            clientApiUrl: "https://example.com/",
+            assetUrl: "https://example.com/assets"
+        )
+
+        let normalizedSdk = try OnlinePaymentsSdk(sessionData: sessionWithTrailingSlash)
+
+        Stubs.stubWithFixture(
+            "basicPaymentProducts",
+            condition: isHost(host) && isPath("/client/v1/customer-id/products") && isMethodGET()
+        )
+
+        let expectation = self.expectation(description: "Normalized URL is used")
+
+        normalizedSdk.basicPaymentProducts(
+            forContext: context,
+            success: { products in
+                expectation.fulfill()
+            },
+            failure: { error in
+                XCTFail("Normalized SDK should work: \(error.message)")
+                expectation.fulfill()
+            }
+
+        )
+
+        waitForExpectations(timeout: 3)
+    }
+
+    func testGetPaymentProductPropagatesFailure() {
+        stub(condition: isHost(host) && isPath("/client/v1/customer-id/products/1") && isMethodGET()) { _ in
+
+            return HTTPStubsResponse(
+                error: NSError(domain: NSURLErrorDomain, code: NSURLErrorNotConnectedToInternet)
+            )
+        }
+
+        let expectation = self.expectation(description: "Failure propagated")
+
+        sdk.paymentProduct(
+            withId: 1,
+            paymentContext: context,
+            success: { _ in
+                XCTFail("Should not succeed when service fails")
+                expectation.fulfill()
+            },
+            failure: { error in
+                expectation.fulfill()
+            }
+
+        )
+
+        waitForExpectations(timeout: 3)
+    }
+
+    func testEncryptPaymentRequestPropagatesFailure() {
+        Stubs.stubWithFixture(
+            "cardPaymentProduct",
+            condition: isHost(host) && isPath("/client/v1/customer-id/products/1") && isMethodGET()
+        )
+        stub(condition: isHost(host) && isPath("/client/v1/customer-id/crypto/publickey") && isMethodGET()) { _ in
+
+            return HTTPStubsResponse(
+                error: NSError(domain: NSURLErrorDomain, code: NSURLErrorNotConnectedToInternet)
+            )
+        }
+
+        let expectation = self.expectation(description: "Failure propagated")
+
+        sdk.paymentProduct(
+            withId: 1,
+            paymentContext: context,
+            success: { paymentProduct in
+                let request = PaymentRequest(paymentProduct: paymentProduct)
+                try! request.setValue(id: "cardNumber", value: "4242424242424242")
+                try! request.setValue(id: "cvv", value: "123")
+                try! request.setValue(id: "cardholderName", value: "John Doe")
+                try! request.setValue(id: "expiryDate", value: "122030")
+
+                self.sdk.encryptPaymentRequest(
+                    request,
+                    success: { _ in
+                        XCTFail("Should not succeed when service fails")
+                        expectation.fulfill()
+                    },
+                    failure: { error in
+                                expectation.fulfill()
+                    }
+
+                )
+            },
+            failure: { error in
+                XCTFail("Failed to get payment product: \(error.message)")
+                expectation.fulfill()
+            }
+
+        )
+
+        waitForExpectations(timeout: 5)
+    }
+
+    func testGetPublicKeyPropagatesFailure() {
+        stub(condition: isHost(host) && isPath("/client/v1/customer-id/crypto/publickey") && isMethodGET()) { _ in
+
+            return HTTPStubsResponse(
+                error: NSError(domain: NSURLErrorDomain, code: NSURLErrorNotConnectedToInternet)
+            )
+        }
+
+        let expectation = self.expectation(description: "Failure propagated")
+
+        sdk.publicKey(
+            success: { _ in
+                XCTFail("Should not succeed when service fails")
+                expectation.fulfill()
+            },
+            failure: { error in
+                expectation.fulfill()
+            }
+
         )
 
         waitForExpectations(timeout: 3)

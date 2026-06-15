@@ -1,3 +1,22 @@
+# 5.1.0
+
+## Added
+
+* Significantly expanded unit and integration test coverage across all major SDK components.
+
+## Changed
+
+* `basicPaymentProducts` now propagates a failure (HTTP 404) when all returned products are filtered out by
+  the SDK, instead of silently returning an empty list.
+* `encryptTokenRequest` now validates that `paymentProductId` is set on the `CreditCardTokenRequest` before
+  encryption, propagating an `EncryptionError` if it is missing.
+
+# 5.0.2
+
+## Changed
+
+* Updated copyright notices
+
 # 5.0.1
 
 ## Added

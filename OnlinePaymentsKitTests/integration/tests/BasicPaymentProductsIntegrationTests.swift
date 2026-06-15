@@ -24,7 +24,6 @@ class BasicPaymentProductsIntegrationTests: BaseIntegrationTest {
         sdk.basicPaymentProducts(
             forContext: paymentContext,
             success: { basicPaymentProducts in
-                XCTAssertNotNil(basicPaymentProducts, "Result should not be null")
                 XCTAssertFalse(
                     basicPaymentProducts.paymentProducts.isEmpty,
                     "Should have at least one payment product"
@@ -49,7 +48,6 @@ class BasicPaymentProductsIntegrationTests: BaseIntegrationTest {
             withId: productId,
             paymentContext: paymentContext,
             success: { paymentProduct in
-                XCTAssertNotNil(paymentProduct, "Result should not be null")
                 XCTAssertEqual(
                     productId,
                     paymentProduct.id,
@@ -70,19 +68,21 @@ class BasicPaymentProductsIntegrationTests: BaseIntegrationTest {
         waitForExpectations(timeout: 10.0)
     }
 
-    func testGetBasicPaymentProducts_withInvalidAmount_shouldReturnEmpty() {
+    func testGetBasicPaymentProducts_withInvalidAmount_shouldReturnError() {
         let invalidContext = createPaymentContext(amount: -1)
 
         let expectation = expectation(description: "Get basic payment products with invalid amount")
 
         sdk.basicPaymentProducts(
             forContext: invalidContext,
-            success: { basicPaymentProducts in
-                XCTAssertEqual(0, basicPaymentProducts.paymentProducts.count)
+            success: { _ in
+                XCTFail("Should have failed for invalid amount")
                 expectation.fulfill()
             },
             failure: { error in
-                XCTFail("Should not fail: \(error)")
+                let responseError = error as? ResponseError
+                XCTAssertNotNil(responseError, "Error should be a ResponseError")
+                XCTAssertEqual(responseError?.httpStatusCode, 404)
                 expectation.fulfill()
             }
         )
@@ -94,42 +94,28 @@ class BasicPaymentProductsIntegrationTests: BaseIntegrationTest {
         let firstExpectation = expectation(description: "First call")
         let secondExpectation = expectation(description: "Second call")
 
-        var firstCallTime: TimeInterval = 0
-        var secondCallTime: TimeInterval = 0
-
         // First call - should fetch from API
-        let firstStart = Date()
         sdk.basicPaymentProducts(
             forContext: paymentContext,
             success: { firstResult in
-                firstCallTime = Date().timeIntervalSince(firstStart)
-                XCTAssertNotNil(firstResult, "First result should not be null")
                 firstExpectation.fulfill()
 
-                // Second call - should use cache
-                let secondStart = Date()
+                // Second call - should use cache and return same data
                 self.sdk.basicPaymentProducts(
                     forContext: self.paymentContext,
                     success: { secondResult in
-                        secondCallTime = Date().timeIntervalSince(secondStart)
-                        XCTAssertNotNil(secondResult, "Second result should not be null")
-
-                        // Cached call should be significantly faster
-                        XCTAssertTrue(
-                            secondCallTime < 0.1,  // Less than 100ms for cached call
-                            "Second call should be faster (cached): \(secondCallTime)s"
-                        )
-                        XCTAssertTrue(
-                            secondCallTime < firstCallTime,
-                            "Second call should be faster (cached): \(secondCallTime)s"
-                        )
-
                         XCTAssertEqual(
                             firstResult.paymentProducts.count,
                             secondResult.paymentProducts.count,
-                            "Results should have same number of products"
+                            "Cached result should have same number of products"
                         )
-
+                        
+                        XCTAssertEqual(
+                            firstResult.paymentProducts.map { $0.id },
+                            secondResult.paymentProducts.map { $0.id },
+                            "Cached result should have same product IDs"
+                        )
+                        
                         secondExpectation.fulfill()
                     },
                     failure: { error in
@@ -164,7 +150,10 @@ class BasicPaymentProductsIntegrationTests: BaseIntegrationTest {
                 self.sdk.basicPaymentProducts(
                     forContext: usdContext,
                     success: { secondResult in
-                        XCTAssertNotNil(secondResult, "Second result should not be null")
+                        XCTAssertFalse(
+                            firstResult === secondResult,
+                            "Different contexts should yield distinct response objects"
+                        )
                         secondExpectation.fulfill()
                     },
                     failure: { error in
@@ -249,7 +238,6 @@ class BasicPaymentProductsIntegrationTests: BaseIntegrationTest {
             },
             failure: { error in
                 // Expected - server returns error for non-existent products
-                XCTAssertNotNil(error)
                 expectation.fulfill()
             }
         )

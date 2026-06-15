@@ -14,7 +14,7 @@ import XCTest
 
 @testable import OnlinePaymentsKit
 
-class ServiceFactoryTests: XCTestCase {
+class ServiceFactoryTestCase: XCTestCase {
 
     var mockSessionData: SessionData!
     var mockConfiguration: SdkConfiguration!
@@ -137,7 +137,7 @@ class ServiceFactoryTests: XCTestCase {
 
     func testReturnsEncryptionServiceIfProvidedInConstructor() {
         // Given
-        let mockEncryptionService = MockEncryptionService()
+        let mockEncryptionService = EncryptionServiceMock()
         let props = ServiceFactoryProps(
             sessionData: mockSessionData,
             configuration: mockConfiguration,
@@ -148,7 +148,7 @@ class ServiceFactoryTests: XCTestCase {
         let serviceFactory = ServiceFactory(configuration: props)
 
         // Then
-        XCTAssertTrue(serviceFactory.getEncryptionService() is MockEncryptionService)
+        XCTAssertTrue(serviceFactory.getEncryptionService() is EncryptionServiceMock)
         XCTAssertFalse(serviceFactory.getEncryptionService() is EncryptionService)
 
         // Verify it's the same instance
@@ -160,7 +160,7 @@ class ServiceFactoryTests: XCTestCase {
 
     func testReturnsPaymentProductServiceIfProvidedInConstructor() {
         // Given
-        let mockPaymentProductService = MockPaymentProductService()
+        let mockPaymentProductService = PaymentProductServiceMock()
         let props = ServiceFactoryProps(
             sessionData: mockSessionData,
             configuration: mockConfiguration,
@@ -171,7 +171,7 @@ class ServiceFactoryTests: XCTestCase {
         let serviceFactory = ServiceFactory(configuration: props)
 
         // Then
-        XCTAssertTrue(serviceFactory.getPaymentProductService() is MockPaymentProductService)
+        XCTAssertTrue(serviceFactory.getPaymentProductService() is PaymentProductServiceMock)
         XCTAssertFalse(serviceFactory.getPaymentProductService() is PaymentProductService)
 
         // Verify it's the same instance
@@ -183,7 +183,7 @@ class ServiceFactoryTests: XCTestCase {
 
     func testReturnsClientServiceIfProvidedInConstructor() {
         // Given
-        let mockClientService = MockClientService()
+        let mockClientService = ClientServiceMock()
         let props = ServiceFactoryProps(
             sessionData: mockSessionData,
             configuration: mockConfiguration,
@@ -194,7 +194,7 @@ class ServiceFactoryTests: XCTestCase {
         let serviceFactory = ServiceFactory(configuration: props)
 
         // Then
-        XCTAssertTrue(serviceFactory.getClientService() is MockClientService)
+        XCTAssertTrue(serviceFactory.getClientService() is ClientServiceMock)
         XCTAssertFalse(serviceFactory.getClientService() is ClientService)
 
         // Verify it's the same instance
@@ -209,7 +209,7 @@ class ServiceFactoryTests: XCTestCase {
     func testMixesCustomAndDefaultServices() {
         // Given
         let mockApiClient = ApiClientMock()
-        let mockClientService = MockClientService()
+        let mockClientService = ClientServiceMock()
         let props = ServiceFactoryProps(
             sessionData: mockSessionData,
             configuration: mockConfiguration,
@@ -223,7 +223,7 @@ class ServiceFactoryTests: XCTestCase {
         // Then
         // Custom services
         XCTAssertTrue(serviceFactory.getApiClient() is ApiClientMock)
-        XCTAssertTrue(serviceFactory.getClientService() is MockClientService)
+        XCTAssertTrue(serviceFactory.getClientService() is ClientServiceMock)
 
         // Verify they're the same instances
         XCTAssertEqual(
@@ -295,5 +295,52 @@ class ServiceFactoryTests: XCTestCase {
             ObjectIdentifier(clientService2 as AnyObject),
             "ClientService should return the same instance"
         )
+    }
+
+    func testDefaultServicesShareSameCacheManagerInstance() {
+        let mockApiClient = ApiClientMock()
+        let mockCacheManager = CacheManagerMock()
+        let props = ServiceFactoryProps(
+            sessionData: mockSessionData,
+            configuration: mockConfiguration,
+            apiClient: mockApiClient,
+            cacheManager: mockCacheManager
+        )
+        let factory = ServiceFactory(configuration: props)
+
+        let expectation = self.expectation(description: "Service call completes")
+        let amountOfMoney = AmountOfMoney(amount: 1000, currencyCode: "USD")
+        let paymentContext = PaymentContext(
+            amountOfMoney: amountOfMoney,
+            isRecurring: false,
+            countryCode: "US"
+        )
+
+        factory.getPaymentProductService().paymentProducts(
+            forContext: paymentContext,
+            success: { _ in expectation.fulfill() },
+            failure: { _ in expectation.fulfill() }
+        )
+        waitForExpectations(timeout: 2.0)
+
+        XCTAssertEqual(
+            ObjectIdentifier(factory.getCacheManager() as AnyObject),
+            ObjectIdentifier(mockCacheManager as AnyObject)
+        )
+        XCTAssertGreaterThan(mockCacheManager.getCallCount, 0)
+    }
+
+    func testCreatesDefaultApiClientFromSessionData() {
+        let props = ServiceFactoryProps(
+            sessionData: mockSessionData,
+            configuration: nil
+        )
+
+        let factory = ServiceFactory(configuration: props)
+        let apiClient = factory.getApiClient() as? ApiClient
+
+        XCTAssertNotNil(apiClient)
+        let authHeader = apiClient?.headers.first { $0.name == "Authorization" }
+        XCTAssertEqual(authHeader?.value, "GCS v1Client:test-session-id")
     }
 }

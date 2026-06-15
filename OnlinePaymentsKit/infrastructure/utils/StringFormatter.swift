@@ -34,6 +34,7 @@ public class StringFormatter: NSObject {
     @objc(formatString:withMask:)
     public func formatString(string: String, mask: String) -> String {
         var cursorPosition = 0
+
         return formatString(string: string, mask: mask, cursorPosition: &cursorPosition)
     }
 
@@ -83,6 +84,7 @@ public class StringFormatter: NSObject {
                     let maskedStringFragment = maskedString[index..<endIndex]
                     result = result.appending(maskedStringFragment)
                 }
+
                 index += length
             }
         }
@@ -124,6 +126,7 @@ public class StringFormatter: NSObject {
                             cursorPosition.pointee += 1
                         }
                     }
+
                     maskIndex += 1
                 } else {
                     let range = NSRange(location: 0, length: 1)
@@ -169,6 +172,7 @@ public class StringFormatter: NSObject {
 
         return result
     }
+
     // swiftlint:enable function_parameter_count
     // swiftlint:enable cyclomatic_complexity
 
@@ -205,6 +209,7 @@ public class StringFormatter: NSObject {
                         let endIndex = relaxedMask.index(after: startIndex)
                         relaxedMask = relaxedMask.replacingCharacters(in: startIndex..<endIndex, with: "*")
                     }
+
                     maskIndex += 1
                     length -= 1
                 }

@@ -31,6 +31,7 @@ enum FixtureLoader {
         }
 
         let data = try Data(contentsOf: url)
+
         return try JSONDecoder().decode(T.self, from: data)
     }
 }

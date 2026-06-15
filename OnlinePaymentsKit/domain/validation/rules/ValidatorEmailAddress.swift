@@ -24,6 +24,7 @@ import Foundation
         guard let regex = try? NSRegularExpression(pattern: regex) else {
             fatalError("Could not create Regular Expression")
         }
+
         expression = regex
 
         super.init()

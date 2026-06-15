@@ -85,10 +85,7 @@ class PaymentProductFieldTestCase: XCTestCase {
 
     func testValidateShouldReturnListWithErrorMessagesForInvalidInput() {
         let errorMessages = paymentProductField.validate(value: "424")
-        print(errorMessages)
         XCTAssertEqual(2, errorMessages.count)
-
-        print(errorMessages)
 
         XCTAssertEqual("Card number is in invalid format.", errorMessages[0].errorMessage)
         XCTAssertEqual("Provided value does not have an allowed length.", errorMessages[1].errorMessage)
@@ -104,5 +101,16 @@ class PaymentProductFieldTestCase: XCTestCase {
         let errorMessages = paymentProductField.validate(value: "")
         XCTAssertEqual(1, errorMessages.count)
         XCTAssertEqual("Field required.", errorMessages[0].errorMessage)
+    }
+
+    func testGetLabelWhenNoDisplayHintsLabelReturnsFieldId() {
+        let dto = try! FixtureLoader.loadJSON(
+            "paymentProductFieldNoLabel",
+            as: PaymentProductFieldDto.self
+        )
+        let factory = PaymentProductFactory()
+        let field = factory.createPaymentProductField(from: dto)
+
+        XCTAssertEqual("testFieldId", field.label)
     }
 }

@@ -149,6 +149,7 @@ class BaseIntegrationTest: XCTestCase {
         )
 
         Self.sharedServerApi = serverApi
+
         return serverApi
     }
 
@@ -216,11 +217,8 @@ class BaseIntegrationTest: XCTestCase {
         let fileManager = FileManager.default
 
         // Look for .env in the Integration test directory
-        guard let sourceFile = URL(string: #file),
-            let integrationDir = sourceFile.deletingLastPathComponent().path.removingPercentEncoding
-        else {
-            return
-        }
+        let sourceFile = URL(fileURLWithPath: #filePath)
+        let integrationDir = sourceFile.deletingLastPathComponent().path
 
         let envPath = "\(integrationDir)/.env"
 

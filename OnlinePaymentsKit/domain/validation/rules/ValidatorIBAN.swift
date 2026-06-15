@@ -24,6 +24,7 @@ import Foundation
         let alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
         if let index = alphabet.firstIndex(of: mychar) {
             let numericValue = alphabet.distance(from: alphabet.startIndex, to: index) + 10
+
             return numericValue
         }
 
@@ -70,6 +71,7 @@ import Foundation
             && modulo(numericString: numericString(of: strippedText), modulo: 97) == 1
         {
             // Success
+
             return RuleValidationResult(
                 valid: true,
                 message: ""
@@ -91,6 +93,7 @@ import Foundation
         let prefix = text[text.startIndex..<endIndex]
         let numericString = (text.dropFirst(4) + prefix).map {
             (character: Character) in
+
             return String(charToIndex(mychar: character)!)
         }.joined()
 

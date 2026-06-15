@@ -364,7 +364,7 @@ class ApiClientTestCase: XCTestCase {
                 expectation.fulfill()
             }
         )
-
+        
         waitForExpectations(timeout: 2.0)
     }
 
@@ -416,6 +416,7 @@ class ApiClientTestCase: XCTestCase {
 
                 expectation.fulfill()
             }
+
         )
 
         waitForExpectations(timeout: 2.0)

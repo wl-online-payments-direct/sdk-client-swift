@@ -45,6 +45,7 @@ public class PaymentProductService: PaymentProductServiceProtocol {
 
         if let cached: BasicPaymentProducts = cacheManager.get(key: cacheKey) {
             success(cached)
+
             return
         }
 
@@ -66,6 +67,7 @@ public class PaymentProductService: PaymentProductServiceProtocol {
                         message: "Could not fetch BasicPaymentProducts"
                     )
                     failure(error)
+
                     return
                 }
 
@@ -78,6 +80,17 @@ public class PaymentProductService: PaymentProductServiceProtocol {
                             .filter {
                                 SupportedProductsUtil.isSupportedInSdk($0.id)
                             }
+
+                        if validatedBasicPaymentProducts.paymentProducts.isEmpty {
+                            let error = ResponseError(
+                                httpStatusCode: 404,
+                                message: "No payment products available.",
+                                data: SupportedProductsUtil.get404Error()
+                            )
+                            failure(error)
+
+                            return
+                        }
 
                         strongSelf.checkApplePayAvailability(
                             with: validatedBasicPaymentProducts,
@@ -114,6 +127,7 @@ public class PaymentProductService: PaymentProductServiceProtocol {
                 data: SupportedProductsUtil.get404Error()
             )
             failure(error)
+
             return
 
         }
@@ -126,6 +140,7 @@ public class PaymentProductService: PaymentProductServiceProtocol {
 
         if let cached: PaymentProduct = cacheManager.get(key: cacheKey) {
             success(cached)
+
             return
         }
 
@@ -146,6 +161,7 @@ public class PaymentProductService: PaymentProductServiceProtocol {
                         message: "Could not fetch PaymentProduct."
                     )
                     failure(error)
+
                     return
                 }
 
@@ -182,6 +198,7 @@ public class PaymentProductService: PaymentProductServiceProtocol {
 
         if let cached: PaymentProductNetworks = cacheManager.get(key: cacheKey) {
             success(cached)
+
             return
         }
 
@@ -247,6 +264,7 @@ public class PaymentProductService: PaymentProductServiceProtocol {
                     )
                     failure(error)
                 }
+
             #else
                 let error = ResponseError(
                     httpStatusCode: 400,
@@ -299,6 +317,7 @@ public class PaymentProductService: PaymentProductServiceProtocol {
                         {
                             paymentProducts.paymentProducts.remove(at: product)
                         }
+
                         success(paymentProducts)
                     },
                     failure: failure,
@@ -307,6 +326,7 @@ public class PaymentProductService: PaymentProductServiceProtocol {
                 if let product = paymentProducts.paymentProducts.firstIndex(of: applePayPaymentProduct) {
                     paymentProducts.paymentProducts.remove(at: product)
                 }
+
                 success(paymentProducts)
             }
         } else {
@@ -349,6 +369,7 @@ public class PaymentProductService: PaymentProductServiceProtocol {
     ) {
         guard !products.isEmpty else {
             completion()
+
             return
         }
 
@@ -382,12 +403,14 @@ public class PaymentProductService: PaymentProductServiceProtocol {
         guard let encodedUrlString = url.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) else {
             Logger.log("Unable to decode URL for url string: \(url)")
             completion(nil, nil, nil)
+
             return
         }
 
         guard let encodedUrl = URL(string: encodedUrlString) else {
             Logger.log("Unable to create URL for url string: \(encodedUrlString)")
             completion(nil, nil, nil)
+
             return
         }
 
@@ -398,6 +421,7 @@ public class PaymentProductService: PaymentProductServiceProtocol {
                     completion(data, response, error)
                 }
             }
+
         ).resume()
     }
 }

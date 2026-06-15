@@ -37,6 +37,7 @@ internal class Encryptor {
         if let privateKey = SecKeyCreateRandomKey(keyPairAttr as CFDictionary, &error) {
             guard SecKeyCopyPublicKey(privateKey) != nil else {
                 Logger.log("Error while generating the public key")
+
                 return
             }
         } else if let err = error {
@@ -77,6 +78,7 @@ internal class Encryptor {
 
     func encryptRSA(data: Data, publicKey: SecKey) throws -> Data {
         let buffer = convertDataToByteArray(data: data)
+
         return try Data(encryptRSA(plaintext: buffer, publicKey: publicKey))
     }
 
@@ -106,6 +108,7 @@ internal class Encryptor {
 
     func decryptRSA(data: Data, privateKey: SecKey) throws -> Data {
         let buffer = convertDataToByteArray(data: data)
+
         return try Data(decryptRSA(ciphertext: buffer, privateKey: privateKey))
     }
 
@@ -182,6 +185,7 @@ internal class Encryptor {
         do {
             let aes = try AES(key: key, blockMode: CBC(iv: IV), padding: .pkcs7)
             let ciphertext = try aes.encrypt(plaintext)
+
             return ciphertext
         } catch {
             throw EncryptionError(message: error.localizedDescription)
@@ -200,11 +204,13 @@ internal class Encryptor {
         do {
             let aes = try AES(key: key, blockMode: CBC(iv: IV), padding: .pkcs7)
             let plaintext = try aes.decrypt(ciphertext)
+
             return plaintext
         } catch {
             throw EncryptionError(message: error.localizedDescription)
         }
     }
+
     // swiftlint:enable identifier_name
 
     func generateHMAC(data: Data, key: Data) throws -> (Data) {
@@ -218,6 +224,7 @@ internal class Encryptor {
     func generateHMAC(input: [UInt8], key: [UInt8]) throws -> ([UInt8]) {
         do {
             let hmac = try HMAC(key: key, variant: .sha2(.sha512)).authenticate(input)
+
             return hmac
         } catch {
             throw EncryptionError(message: error.localizedDescription)

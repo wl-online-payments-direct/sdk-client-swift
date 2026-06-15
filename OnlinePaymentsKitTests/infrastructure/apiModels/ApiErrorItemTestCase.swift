@@ -33,6 +33,7 @@ class ApiErrorItemTestCase: XCTestCase {
 
         guard let apiErrorItem = try? JSONDecoder().decode(ApiErrorItem.self, from: apiErrorItemJson) else {
             XCTFail("ApiErrorItem could not be decoded")
+
             return
         }
 
@@ -51,11 +52,13 @@ class ApiErrorItemTestCase: XCTestCase {
             {
                 "errorCode": "123456"
             }
+
             """.utf8
         )
 
         guard let apiErrorItem = try? JSONDecoder().decode(ApiErrorItem.self, from: apiErrorItemJson) else {
             XCTFail("ApiErrorItem could not be decoded")
+
             return
         }
 

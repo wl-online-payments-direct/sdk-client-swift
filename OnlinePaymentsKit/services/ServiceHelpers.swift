@@ -30,6 +30,7 @@ internal func validateResponse<T>(
     guard let responseObject = responseObject else {
         let error = ResponseError(httpStatusCode: statusCode, message: message)
         failure(error)
+
         return
     }
 

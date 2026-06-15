@@ -79,6 +79,7 @@ import Foundation
                         type: validator.type.stringValue
                     )
                 }
+
                 return nil
             }
         } else if dataRestrictions.isRequired {

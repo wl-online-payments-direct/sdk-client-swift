@@ -55,6 +55,7 @@ public class CacheManager: CacheManagerProtocol {
         ].compactMap { $0 }
 
         let key = components.joined(separator: "_")
+
         return "\(prefix)-\(key)"
     }
 
@@ -74,6 +75,7 @@ public class CacheManager: CacheManagerProtocol {
                 #if DEBUG
                 print("⚠️ CacheManager: Type mismatch for key '\(key)': expected \(T.self), got \(type(of: value))")
                 #endif
+
                 return nil
             }
 

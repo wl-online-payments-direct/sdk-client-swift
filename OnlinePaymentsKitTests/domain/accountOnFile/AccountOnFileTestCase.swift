@@ -77,4 +77,22 @@ final class AccountOnFileTests: XCTestCase {
             accountOnFile.getValue(id: "cardNumber")
         )
     }
+
+    func testGetValueForKeyWithEmptyValueReturnsEmptyString() {
+        let dto = try! FixtureLoader.loadJSON(
+            "accountOnFileWithMustWriteCvv",
+            as: AccountOnFileDto.self
+        )
+        let factory = PaymentProductFactory()
+        let aof = factory.createAccountOnFile(from: dto)
+
+        XCTAssertEqual("", aof.getValue(id: "cvv"))
+    }
+
+    func testGetAttributeWhenCalledReturnsAttribute() {
+        let attribute = accountOnFile.getAttribute(id: "cardNumber")
+
+        XCTAssertNotNil(attribute)
+        XCTAssertEqual("cardNumber", attribute?.key)
+    }
 }

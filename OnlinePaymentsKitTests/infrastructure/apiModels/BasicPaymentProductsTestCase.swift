@@ -14,7 +14,7 @@ import XCTest
 
 @testable import OnlinePaymentsKit
 
-class BasicPaymentProductsTests: XCTestCase {
+class BasicPaymentProductsTestCase: XCTestCase {
 
     private var basicPaymentProducts: BasicPaymentProducts!
 

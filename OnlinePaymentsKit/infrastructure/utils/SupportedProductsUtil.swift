@@ -33,6 +33,7 @@ public class SupportedProductsUtil: NSObject {
         guard let productId = productId else {
             return false
         }
+
         return !sdkUnsupportedProducts.contains(productId)
     }
 

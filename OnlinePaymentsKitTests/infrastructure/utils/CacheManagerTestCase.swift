@@ -95,50 +95,51 @@ class CacheManagerTestCase: XCTestCase {
     }
 
     func testConcurrentAccess() {
-        let expectation = self.expectation(description: "Concurrent operations complete")
         let iterations = 1000
-        var completedOperations = 0
+        let group = DispatchGroup()
         let queue = DispatchQueue(label: "test.concurrent", attributes: .concurrent)
 
-        // Perform concurrent writes
         for i in 0..<iterations {
+            group.enter()
             queue.async {
                 self.cacheManager.set(key: "key\(i)", value: "value\(i)")
-
-                if i == iterations - 1 {
-                    DispatchQueue.main.async {
-                        completedOperations += 1
-                        if completedOperations == 2 {
-                            expectation.fulfill()
-                        }
-                    }
-                }
+                group.leave()
             }
         }
 
-        // Perform concurrent reads
         for i in 0..<iterations {
+            group.enter()
             queue.async {
                 let _: String? = self.cacheManager.get(key: "key\(i)")
-
-                if i == iterations - 1 {
-                    DispatchQueue.main.async {
-                        completedOperations += 1
-                        if completedOperations == 2 {
-                            expectation.fulfill()
-                        }
-                    }
-                }
+                group.leave()
             }
         }
 
-        waitForExpectations(timeout: 5.0)
+        let expectation = self.expectation(description: "Concurrent operations complete")
+        group.notify(queue: .main) {
+            expectation.fulfill()
+        }
 
-        // Verify all values were set correctly
+        waitForExpectations(timeout: 10.0)
+
+        // All writes have completed by the time waitForExpectations returns.
         for i in 0..<iterations {
             let value: String? = cacheManager.get(key: "key\(i)")
             XCTAssertEqual(value, "value\(i)", "Value for key\(i) should be value\(i)")
         }
+    }
+
+    func testCreateCacheKeyReturnsDifferentKeysForDifferentContexts() {
+        let otherContext = PaymentContext(
+            amountOfMoney: AmountOfMoney(amount: 2000, currencyCode: "EUR"),
+            isRecurring: true,
+            countryCode: "DE"
+        )
+
+        let key1 = cacheManager.createCacheKey(prefix: "products", context: context)
+        let key2 = cacheManager.createCacheKey(prefix: "products", context: otherContext)
+
+        XCTAssertNotEqual(key1, key2)
     }
 
     func testTypeMismatchReturnsNil() {

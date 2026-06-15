@@ -26,6 +26,7 @@ final class ValidatorRegularExpressionTestCase: XCTestCase {
             regularExpression = try NSRegularExpression(pattern: "\\d{3}")
         } catch {
             XCTFail("ValidatorRegularExpression setup failed")
+
             return
         }
 

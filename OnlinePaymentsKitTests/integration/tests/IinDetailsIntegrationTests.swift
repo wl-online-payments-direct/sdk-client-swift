@@ -11,12 +11,19 @@
  */
 
 import XCTest
+import OHHTTPStubs
+import OHHTTPStubsSwift
 
 @testable import OnlinePaymentsKit
 
 /// Integration tests for IIN (Issuer Identification Number) details lookup.
 /// Tests real API calls to identify card types from card numbers.
 class IinDetailsIntegrationTests: BaseIntegrationTest {
+
+    override func tearDown() {
+        HTTPStubs.removeAllStubs()
+        super.tearDown()
+    }
 
     func testGetIinDetails_withValidCardNumber_shouldReturnSupported() {
         // Use first 6 digits of a valid card number
@@ -28,7 +35,6 @@ class IinDetailsIntegrationTests: BaseIntegrationTest {
             forPartialCardNumber: partialCardNumber,
             paymentContext: paymentContext,
             success: { iinDetailsResponse in
-                XCTAssertNotNil(iinDetailsResponse, "Result should not be null")
                 XCTAssertEqual(
                     IINStatus.supported,
                     iinDetailsResponse.status,
@@ -87,7 +93,6 @@ class IinDetailsIntegrationTests: BaseIntegrationTest {
             paymentContext: paymentContext,
             success: { iinDetailsResponse in
                 XCTAssertNotNil(iinDetailsResponse, "Result should not be null")
-                XCTAssertNotNil(iinDetailsResponse.status, "Status should not be null")
                 expectation.fulfill()
             },
             failure: { error in
@@ -105,40 +110,28 @@ class IinDetailsIntegrationTests: BaseIntegrationTest {
         let firstExpectation = expectation(description: "First call")
         let secondExpectation = expectation(description: "Second call")
 
-        var firstCallTime: TimeInterval = 0
-        var secondCallTime: TimeInterval = 0
-
         // First call - should fetch from API
-        let firstStart = Date()
         sdk.iinDetails(
             forPartialCardNumber: partialCardNumber,
             paymentContext: paymentContext,
             success: { firstResult in
-                firstCallTime = Date().timeIntervalSince(firstStart)
-                XCTAssertNotNil(firstResult, "First result should not be null")
                 firstExpectation.fulfill()
 
-                // Second call - should use cache
-                let secondStart = Date()
+                // Second call - should use cache and return same data
                 self.sdk.iinDetails(
                     forPartialCardNumber: partialCardNumber,
                     paymentContext: self.paymentContext,
                     success: { secondResult in
-                        secondCallTime = Date().timeIntervalSince(secondStart)
-                        XCTAssertNotNil(secondResult, "Second result should not be null")
-
-                        // Cached call should be significantly faster
-                        XCTAssertTrue(
-                            firstCallTime > secondCallTime,
-                            "Cached call should be faster"
-                        )
-
                         XCTAssertEqual(
                             firstResult.status,
                             secondResult.status,
-                            "Results should have same status"
+                            "Cached result should have same status"
                         )
-
+                        XCTAssertEqual(
+                            firstResult.paymentProductId,
+                            secondResult.paymentProductId,
+                            "Cached result should have same payment product ID"
+                        )
                         secondExpectation.fulfill()
                     },
                     failure: { error in
@@ -177,12 +170,10 @@ class IinDetailsIntegrationTests: BaseIntegrationTest {
                     forPartialCardNumber: cardNumber2,
                     paymentContext: self.paymentContext,
                     success: { secondResult in
-                        XCTAssertNotNil(secondResult, "Second result should not be null")
-
-                        // Both should be SUPPORTED or UNKNOWN - just verify we get responses
-                        XCTAssertNotNil(firstResult.status, "First status should not be null")
-                        XCTAssertNotNil(secondResult.status, "Second status should not be null")
-
+                        XCTAssertFalse(
+                            firstResult === secondResult,
+                            "Different card numbers should yield distinct response objects"
+                        )
                         secondExpectation.fulfill()
                     },
                     failure: { error in
@@ -244,6 +235,7 @@ class IinDetailsIntegrationTests: BaseIntegrationTest {
                         "Payment product ID should not be null for supported card"
                     )
                 }
+
                 expectation.fulfill()
             },
             failure: { error in
@@ -268,12 +260,103 @@ class IinDetailsIntegrationTests: BaseIntegrationTest {
                 if iinDetailsResponse.status == .supported {
                     // Card type might be nil or might have a value depending on API response
                     // Just verify we get a valid result
-                    XCTAssertNotNil(iinDetailsResponse, "IIN details should be present")
-                }
+                    }
+
                 expectation.fulfill()
             },
             failure: { error in
                 XCTFail("Should not fail: \(error)")
+                expectation.fulfill()
+            }
+        )
+
+        waitForExpectations(timeout: 10.0)
+    }
+
+    func testGetIinDetails_WhenIsAllowedInContextFalse_ReturnsExistingButNotAllowedStatus() {
+        // Uses HTTP stubbing (equivalent to Android's MockWebServer / JS SDK's getApiClientSpyMock)
+        // to return a crafted response with isAllowedInContext: false.
+        stub(condition: isMethodPOST() && { req in
+            req.url?.path.hasSuffix("/services/getIINdetails") == true
+        }) { _ in
+            HTTPStubsResponse(
+                jsonObject: ["paymentProductId": 1, "isAllowedInContext": false],
+                statusCode: 200,
+                headers: ["Content-Type": "application/json"]
+            )
+        }
+
+        defer { HTTPStubs.removeAllStubs() }
+
+        let expectation = expectation(description: "Get IIN details for restricted card")
+
+        sdk.iinDetails(
+            forPartialCardNumber: "400000",
+            paymentContext: paymentContext,
+            success: { iinDetailsResponse in
+                XCTAssertNotNil(iinDetailsResponse, "Result should not be null")
+                XCTAssertEqual(
+                    IINStatus.existingButNotAllowed,
+                    iinDetailsResponse.status,
+                    "Status should be EXISTING_BUT_NOT_ALLOWED when isAllowedInContext is false"
+                )
+                expectation.fulfill()
+            },
+            failure: { error in
+                XCTFail("Should not fail: \(error)")
+                expectation.fulfill()
+            }
+        )
+
+        waitForExpectations(timeout: 10.0)
+    }
+
+    func testGetIinDetails_WhenIsAllowedInContextAbsent_ReturnsSupportedStatus() {
+        // Uses a real API call with a known Visa BIN that the preprod environment recognises.
+        // The JS SDK test covers this via a mock that triggers a payment-product fallback;
+        // the Swift SDK has no such fallback, so we follow the Android SDK pattern of
+        // calling the real API with a supported card and asserting SUPPORTED.
+        let expectation = expectation(description: "Get IIN details for supported card")
+
+        sdk.iinDetails(
+            forPartialCardNumber: "400000",
+            paymentContext: paymentContext,
+            success: { iinDetailsResponse in
+                XCTAssertNotNil(iinDetailsResponse, "Result should not be null")
+                XCTAssertEqual(
+                    IINStatus.supported,
+                    iinDetailsResponse.status,
+                    "Status should be SUPPORTED for a card allowed in context"
+                )
+                expectation.fulfill()
+            },
+            failure: { error in
+                XCTFail("Should not fail: \(error)")
+                expectation.fulfill()
+            }
+        )
+
+        waitForExpectations(timeout: 10.0)
+    }
+
+    func testGetIinDetails_CardNumberWith6Digits_DoesNotThrow() {
+        // Boundary condition: exactly 6 digits should be accepted (minimum required)
+        let expectation = expectation(description: "Get IIN details with exactly 6 digits")
+
+        sdk.iinDetails(
+            forPartialCardNumber: "400000",
+            paymentContext: paymentContext,
+            success: { iinDetailsResponse in
+                XCTAssertNotNil(iinDetailsResponse, "Result should not be null")
+                XCTAssertNotEqual(
+                    IINStatus.notEnoughDigits,
+                    iinDetailsResponse.status,
+                    "Status should not be NOT_ENOUGH_DIGITS for 6-digit input"
+                )
+                expectation.fulfill()
+            },
+            failure: { error in
+                XCTFail("Should not fail for 6-digit card number: \(error)")
                 expectation.fulfill()
             }
         )

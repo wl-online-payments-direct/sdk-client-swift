@@ -48,7 +48,6 @@ final class ValidatorExpirationDateTestCase: XCTestCase {
 
     func testRejectInvalidMonth() {
         let result = validator.validate(value: "1320")
-        print("Valid: \(result.valid), Message: '\(result.message)'")
         XCTAssertFalse(result.valid)
         XCTAssertEqual(result.message, "Invalid expiration date format.")
     }
@@ -108,6 +107,7 @@ final class ValidatorExpirationDateTestCase: XCTestCase {
         var components = DateComponents()
         components.year = year
         components.month = month
+
         return Calendar.current.date(from: components)!
     }
 }

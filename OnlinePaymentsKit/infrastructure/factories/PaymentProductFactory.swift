@@ -150,6 +150,7 @@ internal class PaymentProductFactory: PaymentProductFactoryProtocol {
         }
 
         let type = getFormElementType(from: dto.type)
+
         return FormElement(type: type)
     }
 
@@ -187,6 +188,7 @@ internal class PaymentProductFactory: PaymentProductFactoryProtocol {
             if let productId = productId, accountProductId != productId {
                 return nil
             }
+
             return createAccountOnFile(from: dto)
         }
     }
@@ -217,6 +219,7 @@ internal class PaymentProductFactory: PaymentProductFactoryProtocol {
 
         return dtos.map { dto in
             let status = getAccountOnFileAttributeStatus(from: dto.status)
+
             return AccountOnFileAttribute(
                 key: dto.key,
                 value: dto.value,
@@ -246,8 +249,10 @@ internal class PaymentProductFactory: PaymentProductFactoryProtocol {
         guard let alias = alias, let mask = mask else {
             return alias
         }
+
         let formatter = StringFormatter()
         let formatted = formatter.formatString(string: alias, mask: mask)
+
         return formatted.trimmingCharacters(in: .whitespaces)
     }
 
@@ -270,6 +275,7 @@ internal class PaymentProductFactory: PaymentProductFactoryProtocol {
         default:
             let typeDescription = typeString ?? "nil"
             Logger.log("PaymentProductField type: \(typeDescription) is invalid")
+
             return .string
         }
     }
@@ -303,6 +309,7 @@ internal class PaymentProductFactory: PaymentProductFactoryProtocol {
             if let status = statusString {
                 Logger.log("AccountOnFileAttribute status: \(status) is invalid")
             }
+
             return .readOnly
         }
     }

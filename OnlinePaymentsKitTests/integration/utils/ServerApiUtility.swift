@@ -27,6 +27,7 @@ class ServerApiUtility {
         formatter.locale = Locale(identifier: "en_US_POSIX")
         formatter.timeZone = TimeZone(identifier: "GMT")
         formatter.dateFormat = "EEE, dd MMM yyyy HH:mm:ss 'GMT'"
+
         return formatter
     }()
 
@@ -99,16 +100,19 @@ class ServerApiUtility {
             let task = URLSession.shared.dataTask(with: request) { data, response, error in
                 if let error = error {
                     completion(.failure(error))
+
                     return
                 }
 
                 guard let data = data else {
                     completion(.failure(ServerApiError.noData))
+
                     return
                 }
 
                 guard let httpResponse = response as? HTTPURLResponse else {
                     completion(.failure(ServerApiError.invalidResponse))
+
                     return
                 }
 
@@ -123,6 +127,7 @@ class ServerApiUtility {
                     } else {
                         completion(.failure(ServerApiError.httpError(statusCode: httpResponse.statusCode)))
                     }
+
                     return
                 }
 
@@ -184,6 +189,7 @@ class ServerApiUtility {
 
         // Base64 encode
         let signatureData = Data(signature)
+
         return signatureData.base64EncodedString()
     }
 }

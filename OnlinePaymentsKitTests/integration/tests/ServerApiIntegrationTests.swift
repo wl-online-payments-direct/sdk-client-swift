@@ -40,6 +40,7 @@ class ServerApiIntegrationTests: XCTestCase {
             let merchantId = ProcessInfo.processInfo.environment["WORLDLINE_MERCHANT_ID"]
         else {
             // Skip tests if credentials not provided
+
             return
         }
 
@@ -56,11 +57,8 @@ class ServerApiIntegrationTests: XCTestCase {
         let fileManager = FileManager.default
 
         // Look for .env in the Integration test directory
-        guard let sourceFile = URL(string: #file),
-            let integrationDir = sourceFile.deletingLastPathComponent().path.removingPercentEncoding
-        else {
-            return
-        }
+        let sourceFile = URL(fileURLWithPath: #filePath)
+        let integrationDir = sourceFile.deletingLastPathComponent().path
 
         let envPath = "\(integrationDir)/.env"
 
@@ -101,6 +99,7 @@ class ServerApiIntegrationTests: XCTestCase {
     func testCreateSession() {
         guard serverApi != nil else {
             print("Skipping integration test - credentials not configured")
+
             return
         }
 

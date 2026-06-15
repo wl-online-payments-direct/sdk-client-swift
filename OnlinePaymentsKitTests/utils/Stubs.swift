@@ -23,6 +23,7 @@ final class Stubs {
     ///   - condition: OHHTTPStubs condition to match the request
     static func stubWithFixture(_ fixtureName: String, condition: @escaping HTTPStubsTestBlock) {
         stub(condition: condition) { _ in
+
             return Stubs.fixtureResponse(fixtureName)
         }
     }

@@ -46,12 +46,14 @@ class CacheManagerMock: CacheManagerProtocol {
 
     func has(key: String) -> Bool {
         hasCallCount += 1
+
         return cache[key] != nil
     }
 
     func get<T>(key: String) -> T? {
         getCallCount += 1
         getCalledWithKey = key
+
         return cache[key] as? T
     }
 

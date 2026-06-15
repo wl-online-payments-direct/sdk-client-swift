@@ -42,6 +42,7 @@ public class EncryptionService: EncryptionServiceProtocol {
 
         if let cached: PublicKeyResponse = cacheManager.get(key: cacheKey) {
             success(cached)
+
             return
         }
 
@@ -84,14 +85,17 @@ public class EncryptionService: EncryptionServiceProtocol {
                     data: validationResult.raw
                 )
                 failure(error)
+
                 return
             }
 
             guard let paymentRequestJSON = preparePaymentRequestJSON(paymentRequest: paymentRequest) else {
                 let error = EncryptionError(message: "Failed to serialize payment request to JSON")
                 failure(error)
+
                 return
             }
+
             encryptJSON(paymentRequestJSON, success: success, failure: failure)
         } catch {
             let encryptionError = InvalidArgumentError(
@@ -106,12 +110,20 @@ public class EncryptionService: EncryptionServiceProtocol {
         success: @escaping (_ encryptedRequest: EncryptedRequest) -> Void,
         failure: @escaping (_ error: SdkError) -> Void
     ) {
-        guard let tokenRequestJSON = prepareTokenRequestJSON(tokenRequest: tokenRequest) else {
-            let error = EncryptionError(message: "Failed to serialize token request to JSON")
-            failure(error)
-            return
+        do {
+            guard let tokenRequestJSON = try prepareTokenRequestJSON(tokenRequest: tokenRequest) else {
+                let error = EncryptionError(message: "Failed to serialize token request to JSON")
+                failure(error)
+
+                return
+            }
+
+            encryptJSON(tokenRequestJSON, success: success, failure: failure)
+        } catch let sdkError as SdkError {
+            failure(sdkError)
+        } catch {
+            failure(EncryptionError(message: error.localizedDescription))
         }
-        encryptJSON(tokenRequestJSON, success: success, failure: failure)
     }
 
     // MARK: - Private Methods
@@ -139,6 +151,7 @@ public class EncryptionService: EncryptionServiceProtocol {
                     guard let publicKey = self.encryptor.RSAKey(withTag: tag) else {
                         let error = EncryptionError(message: "RSA key not found after storage")
                         failure(error)
+
                         return
                     }
 
@@ -209,7 +222,13 @@ public class EncryptionService: EncryptionServiceProtocol {
         return jsonString
     }
 
-    private func prepareTokenRequestJSON(tokenRequest: CreditCardTokenRequest) -> String? {
+    private func prepareTokenRequestJSON(tokenRequest: CreditCardTokenRequest) throws -> String? {
+        guard tokenRequest.paymentProductId != nil else {
+            throw EncryptionError(
+                message: "Error encrypting credit card token request: the payment product ID not set."
+            )
+        }
+
         var jsonDict: [String: Any] = [
             "clientSessionId": sessionData.clientSessionId,
             "nonce": encryptor.generateUUID(),

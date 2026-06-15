@@ -13,7 +13,7 @@
 import XCTest
 @testable import OnlinePaymentsKit
 
-class EncryptionServiceTests: XCTestCase {
+class EncryptionServiceTestCase: XCTestCase {
     var service: EncryptionService!
     var sessionData: SessionData!
     var configuration: SdkConfiguration!
@@ -53,33 +53,7 @@ class EncryptionServiceTests: XCTestCase {
         mockCacheManager = nil
         super.tearDown()
     }
-        
-    func testEncryptPaymentRequestReturnsEncryptedFields() {
-        let paymentProduct = PaymentProductFactory().createPaymentProduct(from: try! FixtureLoader.loadJSON("cardPaymentProduct", as: PaymentProductDto.self))
-        let request = PaymentRequest(paymentProduct: paymentProduct)
-        try! request.setValue(id: "cvv", value: "123")
-        try! request.setValue(id: "expiryDate", value: "12/2026")
-        try! request.setValue(id: "cardNumber", value: "4242424242424242")
-        
-        setupMockApiClientForPublicKey()
-        
-        let expectation = self.expectation(description: "Encrypt payment request")
-        
-        service.encryptPaymentRequest(
-            request,
-            success: { encryptedRequest in
-                XCTAssertNotNil(encryptedRequest.encryptedCustomerInput)
-                XCTAssertFalse(encryptedRequest.encryptedCustomerInput.isEmpty)
-                expectation.fulfill()
-            },
-            failure: { error in
-                XCTFail("Should not fail: \(error)")
-            }
-        )
-        
-        waitForExpectations(timeout: 5.0)
-    }
-    
+
     func testEncryptPaymentRequestFailsWithInvalidRequest() {
         let paymentProduct = PaymentProductFactory().createPaymentProduct(from: try! FixtureLoader.loadJSON("cardPaymentProduct", as: PaymentProductDto.self))
         let request = PaymentRequest(paymentProduct: paymentProduct)
@@ -96,19 +70,23 @@ class EncryptionServiceTests: XCTestCase {
                 if let invalidError = error as? InvalidArgumentError {
                     XCTAssertEqual(invalidError.message, "The payment request is not valid.")
                 }
+
                 expectation.fulfill()
             }
         )
         
         waitForExpectations(timeout: 5.0)
     }
+
+    // NOTE: The catch block in EncryptionService.encryptPaymentRequest is defensive dead code —
+    // PaymentRequest is `final`, so a throwing subclass cannot be written to cover it in tests.
     
     func testEncryptPaymentRequestFailsWhenPublicKeyFetchFails() {
         let paymentProduct = PaymentProductFactory().createPaymentProduct(from: try! FixtureLoader.loadJSON("cardPaymentProduct", as: PaymentProductDto.self))
         let request = PaymentRequest(paymentProduct: paymentProduct)
-        try! request.setValue(id: "cvv", value: "123")
-        try! request.setValue(id: "expiryDate", value: "12/2026")
-        try! request.setValue(id: "cardNumber", value: "4242424242424242")
+        try! request.setValue(id: "cvv", value: TestData.cvv)
+        try! request.setValue(id: "expiryDate", value: TestData.expiryDateSlash)
+        try! request.setValue(id: "cardNumber", value: TestData.visaCardNumber)
         
         mockApiClient.shouldGetFail = true
         mockApiClient.mockGetError = ResponseError(
@@ -130,6 +108,7 @@ class EncryptionServiceTests: XCTestCase {
                     XCTAssertEqual(responseError.httpStatusCode, 500)
                     XCTAssertEqual(responseError.message, "Server error")
                 }
+
                 expectation.fulfill()
             }
         )
@@ -140,9 +119,9 @@ class EncryptionServiceTests: XCTestCase {
     func testEncryptPaymentRequestFailsWithCommunicationError() {
         let paymentProduct = PaymentProductFactory().createPaymentProduct(from: try! FixtureLoader.loadJSON("cardPaymentProduct", as: PaymentProductDto.self))
         let request = PaymentRequest(paymentProduct: paymentProduct)
-        try! request.setValue(id: "cvv", value: "123")
-        try! request.setValue(id: "expiryDate", value: "12/2026")
-        try! request.setValue(id: "cardNumber", value: "4242424242424242")
+        try! request.setValue(id: "cvv", value: TestData.cvv)
+        try! request.setValue(id: "expiryDate", value: TestData.expiryDateSlash)
+        try! request.setValue(id: "cardNumber", value: TestData.visaCardNumber)
         
         mockApiClient.shouldGetFailWithCommunicationError = true
         
@@ -158,41 +137,17 @@ class EncryptionServiceTests: XCTestCase {
                 if let commError = error as? CommunicationError {
                     XCTAssertEqual(commError.message, "Mock communication error")
                 }
+
                 expectation.fulfill()
             }
         )
         
         waitForExpectations(timeout: 5.0)
     }
-        
-    func testEncryptTokenRequestReturnsEncryptedFields() {
-        let token = CreditCardTokenRequest()
-        token.securityCode = "123"
-        token.cardNumber = "424242424242"
-        token.paymentProductId = NSNumber(value: 1)
-        
-        setupMockApiClientForPublicKey()
-        
-        let expectation = self.expectation(description: "Encrypt token request")
-        
-        service.encryptTokenRequest(
-            token,
-            success: { encryptedRequest in
-                XCTAssertNotNil(encryptedRequest.encryptedCustomerInput)
-                XCTAssertFalse(encryptedRequest.encryptedCustomerInput.isEmpty)
-                expectation.fulfill()
-            },
-            failure: { error in
-                XCTFail("Should not fail: \(error)")
-            }
-        )
-        
-        waitForExpectations(timeout: 5.0)
-    }
-    
+
     func testEncryptTokenRequestFailsWhenPublicKeyFetchFails() {
         let token = CreditCardTokenRequest()
-        token.securityCode = "123"
+        token.securityCode = TestData.cvv
         token.cardNumber = "424242424242"
         token.paymentProductId = NSNumber(value: 1)
         
@@ -216,6 +171,7 @@ class EncryptionServiceTests: XCTestCase {
                     XCTAssertEqual(responseError.httpStatusCode, 404)
                     XCTAssertEqual(responseError.message, "Not found")
                 }
+
                 expectation.fulfill()
             }
         )
@@ -225,7 +181,7 @@ class EncryptionServiceTests: XCTestCase {
     
     func testEncryptTokenRequestFailsWithCommunicationError() {
         let token = CreditCardTokenRequest()
-        token.securityCode = "123"
+        token.securityCode = TestData.cvv
         token.cardNumber = "424242424242"
         token.paymentProductId = NSNumber(value: 1)
         
@@ -243,6 +199,7 @@ class EncryptionServiceTests: XCTestCase {
                 if let commError = error as? CommunicationError {
                     XCTAssertEqual(commError.message, "Mock communication error")
                 }
+
                 expectation.fulfill()
             }
         )
@@ -314,6 +271,7 @@ class EncryptionServiceTests: XCTestCase {
                     XCTAssertEqual(responseError.httpStatusCode, 503)
                     XCTAssertEqual(responseError.message, "Service unavailable")
                 }
+
                 expectation.fulfill()
             }
         )
@@ -335,15 +293,76 @@ class EncryptionServiceTests: XCTestCase {
                 if let commError = error as? CommunicationError {
                     XCTAssertEqual(commError.message, "Mock communication error")
                 }
+
                 expectation.fulfill()
             }
         )
         
         waitForExpectations(timeout: 5.0)
     }
-        
+
     private func setupMockApiClientForPublicKey() {
         let publicKey = try! FixtureLoader.loadJSON("publicKeyResponse", as: PublicKeyResponse.self)
         mockApiClient.mockGetResponses["/crypto/publickey"] = publicKey
+    }
+
+    func testEncryptPaymentRequestUsesPaymentRequestEncryptionPath() {
+        setupMockApiClientForPublicKey()
+
+        let paymentProduct = PaymentProductFactory().createPaymentProduct(
+            from: try! FixtureLoader.loadJSON("cardPaymentProduct", as: PaymentProductDto.self)
+        )
+        let request = PaymentRequest(paymentProduct: paymentProduct)
+        try! request.setValue(id: "cardNumber", value: TestData.visaCardNumber)
+        try! request.setValue(id: "cvv", value: TestData.cvv)
+        try! request.setValue(id: "expiryDate", value: TestData.expiryDateSlash)
+        request.tokenize = false
+
+        let expectation = self.expectation(
+            description: "PaymentRequest path encrypts and returns both fields"
+        )
+
+        service.encryptPaymentRequest(
+            request,
+            success: { encryptedRequest in
+                XCTAssertFalse(encryptedRequest.encryptedCustomerInput.isEmpty)
+                XCTAssertFalse(encryptedRequest.encodedClientMetaInfo.isEmpty)
+                expectation.fulfill()
+            },
+            failure: { error in
+                XCTFail("Should not fail: \(error)")
+            }
+        )
+
+        waitForExpectations(timeout: 5.0)
+    }
+
+    func testEncryptTokenRequestUsesTokenRequestEncryptionPath() {
+        setupMockApiClientForPublicKey()
+
+        // Token path does not require a full PaymentRequest or product fields
+        let token = CreditCardTokenRequest()
+        token.cardNumber = "4242424242424242"
+        token.expiryDate = "1225"
+        token.paymentProductId = NSNumber(value: 1)
+
+        let expectation = self.expectation(
+            description: "CreditCardTokenRequest path encrypts and returns both fields"
+        )
+
+        service.encryptTokenRequest(
+            token,
+            success: { encryptedRequest in
+                XCTAssertFalse(encryptedRequest.encryptedCustomerInput.isEmpty)
+                XCTAssertFalse(encryptedRequest.encodedClientMetaInfo.isEmpty)
+                expectation.fulfill()
+            },
+            failure: { error in
+                XCTFail("Should not fail: \(error)")
+            }
+
+        )
+
+        waitForExpectations(timeout: 5.0)
     }
 }
