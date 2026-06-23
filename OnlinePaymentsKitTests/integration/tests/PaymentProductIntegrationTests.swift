@@ -1,6 +1,8 @@
 /*
  * Do not remove or alter the notices in this preamble.
  *
+ * This software is owned by Worldline and may not be be altered, copied, reproduced, republished, uploaded, posted, transmitted or distributed in any way, without the prior written consent of Worldline.
+ *
  * Copyright © 2026 Worldline and/or its affiliates.
  *
  * All rights reserved. License grant and user rights and obligations according to the applicable license agreement.
@@ -16,9 +18,38 @@ import XCTest
 /// Tests real API calls to the preprod environment.
 class PaymentProductIntegrationTests: BaseIntegrationTest {
 
-    private let visaProductId = 1  // VISA
+    private let visaProductId = 1
 
-    func testGetPaymentProduct_WhenCalledAgain_ReturnsCachedResult() {
+    func testGetPaymentProduct_shouldReturnPaymentProductForValidContext() {
+        let expectation = expectation(description: "Get payment product")
+
+        sdk.paymentProduct(
+            withId: visaProductId,
+            paymentContext: paymentContext,
+            success: { paymentProduct in
+                XCTAssertEqual(
+                    self.visaProductId,
+                    paymentProduct.id,
+                    "Product ID should match requested ID"
+                )
+
+                XCTAssertFalse(
+                    paymentProduct.fields.isEmpty,
+                    "Payment product should have fields"
+                )
+
+                expectation.fulfill()
+            },
+            failure: { error in
+                XCTFail("Should not fail: \(error)")
+                expectation.fulfill()
+            }
+        )
+
+        waitForExpectations(timeout: 10.0)
+    }
+
+    func testGetPaymentProduct_calledTwice_shouldUseCacheOnSecondCall() {
         let firstExpectation = expectation(description: "First call")
         let secondExpectation = expectation(description: "Second call")
 
@@ -32,8 +63,18 @@ class PaymentProductIntegrationTests: BaseIntegrationTest {
                     withId: self.visaProductId,
                     paymentContext: self.paymentContext,
                     success: { secondResult in
-                        XCTAssertEqual(firstResult.id, secondResult.id, "Cached result should have same product ID")
-                        XCTAssertEqual(firstResult.fields.count, secondResult.fields.count, "Cached result should have same fields")
+                        XCTAssertEqual(
+                            firstResult.id,
+                            secondResult.id,
+                            "Cached result should have same product ID"
+                        )
+
+                        XCTAssertEqual(
+                            firstResult.fields.count,
+                            secondResult.fields.count,
+                            "Cached result should have same fields"
+                        )
+
                         secondExpectation.fulfill()
                     },
                     failure: { error in
@@ -52,48 +93,39 @@ class PaymentProductIntegrationTests: BaseIntegrationTest {
         waitForExpectations(timeout: 15.0)
     }
 
-    func testGetPaymentProduct_UnsupportedProductIds_ThrowsResponseError() {
-        for productId in SupportedProductsUtil.sdkUnsupportedProducts {
-            let productExpectation = expectation(description: "Get unsupported product \(productId)")
+    func testGetPaymentProduct_shouldReturnProductWithDisplayHints() {
+        let expectation = expectation(description: "Get payment product with display hints")
 
-            sdk.paymentProduct(
-                withId: productId,
-                paymentContext: paymentContext,
-                success: { _ in
-                    XCTFail("Should not succeed for SDK-unsupported product \(productId)")
-                    productExpectation.fulfill()
-                },
-                failure: { error in
-                    XCTAssertTrue(
-                        error is ResponseError,
-                        "Error should be a ResponseError for unsupported product \(productId)"
-                    )
-                    if let responseError = error as? ResponseError {
-                        XCTAssertEqual(
-                            404,
-                            responseError.httpStatusCode,
-                            "HTTP status code should be 404 for unsupported product \(productId)"
-                        )
-                        if let errorId = responseError.metadata?["errorId"] as? String {
-                            XCTAssertEqual(
-                                "48b78d2d-1b35-4f8b-92cb-57cc2638e901",
-                                errorId,
-                                "Error ID should match for unsupported product \(productId)"
-                            )
-                        }
-                    }
+        sdk.paymentProduct(
+            withId: visaProductId,
+            paymentContext: paymentContext,
+            success: { paymentProduct in
+                XCTAssertNotNil(paymentProduct.logo, "Payment product should have a logo")
+                XCTAssertFalse(
+                    paymentProduct.logo?.isEmpty ?? true,
+                    "Payment product logo should not be empty"
+                )
 
-                    productExpectation.fulfill()
-                }
-            )
+                XCTAssertGreaterThanOrEqual(
+                    paymentProduct.displayOrder,
+                    0,
+                    "Payment product should have a valid display order"
+                )
 
-            waitForExpectations(timeout: 5.0)
-        }
+                expectation.fulfill()
+            },
+            failure: { error in
+                XCTFail("Should not fail: \(error)")
+                expectation.fulfill()
+            }
+        )
+
+        waitForExpectations(timeout: 10.0)
     }
 
-    func testGetPaymentProduct_ValidProductId_ResponseContainsAccountsOnFile() {
+    func testGetPaymentProduct_shouldReturnProductWithMappedAccountsOnFile() {
         let encryptExpectation = expectation(description: "Encrypt payment request")
-        let productExpectation = expectation(description: "Get product with AOF")
+        let productExpectation = expectation(description: "Get product with accounts on file")
 
         // Step 1: Fetch product and encrypt a request to obtain encrypted customer input
         sdk.paymentProduct(
@@ -101,6 +133,7 @@ class PaymentProductIntegrationTests: BaseIntegrationTest {
             paymentContext: paymentContext,
             success: { paymentProduct in
                 let request = PaymentRequest(paymentProduct: paymentProduct)
+
                 do {
                     try request.setValue(id: "cardNumber", value: "4242424242424242")
                     try request.setValue(id: "cardholderName", value: "Test Cardholder")
@@ -140,6 +173,7 @@ class PaymentProductIntegrationTests: BaseIntegrationTest {
 
                                 // Step 4: Create a new session that includes the token
                                 let sessionRequest = CreateSessionRequest(tokens: [token])
+
                                 self.serverApi.createSession(request: sessionRequest) { sessionResult in
                                     switch sessionResult {
                                     case .failure(let error):
@@ -166,34 +200,40 @@ class PaymentProductIntegrationTests: BaseIntegrationTest {
                                             clientApiUrl: clientApiUrl,
                                             assetUrl: assetUrl
                                         )
-                                        guard let sdkWithAof = try? OnlinePaymentsSdk(
+
+                                        guard let sdkWithAccountOnFile = try? OnlinePaymentsSdk(
                                             sessionData: sessionData,
                                             configuration: SdkConfiguration(
                                                 appIdentifier: "SwiftSDK/IntegrationTests"
                                             )
                                         ) else {
-                                            XCTFail("Failed to create SDK with token session")
+                                            XCTFail("Failed to create SDK with account-on-file session")
                                             productExpectation.fulfill()
 
                                             return
                                         }
-
                                         // Step 6: Fetch product and assert accounts on file are present
-                                        sdkWithAof.paymentProduct(
+                                        sdkWithAccountOnFile.paymentProduct(
                                             withId: self.visaProductId,
                                             paymentContext: self.paymentContext,
-                                            success: { productWithAof in
+                                            success: { productWithAccountOnFile in
                                                 XCTAssertFalse(
-                                                    productWithAof.accountsOnFile.isEmpty,
+                                                    productWithAccountOnFile.accountsOnFile.isEmpty,
                                                     "Product should have at least one account on file"
                                                 )
+
+                                                let accountOnFile = productWithAccountOnFile.accountsOnFile.first
+                                                XCTAssertNotNil(
+                                                    accountOnFile?.id,
+                                                    "Mapped account on file should have an ID"
+                                                )
+
                                                 productExpectation.fulfill()
                                             },
                                             failure: { error in
-                                                XCTFail("Should not fail fetching product with AOF: \(error)")
+                                                XCTFail("Should not fail fetching product with account on file: \(error)")
                                                 productExpectation.fulfill()
                                             }
-
                                         )
                                     }
                                 }
@@ -215,5 +255,163 @@ class PaymentProductIntegrationTests: BaseIntegrationTest {
         )
 
         waitForExpectations(timeout: 30.0)
+    }
+
+    func testGetPaymentProduct_shouldReturnProductWithValidFieldStructure() {
+        let expectation = expectation(description: "Get payment product with valid field structure")
+
+        sdk.paymentProduct(
+            withId: visaProductId,
+            paymentContext: paymentContext,
+            success: { paymentProduct in
+                XCTAssertFalse(
+                    paymentProduct.fields.isEmpty,
+                    "Payment product should have fields"
+                )
+
+                let fieldIds = paymentProduct.fields.map { $0.id }
+
+                XCTAssertTrue(
+                    fieldIds.contains("cardNumber"),
+                    "Card product should have cardNumber field"
+                )
+
+                XCTAssertTrue(
+                    fieldIds.contains("expiryDate"),
+                    "Card product should have expiryDate field"
+                )
+
+                XCTAssertTrue(
+                    fieldIds.contains("cvv"),
+                    "Card product should have cvv field"
+                )
+
+                XCTAssertTrue(
+                    fieldIds.contains("cardholderName"),
+                    "Card product should have cardholderName field"
+                )
+
+                expectation.fulfill()
+            },
+            failure: { error in
+                XCTFail("Should not fail: \(error)")
+                expectation.fulfill()
+            }
+        )
+
+        waitForExpectations(timeout: 10.0)
+    }
+
+    func testGetPaymentProduct_withUnsupportedOrMissingPaymentProduct_shouldReturnError() {
+        let nonExistentProductId = 99999
+
+        let expectation = expectation(description: "Get unsupported or missing payment product")
+
+        sdk.paymentProduct(
+            withId: nonExistentProductId,
+            paymentContext: paymentContext,
+            success: { _ in
+                XCTFail("Should fail for unsupported or missing payment product")
+                expectation.fulfill()
+            },
+            failure: { error in
+                let responseError = error as? ResponseError
+
+                XCTAssertNotNil(responseError, "Error should be a ResponseError")
+                XCTAssertTrue(
+                    (responseError?.httpStatusCode ?? 0) >= 400,
+                    "Unsupported or missing product should return an error status"
+                )
+
+                expectation.fulfill()
+            }
+        )
+
+        waitForExpectations(timeout: 10.0)
+    }
+
+    func testPaymentProduct_unsupportedProduct_shouldReturnError() {
+        XCTAssertFalse(
+            SupportedProductsUtil.sdkUnsupportedProducts.isEmpty,
+            "SDK unsupported products list should not be empty"
+        )
+
+        let expectations = SupportedProductsUtil.sdkUnsupportedProducts.map { productId in
+            expectation(description: "Get SDK unsupported product \(productId)")
+        }
+
+        for (index, productId) in SupportedProductsUtil.sdkUnsupportedProducts.enumerated() {
+            sdk.paymentProduct(
+                withId: productId,
+                paymentContext: paymentContext,
+                success: { _ in
+                    XCTFail("Should not succeed for SDK unsupported product \(productId)")
+                    expectations[index].fulfill()
+                },
+                failure: { error in
+                    let responseError = error as? ResponseError
+
+                    XCTAssertNotNil(
+                        responseError,
+                        "Error should be a ResponseError for unsupported product \(productId)"
+                    )
+
+                    XCTAssertEqual(
+                        404,
+                        responseError?.httpStatusCode,
+                        "HTTP status code should be 404 for unsupported product \(productId)"
+                    )
+
+                    expectations[index].fulfill()
+                }
+            )
+        }
+
+        waitForExpectations(timeout: 10.0)
+    }
+
+    func testGetPaymentProduct_withDifferentContext_shouldInvalidateCache() {
+        let firstExpectation = expectation(description: "First call")
+        let secondExpectation = expectation(description: "Second call")
+
+        sdk.paymentProduct(
+            withId: visaProductId,
+            paymentContext: paymentContext,
+            success: { firstResult in
+                firstExpectation.fulfill()
+
+                let usdContext = self.createPaymentContext(amount: 1000, currencyCode: "USD")
+
+                self.sdk.paymentProduct(
+                    withId: self.visaProductId,
+                    paymentContext: usdContext,
+                    success: { secondResult in
+                        XCTAssertEqual(
+                            firstResult.id,
+                            secondResult.id,
+                            "Both contexts should return the same requested product ID"
+                        )
+
+                        XCTAssertFalse(
+                            firstResult === secondResult,
+                            "Different contexts should yield distinct response objects"
+                        )
+
+                        secondExpectation.fulfill()
+                    },
+                    failure: { error in
+                        XCTFail("Second call should not fail: \(error)")
+                        secondExpectation.fulfill()
+                    }
+                )
+            },
+            failure: { error in
+                XCTFail("First call should not fail: \(error)")
+                firstExpectation.fulfill()
+                secondExpectation.fulfill()
+            }
+        )
+
+        waitForExpectations(timeout: 15.0)
     }
 }

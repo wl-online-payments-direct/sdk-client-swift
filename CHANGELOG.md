@@ -1,3 +1,9 @@
+# 5.1.1
+
+## Added
+
+* Additionally expanded integration test coverage across all major SDK components.
+
 # 5.1.0
 
 ## Added

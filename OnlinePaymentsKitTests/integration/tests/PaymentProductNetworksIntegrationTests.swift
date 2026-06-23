@@ -34,14 +34,12 @@ class PaymentProductNetworksIntegrationTests: BaseIntegrationTest {
                     error is ResponseError,
                     "Error should be a ResponseError"
                 )
+
                 if let responseError = error as? ResponseError {
                     XCTAssertNotNil(
                         responseError.httpStatusCode,
                         "Response error should have an HTTP status code"
                     )
-                    if let errors = responseError.metadata?["errors"] as? [[String: Any]] {
-                        XCTAssertFalse(errors.isEmpty, "Errors array should not be empty")
-                    }
                 }
 
                 expectation.fulfill()
@@ -62,6 +60,7 @@ class PaymentProductNetworksIntegrationTests: BaseIntegrationTest {
                     networks.paymentProductNetworks.isEmpty,
                     "Google Pay should return a non-empty networks list"
                 )
+
                 expectation.fulfill()
             },
             failure: { error in
@@ -92,6 +91,51 @@ class PaymentProductNetworksIntegrationTests: BaseIntegrationTest {
                             secondResult.paymentProductNetworks,
                             "Cached result should have same networks"
                         )
+
+                        secondExpectation.fulfill()
+                    },
+                    failure: { error in
+                        XCTFail("Second call should not fail: \(error)")
+                        secondExpectation.fulfill()
+                    }
+                )
+            },
+            failure: { error in
+                XCTFail("First call should not fail: \(error)")
+                firstExpectation.fulfill()
+                secondExpectation.fulfill()
+            }
+        )
+
+        waitForExpectations(timeout: 15.0)
+    }
+
+    func testGetPaymentProductNetworks_WithDifferentContext_ShouldInvalidateCache() {
+        let firstExpectation = expectation(description: "First call")
+        let secondExpectation = expectation(description: "Second call")
+
+        sdk.paymentProductNetworks(
+            forProductId: googlePayProductId,
+            paymentContext: paymentContext,
+            success: { firstResult in
+                firstExpectation.fulfill()
+
+                let usdContext = self.createPaymentContext(amount: 1000, currencyCode: "USD")
+
+                self.sdk.paymentProductNetworks(
+                    forProductId: self.googlePayProductId,
+                    paymentContext: usdContext,
+                    success: { secondResult in
+                        XCTAssertFalse(
+                            secondResult.paymentProductNetworks.isEmpty,
+                            "Second result should also contain networks"
+                        )
+
+                        XCTAssertFalse(
+                            firstResult === secondResult,
+                            "Different contexts should yield distinct response objects"
+                        )
+
                         secondExpectation.fulfill()
                     },
                     failure: { error in

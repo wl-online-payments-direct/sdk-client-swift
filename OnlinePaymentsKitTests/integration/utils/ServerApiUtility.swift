@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Do not remove or alter the notices in this preamble.
  *
  * This software is owned by Worldline and may not be be altered, copied, reproduced, republished, uploaded, posted, transmitted or distributed in any way, without the prior written consent of Worldline.
@@ -159,7 +159,7 @@ class ServerApiUtility {
     /// <CanonicalizedHeaders>
     /// /v2/<merchantId>/<endpoint>
     /// ```
-    private func generateSignature(
+    func generateSignature(
         method: String,
         contentType: String,
         date: String,

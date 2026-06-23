@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Do not remove or alter the notices in this preamble.
  *
  * This software is owned by Worldline and may not be be altered, copied, reproduced, republished, uploaded, posted, transmitted or distributed in any way, without the prior written consent of Worldline.
@@ -152,17 +152,35 @@ class CreditCardTokenRequestIntegrationTests: BaseIntegrationTest {
             },
             failure: { error in
                 let encryptionError = error as? EncryptionError
+
                 XCTAssertNotNil(encryptionError, "Error should be an EncryptionError")
                 XCTAssertTrue(
                     error.message.contains("payment product ID not set"),
                     "Error message should mention missing payment product ID, got: \(error.message)"
                 )
+
                 expectation.fulfill()
             }
 
         )
 
         waitForExpectations(timeout: 10.0)
+    }
+
+    func testEncryptTokenRequest_returnsCorrectValuesMap() {
+        let tokenRequest = CreditCardTokenRequest()
+        tokenRequest.paymentProductId = NSNumber(value: 1)
+        tokenRequest.cardNumber = TestData.visaCardNumber
+        tokenRequest.cardholderName = "Test Cardholder"
+        tokenRequest.securityCode = TestData.cvv
+        tokenRequest.expiryDate = TestData.expiryDateMMYY
+
+        let values = tokenRequest.getValues()
+
+        XCTAssertEqual(TestData.visaCardNumber, values["cardNumber"])
+        XCTAssertEqual("Test Cardholder", values["cardholderName"])
+        XCTAssertEqual(TestData.expiryDateMMYY, values["expiryDate"])
+        XCTAssertEqual(TestData.cvv, values["cvv"])
     }
 
     func testEncryptTokenRequest_ValidRequest_ReturnsEncodedClientMetaInfo() {
@@ -192,14 +210,53 @@ class CreditCardTokenRequestIntegrationTests: BaseIntegrationTest {
         waitForExpectations(timeout: 10.0)
     }
 
+    func testEncryptTokenRequest_returnsEncryptedTokenAsString() {
+        let expectation = expectation(description: "Encrypt token request — encryptedCustomerInput")
+
+        getValidRequest { tokenRequest in
+          self.sdk.encryptTokenRequest(
+            tokenRequest,
+            success: { encryptedRequest in
+              XCTAssertFalse(
+                encryptedRequest.encryptedCustomerInput.isEmpty,
+                "encryptedCustomerInput should not be empty"
+              )
+
+              XCTAssertEqual(
+                5,
+                encryptedRequest.encryptedCustomerInput.split(separator: ".").count,
+                "encryptedCustomerInput should be a JWE compact serialization"
+              )
+
+              expectation.fulfill()
+            },
+            failure: { error in
+              XCTFail("Should not fail: \(error)")
+              expectation.fulfill()
+            }
+          )
+        }
+
+        waitForExpectations(timeout: 10.0)
+      }
+
     // MARK: - Helper Methods
 
     private func assertAllValid(_ result: EncryptedRequest) {
-        XCTAssertNotNil(result, "Result should not be null")
-        XCTAssertNotNil(result.encryptedCustomerInput, "Encrypted customer input should not be null")
         XCTAssertFalse(
             result.encryptedCustomerInput.isEmpty,
             "Encrypted customer input should not be empty"
+        )
+
+        XCTAssertFalse(
+            result.encodedClientMetaInfo.isEmpty,
+            "Encoded client meta info should not be empty"
+        )
+
+        XCTAssertEqual(
+            5,
+            result.encryptedCustomerInput.split(separator: ".").count,
+            "Encrypted customer input should be a JWE compact serialization"
         )
     }
 
@@ -209,7 +266,7 @@ class CreditCardTokenRequestIntegrationTests: BaseIntegrationTest {
             paymentContext: paymentContext,
             success: { paymentProduct in
                 let request = CreditCardTokenRequest()
-                request.paymentProductId = 1  // VISA
+                request.paymentProductId = NSNumber(value: 1)
                 request.cardNumber = TestData.visaCardNumber
                 request.cardholderName = "Test Cardholder"
                 request.securityCode = TestData.cvv

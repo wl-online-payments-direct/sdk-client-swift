@@ -23,6 +23,7 @@ class CurrencyConversionIntegrationTests: BaseIntegrationTest {
     private let dccToken = ""               // token for DCC-supporting card
     private let noDccCardNumber = ""        // partial card number with no DCC support
     private let noDccProductId: Int = 0     // product ID for non-DCC card
+    private let noDccToken = ""             // token for non-DCC card
 
     private var amountOfMoney: AmountOfMoney {
         AmountOfMoney(amount: 1000, currencyCode: "AUD")
@@ -172,6 +173,36 @@ class CurrencyConversionIntegrationTests: BaseIntegrationTest {
                         404,
                         responseError.httpStatusCode,
                         "HTTP status code should be 404 for no DCC card"
+                    )
+                }
+
+                expectation.fulfill()
+            }
+        )
+
+        waitForExpectations(timeout: 10.0)
+    }
+    
+    func testGetCurrencyConversionQuote_WithNoConversionToken_ThrowsResponseError() throws {
+        try XCTSkipIf(true, "DISABLED: Requires merchant environment configured for DCC")
+
+        let expectation = expectation(description: "DCC quote error with token")
+
+        sdk.currencyConversionQuote(
+            amountOfMoney: amountOfMoney,
+            token: noDccToken,
+            success: { _ in
+                XCTFail("Should throw error for token without DCC support")
+                expectation.fulfill()
+            },
+            failure: { error in
+                XCTAssertTrue(error is ResponseError, "Error should be a ResponseError")
+
+                if let responseError = error as? ResponseError {
+                    XCTAssertEqual(
+                        404,
+                        responseError.httpStatusCode,
+                        "HTTP status code should be 404 for token without DCC support"
                     )
                 }
 

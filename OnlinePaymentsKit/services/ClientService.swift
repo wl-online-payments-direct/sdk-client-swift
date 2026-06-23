@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Do not remove or alter the notices in this preamble.
  *
  * This software is owned by Worldline and may not be be altered, copied, reproduced, republished, uploaded, posted, transmitted or distributed in any way, without the prior written consent of Worldline.
@@ -36,14 +36,18 @@ internal class ClientService: ClientServiceProtocol {
         success: @escaping (_ iinDetailsResponse: IINDetailsResponse) -> Void,
         failure: @escaping (_ error: SdkError) -> Void,
     ) {
-        if bin.count < 6 {
+        let normalizedBin = bin.filter{ !$0.isWhitespace }
+        
+        
+        if normalizedBin.count < 6 {
             let response = IINDetailsResponse(status: .notEnoughDigits)
             success(response)
 
             return
         }
 
-        let cacheKey = "getIinDetails-\(bin)"
+        let formattedBin = iinDigitsFrom(bin: bin)
+        let cacheKey = "getIinDetails-\(formattedBin)"
 
         if let cached: IINDetailsResponse = cacheManager.get(key: cacheKey) {
             success(cached)
@@ -201,16 +205,18 @@ internal class ClientService: ClientServiceProtocol {
     }
 
     private func iinDigitsFrom(bin: String) -> String {
+        let normalizedBin = bin.filter { !$0.isWhitespace }
+        
         let max: Int
-        if bin.count >= 8 {
+        if normalizedBin.count >= 8 {
             max = 8
         } else {
             max = min(bin.count, 6)
         }
 
         return String(
-            bin[
-                ..<bin.index(bin.startIndex, offsetBy: max)
+            normalizedBin[
+                ..<normalizedBin.index(normalizedBin.startIndex, offsetBy: max)
             ]
         )
     }

@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Do not remove or alter the notices in this preamble.
  *
  * This software is owned by Worldline and may not be be altered, copied, reproduced, republished, uploaded, posted, transmitted or distributed in any way, without the prior written consent of Worldline.
@@ -12,18 +12,7 @@
 
 import XCTest
 
-/// Integration tests for the complete payment flow
-/// These tests require valid API credentials and should only be run in controlled environments
-///
-/// To run these tests:
-/// 1. Set the following environment variables:
-///    - WORLDLINE_API_KEY: Your API key (merchant ID)
-///    - WORLDLINE_API_SECRET: Your API secret
-///    - WORLDLINE_BASE_URL: The base API URL (e.g., https://payment.preprod.direct.worldline-solutions.com)
-///    - WORLDLINE_MERCHANT_ID: Your merchant/customer ID
-///
-/// 2. Uncomment the test methods below
-/// 3. Run tests with: xcodebuild test -scheme OnlinePaymentsKit
+/// Integration tests for server API calls used by the SDK integration tests.
 class ServerApiIntegrationTests: XCTestCase {
 
     var serverApi: ServerApiUtility!
@@ -31,16 +20,14 @@ class ServerApiIntegrationTests: XCTestCase {
     override func setUp() {
         super.setUp()
 
-        // Load credentials from .env file or environment variables
         loadEnvironmentFromFile()
 
-        guard let apiKey = ProcessInfo.processInfo.environment["WORLDLINE_API_KEY"],
+        guard
+            let apiKey = ProcessInfo.processInfo.environment["WORLDLINE_API_KEY"],
             let apiSecret = ProcessInfo.processInfo.environment["WORLDLINE_API_SECRET"],
             let baseUrl = ProcessInfo.processInfo.environment["WORLDLINE_BASE_URL"],
             let merchantId = ProcessInfo.processInfo.environment["WORLDLINE_MERCHANT_ID"]
         else {
-            // Skip tests if credentials not provided
-
             return
         }
 
@@ -52,56 +39,8 @@ class ServerApiIntegrationTests: XCTestCase {
         )
     }
 
-    /// Loads environment variables from .env file if present
-    private func loadEnvironmentFromFile() {
-        let fileManager = FileManager.default
-
-        // Look for .env in the Integration test directory
-        let sourceFile = URL(fileURLWithPath: #filePath)
-        let integrationDir = sourceFile.deletingLastPathComponent().path
-
-        let envPath = "\(integrationDir)/.env"
-
-        guard fileManager.fileExists(atPath: envPath),
-            let contents = try? String(contentsOfFile: envPath, encoding: .utf8)
-        else {
-            return
-        }
-
-        // Parse .env file
-        contents.split(separator: "\n").forEach { line in
-            let trimmed = line.trimmingCharacters(in: .whitespaces)
-
-            // Skip comments and empty lines
-            guard !trimmed.isEmpty, !trimmed.hasPrefix("#") else {
-                return
-            }
-
-            // Parse KEY=VALUE format
-            let parts = trimmed.split(separator: "=", maxSplits: 1)
-            guard parts.count == 2 else {
-                return
-            }
-
-            let key = String(parts[0]).trimmingCharacters(in: .whitespaces)
-            let value = String(parts[1]).trimmingCharacters(in: .whitespaces)
-
-            // Set environment variable (only if not already set)
-            if ProcessInfo.processInfo.environment[key] == nil {
-                setenv(key, value, 1)
-            }
-        }
-    }
-
-    // MARK: - Create Session Tests
-
-    /// Test creating a new session
-    func testCreateSession() {
-        guard serverApi != nil else {
-            print("Skipping integration test - credentials not configured")
-
-            return
-        }
+    func testServerApiSession() throws {
+        try XCTSkipIf(serverApi == nil, "Skipping integration test - server API credentials are not configured")
 
         let expectation = expectation(description: "Create session")
 
@@ -114,9 +53,6 @@ class ServerApiIntegrationTests: XCTestCase {
                 XCTAssertNotNil(response.clientApiUrl, "Client API URL should be present")
                 XCTAssertNotNil(response.assetUrl, "Asset URL should be present")
                 XCTAssertNotNil(response.customerId, "Customer ID should be present")
-                print("Session created successfully:")
-                print("   Session ID: \(response.clientSessionId ?? "nil")")
-                print("   Customer ID: \(response.customerId ?? "nil")")
 
             case .failure(let error):
                 XCTFail("Failed to create session: \(error.localizedDescription)")
@@ -128,10 +64,7 @@ class ServerApiIntegrationTests: XCTestCase {
         waitForExpectations(timeout: 10.0)
     }
 
-    // MARK: - Authentication Tests
-
-    func testSignatureGeneration() {
-        // This test verifies the signature generation without making actual API calls
+    func testServerApiSignatureGeneration() throws {
         let testUtility = ServerApiUtility(
             apiKey: "test-key",
             apiSecret: "test-secret",
@@ -139,8 +72,54 @@ class ServerApiIntegrationTests: XCTestCase {
             merchantId: "12345"
         )
 
-        // The signature generation is tested indirectly through the private method
-        // Real validation will happen when integration tests run with actual API
-        XCTAssertNotNil(testUtility)
+        let signature = try testUtility.generateSignature(
+            method: "POST",
+            contentType: "application/json; charset=utf-8",
+            date: "Tue, 23 Jun 2026 10:00:00 GMT",
+            canonicalizedHeaders: "",
+            canonicalizedResource: "/v2/12345/sessions"
+        )
+
+        XCTAssertEqual(
+            "x74QxgmfkUkArtKidCHM9EyyG5rnYpqqoJUDOfDV2s8=",
+            signature,
+            "Signature should match the expected HMAC-SHA256 Base64 value"
+        )
+    }
+
+    private func loadEnvironmentFromFile() {
+        let fileManager = FileManager.default
+
+        let sourceFile = URL(fileURLWithPath: #filePath)
+        let integrationDir = sourceFile.deletingLastPathComponent().path
+        let envPath = "\(integrationDir)/.env"
+
+        guard
+            fileManager.fileExists(atPath: envPath),
+            let contents = try? String(contentsOfFile: envPath, encoding: .utf8)
+        else {
+            return
+        }
+
+        contents.split(separator: "\n").forEach { line in
+            let trimmed = line.trimmingCharacters(in: .whitespaces)
+
+            guard !trimmed.isEmpty, !trimmed.hasPrefix("#") else {
+                return
+            }
+
+            let parts = trimmed.split(separator: "=", maxSplits: 1)
+
+            guard parts.count == 2 else {
+                return
+            }
+
+            let key = String(parts[0]).trimmingCharacters(in: .whitespaces)
+            let value = String(parts[1]).trimmingCharacters(in: .whitespaces)
+
+            if ProcessInfo.processInfo.environment[key] == nil {
+                setenv(key, value, 1)
+            }
+        }
     }
 }
