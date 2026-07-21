@@ -1,3 +1,9 @@
+# 5.1.2
+
+## Fixed
+
+* Fixed an issue caused by UTF-8 BOM characters in SDK source files.
+
 # 5.1.1
 
 ## Added

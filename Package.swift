@@ -1,4 +1,4 @@
-﻿// swift-tools-version:5.5
+// swift-tools-version:5.5
 /*
  * Do not remove or alter the notices in this preamble.
  *
@@ -34,7 +34,7 @@ let package = Package(
             name: "OnlinePaymentsKit",
             dependencies: ["Alamofire", "CryptoSwift"],
             path: "OnlinePaymentsKit",
-            resources: [.copy("Resources/OnlinePaymentsKit.bundle")]
+            resources: [.copy("resources/OnlinePaymentsKit.bundle")]
         ),
         .testTarget(
             name: "OnlinePaymentsKitTests",
