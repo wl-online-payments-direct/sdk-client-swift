@@ -34,7 +34,7 @@ let package = Package(
             name: "OnlinePaymentsKit",
             dependencies: ["Alamofire", "CryptoSwift"],
             path: "OnlinePaymentsKit",
-            resources: [.copy("resources/OnlinePaymentsKit.bundle")]
+            resources: [.copy("Resources/OnlinePaymentsKit.bundle")]
         ),
         .testTarget(
             name: "OnlinePaymentsKitTests",
