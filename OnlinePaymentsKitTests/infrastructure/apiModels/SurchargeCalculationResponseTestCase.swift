@@ -244,3 +244,108 @@ class ClientServiceSurchargeTestCase: XCTestCase {
         XCTAssertNil(surcharge?.surchargeRate)
     }
 }
+
+class SurchargeMissingAmountsTestCase: XCTestCase {
+
+    func testSurchargeWithoutAmountsStillDecodes() throws {
+        let json = """
+            {
+                "surcharges": [
+                    { "paymentProductId": 1, "result": "NO_SURCHARGE" }
+                ]
+            }
+            """
+
+        let response = try JSONDecoder().decode(SurchargeCalculationResponse.self, from: Data(json.utf8))
+        let surcharge = try XCTUnwrap(response.surcharges.first)
+
+        XCTAssertEqual(surcharge.result, .noSurcharge)
+        XCTAssertNil(surcharge.netAmountOrNil)
+        XCTAssertNil(surcharge.surchargeAmountOrNil)
+        XCTAssertNil(surcharge.totalAmountOrNil)
+        XCTAssertEqual(surcharge.totalAmount.amount, 0)
+        XCTAssertEqual(surcharge.totalAmount.currencyCode, "UNKNOWN")
+    }
+
+    func testSurchargeWithAmountsKeepsThem() throws {
+        let json = """
+            {
+                "surcharges": [
+                    {
+                        "paymentProductId": 1,
+                        "result": "OK",
+                        "netAmount": { "amount": 1000, "currencyCode": "EUR" },
+                        "surchargeAmount": { "amount": 30, "currencyCode": "EUR" },
+                        "totalAmount": { "amount": 1030, "currencyCode": "EUR" }
+                    }
+                ]
+            }
+            """
+
+        let response = try JSONDecoder().decode(SurchargeCalculationResponse.self, from: Data(json.utf8))
+        let surcharge = try XCTUnwrap(response.surcharges.first)
+
+        XCTAssertEqual(surcharge.netAmountOrNil?.amount, 1000)
+        XCTAssertEqual(surcharge.surchargeAmountOrNil?.amount, 30)
+        XCTAssertEqual(surcharge.totalAmountOrNil?.amount, 1030)
+        XCTAssertEqual(surcharge.totalAmount.amount, 1030)
+    }
+}
+
+class CurrencyConversionResponseDecodingTestCase: XCTestCase {
+
+    func testResponseWithoutProposalStillDecodes() throws {
+        let json = """
+            { "result": { "result": "NotAvailable" }, "dccSessionId": "" }
+            """
+
+        let response = try JSONDecoder().decode(CurrencyConversionResponse.self, from: Data(json.utf8))
+
+        XCTAssertEqual(response.result.result, .notAvailable)
+        XCTAssertNil(response.proposalOrNil)
+        XCTAssertNil(response.dccSessionIdOrNil)
+        XCTAssertEqual(response.dccSessionId, "")
+        XCTAssertEqual(response.proposal.baseAmount.currencyCode, "UNKNOWN")
+    }
+
+    func testResponseWithoutSessionIdAndProposalStillDecodes() throws {
+        let json = """
+            { "result": { "result": "NoRate" } }
+            """
+
+        let response = try JSONDecoder().decode(CurrencyConversionResponse.self, from: Data(json.utf8))
+
+        XCTAssertEqual(response.result.result, .noRate)
+        XCTAssertNil(response.proposalOrNil)
+        XCTAssertNil(response.dccSessionIdOrNil)
+    }
+
+    func testAllowedResponseKeepsProposalAndSessionId() throws {
+        let json = """
+            {
+                "dccSessionId": "5cd02469177743fb8a0b2c78937ee25f",
+                "result": { "result": "Allowed" },
+                "proposal": {
+                    "baseAmount": { "amount": 1298, "currencyCode": "EUR" },
+                    "targetAmount": { "amount": 1400, "currencyCode": "USD" },
+                    "rate": {
+                        "exchangeRate": 1.57,
+                        "invertedExchangeRate": 0.64,
+                        "markUpRate": 3.12,
+                        "quotationDateTime": "2026-01-01T10:00:00Z",
+                        "source": "Test"
+                    },
+                    "disclaimerDisplay": "Disclaimer"
+                }
+            }
+            """
+
+        let response = try JSONDecoder().decode(CurrencyConversionResponse.self, from: Data(json.utf8))
+
+        XCTAssertEqual(response.result.result, .allowed)
+        XCTAssertEqual(response.dccSessionIdOrNil, "5cd02469177743fb8a0b2c78937ee25f")
+        XCTAssertEqual(response.proposalOrNil?.targetAmount.amount, 1400)
+        XCTAssertEqual(response.proposal.rate.markUpRate, 3.12)
+        XCTAssertEqual(response.proposal.disclaimerDisplay, "Disclaimer")
+    }
+}

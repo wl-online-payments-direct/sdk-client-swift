@@ -105,3 +105,5 @@ archives
 .swiftpm/xcode/xcshareddata/xcschemes/
 *.xcschemes
 *.local.*
+# Agent Skill examples: copy of skills/*/examples made by scripts/skill-check.sh
+examples/skill-examples/Sources/

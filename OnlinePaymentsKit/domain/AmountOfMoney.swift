@@ -52,3 +52,10 @@ import Foundation
         return "\(amount)-\(currencyCode)"
     }
 }
+
+extension AmountOfMoney {
+    /// Placeholder for an amount the API did not send: zero in the currency code `UNKNOWN`, as used when a currency code is missing.
+    internal static func unknown() -> AmountOfMoney {
+        return AmountOfMoney(amount: 0, currencyCode: "UNKNOWN")
+    }
+}

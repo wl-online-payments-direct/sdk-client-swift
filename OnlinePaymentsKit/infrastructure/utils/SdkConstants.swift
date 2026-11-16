@@ -16,5 +16,5 @@ import Foundation
 
 public class SdkConstants: NSObject {
 
-    internal static let kSDKIdentifier = "SwiftClientSDK/v5.1.2"
+    internal static let kSDKIdentifier = "SwiftClientSDK/v5.2.0"
 }

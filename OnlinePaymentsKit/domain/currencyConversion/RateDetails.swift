@@ -18,4 +18,30 @@ import Foundation
     @objc public var markUpRate: Double
     @objc public var quotationDateTime: String
     @objc public var source: String
+
+    internal init(
+        exchangeRate: Double,
+        invertedExchangeRate: Double,
+        markUpRate: Double,
+        quotationDateTime: String,
+        source: String
+    ) {
+        self.exchangeRate = exchangeRate
+        self.invertedExchangeRate = invertedExchangeRate
+        self.markUpRate = markUpRate
+        self.quotationDateTime = quotationDateTime
+        self.source = source
+        super.init()
+    }
+
+    /// Placeholder used inside `DccProposal.absent()`.
+    internal static func absent() -> RateDetails {
+        return RateDetails(
+            exchangeRate: 0,
+            invertedExchangeRate: 0,
+            markUpRate: 0,
+            quotationDateTime: "",
+            source: ""
+        )
+    }
 }

@@ -1,3 +1,26 @@
+# 5.2.0
+
+## Added
+
+- An Agent Skill for AI coding agents in `skills/onlinepayments-sdk-client-swift/`. See "Working with AI agents" in
+  `README.md`.
+- `CurrencyConversionResponse`: `proposalOrNil` and `dccSessionIdOrNil`, which are `nil` when the API sent no
+  data.
+- `Surcharge`: `netAmountOrNil`, `surchargeAmountOrNil` and `totalAmountOrNil`, which are `nil` when the API
+  sent no data.
+
+## Fixed
+
+- A currency conversion quote or surcharge calculation response without optional data no longer fails to decode.
+  The API sends no `proposal` and `dccSessionId` unless the result is `.allowed`, and no amounts for
+  `.noSurcharge`. The existing properties keep their types and return placeholders then (a proposal with zero amounts
+  and the currency code `UNKNOWN`, an empty string, an amount 0 with the currency code `UNKNOWN`). Check the
+  result first, or read the data through the new `...OrNil` properties.
+- The `X-GCS-ClientMetaInfo` header of the client API requests was sent empty. It now contains the client meta
+  information, including `SdkConfiguration.appIdentifier`.
+- Corrected the documentation of `OnlinePaymentsSdk`, `SdkConfiguration` and `encryptPaymentRequest`
+  (threading, IIN details statuses, validation, `loggingEnabled`).
+
 # 5.1.2
 
 ## Fixed

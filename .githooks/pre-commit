@@ -1,0 +1,5 @@
+#!/usr/bin/env sh
+
+# Fails the commit when a code block or a versioned link in the Agent Skill is out of date.
+# Enable with: git config core.hooksPath .githooks
+node scripts/skill-sync.mjs check

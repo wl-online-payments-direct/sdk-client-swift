@@ -25,7 +25,9 @@ internal class ServiceFactory: ServiceFactoryProtocol {
             configuration.apiClient
             ?? ApiClient(
                 sessionData: configuration.sessionData,
-                loggingEnabled: configuration.configuration?.loggingEnabled ?? false
+                loggingEnabled: configuration.configuration?.loggingEnabled ?? false,
+                util: MetadataUtil(),
+                appIdentifier: configuration.configuration?.appIdentifier
             )
 
         self.cacheManager = configuration.cacheManager ?? CacheManager()

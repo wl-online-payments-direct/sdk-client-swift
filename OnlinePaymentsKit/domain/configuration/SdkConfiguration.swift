@@ -12,8 +12,16 @@
 
 import Foundation
 
+/// Optional settings of the `OnlinePaymentsSdk`.
 @objc(OPSdkConfiguration) public class SdkConfiguration: NSObject {
+    /// Identifies your app (for example `My App/v2.0.4`) in the client meta information that the SDK sends with
+    /// its requests. `nil` or an empty string is sent as `UNKNOWN`.
     public let appIdentifier: String?
+
+    /// When `true`, the SDK prints every request and response of its client API calls to the console, in all build
+    /// configurations: the URL, the headers including the client session id, POST bodies (which can contain
+    /// card digits) and response bodies. The setting applies to the `OnlinePaymentsSdk` instance it is passed to.
+    /// Keep it `false` in production.
     public let loggingEnabled: Bool
 
     public init(

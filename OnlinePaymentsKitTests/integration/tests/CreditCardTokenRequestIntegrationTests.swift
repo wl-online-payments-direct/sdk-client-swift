@@ -67,6 +67,8 @@ class CreditCardTokenRequestIntegrationTests: BaseIntegrationTest {
         let tokenExpectation = expectation(description: "Create token")
 
         getValidRequest { tokenRequest in
+            tokenRequest.expiryDate = TestData.expiryDateMMYY
+
             self.sdk.encryptTokenRequest(
                 tokenRequest,
                 success: { encryptedRequest in

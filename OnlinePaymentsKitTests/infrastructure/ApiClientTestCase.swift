@@ -451,3 +451,56 @@ class MockURLProtocol: URLProtocol {
 
     override func stopLoading() {}
 }
+
+class ApiClientClientMetaInfoTestCase: XCTestCase {
+
+    private func metaInfo(from client: ApiClient) throws -> [String: String] {
+        let header = try XCTUnwrap(client.headers.first { $0.name == "X-GCS-ClientMetaInfo" }?.value)
+        let data = try XCTUnwrap(Data(base64Encoded: header))
+
+        return try XCTUnwrap(try JSONSerialization.jsonObject(with: data) as? [String: String])
+    }
+
+    func testHeaderCarriesAppAndSdkIdentifier() throws {
+        let sessionData = SessionData(
+            clientSessionId: "session",
+            customerId: "customer",
+            clientApiUrl: "https://api.com",
+            assetUrl: "https://assets.com"
+        )
+        let client = ApiClient(sessionData: sessionData, util: MetadataUtil(), appIdentifier: "My App/v1.0")
+
+        let info = try metaInfo(from: client)
+
+        XCTAssertEqual(info["appIdentifier"], "My App/v1.0")
+        XCTAssertEqual(info["sdkIdentifier"], SdkConstants.kSDKIdentifier)
+    }
+
+    func testHeaderUsesUnknownWithoutAppIdentifier() throws {
+        let sessionData = SessionData(
+            clientSessionId: "session",
+            customerId: "customer",
+            clientApiUrl: "https://api.com",
+            assetUrl: "https://assets.com"
+        )
+        let client = ApiClient(sessionData: sessionData, util: MetadataUtil())
+
+        XCTAssertEqual(try metaInfo(from: client)["appIdentifier"], "UNKNOWN")
+    }
+
+    func testFactoryCreatedClientSendsMetaInfo() throws {
+        let sessionData = SessionData(
+            clientSessionId: "session",
+            customerId: "customer",
+            clientApiUrl: "https://api.com/client/",
+            assetUrl: "https://assets.com"
+        )
+        let factory = ServiceFactory(
+            sessionData: sessionData,
+            configuration: SdkConfiguration(appIdentifier: "Factory App/v2")
+        )
+        let client = try XCTUnwrap(factory.getApiClient() as? ApiClient)
+
+        XCTAssertEqual(try metaInfo(from: client)["appIdentifier"], "Factory App/v2")
+    }
+}

@@ -25,6 +25,7 @@ security credentials to guarantee the safe transit of your customers' data durin
         - [Carthage](#carthage)
     - [Objective-C Compatibility](#objective-c-compatibility)
     - [Example app](#example-apps)
+    - [Working with AI agents](#working-with-ai-agents)
     - [Getting started](#getting-started)
     - [Type definitions](#type-definitions)
         - [OnlinePaymentsSdk](#onlinepaymentssdk)
@@ -131,10 +132,10 @@ section of the desired target. Make sure that it is set to "Embed & Sign".
 
 ## Objective-C Compatibility
 
-The Online Payments Swift SDK can also be used in Objective-C projects by using CocoaPods or Carthage. Once you have
-added Online Payments Kit as a dependency, it can easily be used by adding the following import statement where you want
-to use the SDK:
-`@import OnlinePaymentsKit;`
+The Online Payments Swift SDK can also be added to Objective-C projects with CocoaPods or Carthage. Some types that
+every integration needs are not visible to Objective-C: the initializers of `SessionData` and `SdkConfiguration`, and
+the properties of `SdkError`. Write the code that uses the SDK in Swift, and call it from Objective-C through your own
+`@objc` wrapper class.
 
 ## Example apps
 
@@ -142,6 +143,31 @@ For your convenience, we also provide an example application in both SwiftUI and
 your own implementation. If you are fine with the look-and-feel of the example app, you do not need to make any changes
 at all. Take a look at the [SwiftUI](https://github.com/online-payments/sdk-client-swift-example-swiftui)
 or [UIKit](https://github.com/online-payments/sdk-client-swift-example) example apps.`
+
+## Working with AI agents
+
+This repository contains an [Agent Skill](https://agentskills.io) that teaches AI coding agents (for
+example Claude Code, GitHub Copilot or Cursor) how to build a checkout with this SDK: the mandatory
+security rules, the checkout steps, and Swift code that is compiled against the SDK sources on every
+SDK build.
+
+- **Where it is:** `skills/onlinepayments-sdk-client-swift/` in this repository. Start with `SKILL.md`.
+  Swift Package Manager checks out the whole repository, so the skill is in the package checkout
+  (`.build/checkouts/sdk-client-swift/` in a package project, `SourcePackages/checkouts/sdk-client-swift/`
+  in Xcode's DerivedData folder). It is not part of the XCFramework, the Carthage build or the CocoaPods
+  pod, and it is not copied into your app.
+- **Online link for the SDK version you use:**
+  https://raw.githubusercontent.com/wl-online-payments-direct/sdk-client-swift/v5.2.0/skills/onlinepayments-sdk-client-swift/SKILL.md
+  (replace the version in the link with the tag of your SDK version).
+- **Add it to your project:** copy the folder `skills/onlinepayments-sdk-client-swift/` from the
+  tag of your SDK version into the folder where your agent reads skills (for example `.claude/skills/`),
+  or put a line like this in your project's `AGENTS.md` or `CLAUDE.md`:
+
+```
+When you change code that uses the OnlinePaymentsKit Swift package, first read
+https://raw.githubusercontent.com/wl-online-payments-direct/sdk-client-swift/v5.2.0/skills/onlinepayments-sdk-client-swift/SKILL.md
+and follow its rules and examples.
+```
 
 ## Getting started
 
@@ -277,7 +303,7 @@ convert the response to Swift objects that may contain convenience functions.
 ### PaymentContext
 
 `PaymentContext` is an object that contains the context/settings of the upcoming payment. It is required as an argument
-to some methods of the `Session` instance. This object can contain the following details:
+to some methods of the `OnlinePaymentsSdk` instance. This object can contain the following details:
 
 ```swift
 public class PaymentContext {
@@ -322,11 +348,11 @@ the [PaymentProduct](#paymentproduct) section for more info.
 Below is an example of how to get display names and assets for the Visa product (id: 1).
 
 ```swift
-let basicPaymentProduct = basicPaymentProducts.paymentProduct(withId: 1)
+let basicPaymentProduct = basicPaymentProducts.paymentProduct(withId: 1) // nil when there is no such product
 
-let id = basicPaymentProduct.id // 1
-let label = basicPaymentProduct.label // VISA
-let logoPath = basicPaymentProduct.logo // https://assets.com/path/to/visa/logo.gif
+let id = basicPaymentProduct?.id // 1
+let label = basicPaymentProduct?.label // VISA
+let logo = basicPaymentProduct?.logo // the path or URL of the logo, see the Agent Skill for how to build the image URL
 ```
 
 ### AccountOnFile
@@ -343,12 +369,12 @@ product.
 let allAccountsOnFile = basicPaymentProduct.accountsOnFile
 
 // Get specific account on file for the payment product
-let accountOnFile = basicPaymentProduct.accountOnFile(withId: "123")
+let accountOnFile = basicPaymentProduct.accountOnFile(withIdentifier: "123")
 
 // Shows a mask based formatted value for the obfuscated cardNumber.
 // The mask that is used is defined in the displayHints of this accountOnFile
 // If the mask for the "cardNumber" field is {{9999}} {{9999}} {{9999}} {{9999}}, then the result would be **** **** **** 7412
-let maskedValue = accountOnFile.getValue(forField: "cardNumber")
+let maskedValue = accountOnFile.getValue(id: "cardNumber")
 ```
 
 ### PaymentProduct
@@ -388,10 +414,10 @@ of the field are inspected to see whether the field is a required field or an op
 hints of the field are inspected to see whether the values a customer provides should be obfuscated in a user interface.
 
 ```swift
-let cvvField = paymentProduct.field(id: "cvv")
+let cvvField = paymentProduct.field(id: "cvv") // nil when the product has no such field
 
-let isRequired = cvvField.isRequired // state if value is required for this field
-let shouldObfuscate = cvvField.shouldObfuscate // state if field value should be obfuscated
+let isRequired = cvvField?.isRequired // state if value is required for this field
+let shouldObfuscate = cvvField?.shouldObfuscate // state if field value should be obfuscated
 ```
 
 ### PaymentRequest
@@ -405,7 +431,7 @@ let paymentRequest = PaymentRequest(paymentProduct: paymentProduct)
 
 #### Tokenize payment request
 
-A `PaymentProduct` has a property `tokenize`, which is used to indicate whether a payment request should be stored as an
+A `PaymentRequest` has a property `tokenize`, which is used to indicate whether a payment request should be stored as an
 account on file. The code fragment below shows how a payment request should be constructed when the request should be
 stored as an account on file. By default, `tokenize` is set to `false`.
 
@@ -430,8 +456,8 @@ let paymentRequest = PaymentRequest(
     accountOnFile: accountOnFile // when you do not pass the accountOnFile value, it will be nil
 )
 
-// or by accessing the request's accountOnFile property
-paymentRequest.accountOnFile = accountOnFile
+// or by calling setAccountOnFile on the request (accountOnFile itself is read-only)
+paymentRequest.setAccountOnFile(accountOnFile)
 ```
 
 #### Set field values to the payment request
@@ -462,7 +488,7 @@ errors, the customer should be provided with feedback about these errors.
 
 ```swift
 // validate all fields in the payment request
-let validationResult = paymentRequest.validate()
+let validationResult = try paymentRequest.validate()
 
 // check if the payment request is valid
 if validationResult.isValid {
@@ -515,7 +541,7 @@ are:
 
 - `supported` indicates that the IIN is associated with a payment product supported by our platform.
 - `unknown` indicates that the IIN is not recognized.
-- `notEnoughDigits"` indicates that fewer than six digits have been provided and that the IIN check cannot be performed.
+- `notEnoughDigits` indicates that fewer than six digits have been provided and that the IIN check cannot be performed.
 - `existingButNotAllowed` indicates that the provided IIN is recognized, but that the corresponding product is not
   allowed for the current payment.
 
@@ -552,7 +578,7 @@ let value = "1234567890123456"
 let maskedValue = formatter.formatString(string: value, mask: mask) // "1234 5678 9012 3456"
 
 // remove masked value
-let unmaskedValue = formatter.unformatString(string: value, mask: mask) // "1234567890123456"
+let unmaskedValue = formatter.unformatString(string: maskedValue, mask: mask) // "1234567890123456"
 ```
 
 ## Payment Steps
@@ -604,7 +630,7 @@ let paymentContext = PaymentContext(
   requesting any payment product information. The payment products that the customer can choose from depend on the
   provided payment information, so the Client SDK needs this information to be able to do its job. The payment
   information that is needed is:
-    - the total amount of the payment, defined as property `amountOfMoney.totalAmount`
+    - the total amount of the payment, defined as property `amountOfMoney.amount`
     - the currency that should be used, defined as property `amountOfMoney.currencyCode`
     - the country of the person that is performing the payment, defined as property `countryCode`
     - whether the payment is a single payment or a recurring payment

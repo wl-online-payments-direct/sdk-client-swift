@@ -28,6 +28,8 @@ enum TestData {
     /// Far-future expiry date in MMYY format (no separator), used for PaymentRequest fields.
     static let expiryDateMMYY = "1230"
 
+    static let expiryDateMMYYYY = "122030"
+
     /// Far-future expiry date with slash separator (MM/YYYY), used for EncryptionService tests.
     static let expiryDateSlash = "12/2030"
 }

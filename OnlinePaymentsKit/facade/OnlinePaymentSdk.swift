@@ -29,6 +29,21 @@ import Foundation
 ///
 /// let sdk = try OnlinePaymentsSdk(sessionData: sessionData)
 /// ```
+///
+/// ## Threading and lifetime
+///
+/// Every method reports its result through the `success` or `failure` closure, exactly one of them, once.
+/// Results of network requests arrive on the main queue. Results that need no request (a cached result, fewer
+/// than 6 digits for `iinDetails`, a payment product the SDK does not support) are delivered synchronously on
+/// the calling thread, before the method returns. Keep a strong reference to the `OnlinePaymentsSdk` instance
+/// until the closures have been called: if the instance is released while a request is running, the closures
+/// are never called.
+///
+/// ## Working with AI agents
+///
+/// An Agent Skill with the mandatory rules and tested example code for this SDK is available at
+/// https://raw.githubusercontent.com/wl-online-payments-direct/sdk-client-swift/v5.2.0/skills/onlinepayments-sdk-client-swift/SKILL.md
+/// AI coding agents should read it before writing code that uses this class.
 @objc(OPOnlinePaymentsSdk)
 public class OnlinePaymentsSdk: NSObject {
 
@@ -167,7 +182,10 @@ public class OnlinePaymentsSdk: NSObject {
     /// IIN details provide information about the card issuer, such as the payment product ID,
     /// country code, and whether the card is allowed in the current payment context.
     ///
-    /// The partial credit card number should be at least 6 digits to obtain valid IIN details.
+    /// The partial credit card number should be at least 6 digits to obtain valid IIN details. With fewer than 6
+    /// digits (spaces are ignored) no request is made and `success` is called with the status `.notEnoughDigits`.
+    /// An unknown card gives the status `.unknown`. Neither case calls `failure`. A second lookup started while
+    /// one is running is not rejected, so ignore the results of lookups that are no longer current.
     ///
     /// - Parameters:
     ///   - partialCardNumber: The first 6-8 digits of the credit card number.
@@ -318,8 +336,8 @@ public class OnlinePaymentsSdk: NSObject {
     /// Retrieves the public key used for encrypting payment data.
     ///
     /// The public key is required to encrypt sensitive payment information before
-    /// sending it to the server. The key should be cached and reused for multiple
-    /// encryption operations until it expires.
+    /// sending it to the server. The SDK caches the key per instance and fetches it itself when
+    /// you call `encryptPaymentRequest` or `encryptTokenRequest`, so you normally do not need this method.
     ///
     /// - Parameters:
     ///   - success: Closure called with the public key response if the request succeeds.
@@ -338,8 +356,9 @@ public class OnlinePaymentsSdk: NSObject {
     /// Encrypts a payment request with sensitive payment data.
     ///
     /// This method encrypts all sensitive payment information (card number, CVV, etc.)
-    /// using the public key obtained from `getPublicKey()`. The encrypted request
-    /// can then be safely transmitted to your server.
+    /// using the public key from `publicKey(success:failure:)`, which the SDK fetches itself. The request is
+    /// validated first: if it is not valid, `failure` is called with an `InvalidArgumentError`.
+    /// The encrypted request can then be safely transmitted to your server.
     ///
     /// - Parameters:
     ///   - request: The payment request containing unencrypted payment data.
@@ -362,7 +381,8 @@ public class OnlinePaymentsSdk: NSObject {
     ///
     /// This method encrypts credit card information to create a token that can be
     /// stored and reused for future payments. The token request is encrypted using
-    /// the public key obtained from `getPublicKey()`.
+    /// the public key from `publicKey(success:failure:)`, which the SDK fetches itself. The token request is not
+    /// validated, and `paymentProductId` must be set: otherwise `failure` is called with an `EncryptionError`.
     ///
     /// - Parameters:
     ///   - request: The token request containing credit card details.

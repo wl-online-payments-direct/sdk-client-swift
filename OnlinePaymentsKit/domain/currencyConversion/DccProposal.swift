@@ -18,4 +18,28 @@ import Foundation
     @objc public var rate: RateDetails
     @objc public var disclaimerReceipt: String?
     @objc public var disclaimerDisplay: String?
+
+    internal init(
+        baseAmount: AmountOfMoney,
+        targetAmount: AmountOfMoney,
+        rate: RateDetails,
+        disclaimerReceipt: String? = nil,
+        disclaimerDisplay: String? = nil
+    ) {
+        self.baseAmount = baseAmount
+        self.targetAmount = targetAmount
+        self.rate = rate
+        self.disclaimerReceipt = disclaimerReceipt
+        self.disclaimerDisplay = disclaimerDisplay
+        super.init()
+    }
+
+    /// Placeholder returned by `CurrencyConversionResponse.proposal` when the API sent no proposal.
+    internal static func absent() -> DccProposal {
+        return DccProposal(
+            baseAmount: AmountOfMoney.unknown(),
+            targetAmount: AmountOfMoney.unknown(),
+            rate: RateDetails.absent()
+        )
+    }
 }

@@ -17,13 +17,13 @@ class ApiClient: ApiClientProtocol {
 
     private let sessionData: SessionData
     private let loggingEnabled: Bool
-    private let util: MetadataUtil?
+    private let clientMetaInfo: String
     private let apiClientSession: Session
 
     var headers: HTTPHeaders {
         return [
             "Authorization": "GCS v1Client:\(sessionData.clientSessionId)",
-            "X-GCS-ClientMetaInfo": util?.base64EncodedClientMetaInfo ?? "",
+            "X-GCS-ClientMetaInfo": clientMetaInfo,
         ]
     }
 
@@ -31,11 +31,12 @@ class ApiClient: ApiClientProtocol {
         sessionData: SessionData,
         loggingEnabled: Bool = false,
         util: MetadataUtil? = nil,
+        appIdentifier: String? = nil,
         session: Session = .default
     ) {
         self.sessionData = sessionData
         self.loggingEnabled = loggingEnabled
-        self.util = util
+        self.clientMetaInfo = util?.base64EncodedClientMetaInfo(withAppIdentifier: appIdentifier) ?? ""
         self.apiClientSession = session
     }
 

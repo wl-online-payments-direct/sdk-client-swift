@@ -1,0 +1,9 @@
+{
+    "skillDir": "skills/onlinepayments-sdk-client-swift",
+    "examplesDir": "skills/onlinepayments-sdk-client-swift/examples",
+    "version": {
+        "file": "OnlinePaymentsKit.podspec",
+        "pattern": "s\\.version\\s*=\\s*\"([^\"]+)\""
+    },
+    "versionedLinkFiles": ["README.md", "OnlinePaymentsKit/facade/OnlinePaymentSdk.swift"]
+}

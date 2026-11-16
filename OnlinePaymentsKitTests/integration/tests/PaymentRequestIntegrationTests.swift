@@ -165,7 +165,7 @@ class PaymentRequestIntegrationTests: BaseIntegrationTest {
           try paymentRequest.setValue(id: "cardNumber", value: TestData.visaCardNumberAlt)
           try paymentRequest.setValue(id: "cardholderName", value: "Test Cardholder")
           try paymentRequest.setValue(id: "cvv", value: TestData.cvv)
-          try paymentRequest.setValue(id: "expiryDate", value: TestData.expiryDateMMYY)
+          try paymentRequest.setValue(id: "expiryDate", value: TestData.expiryDateMMYYYY)
 
           XCTAssertTrue(paymentRequest.tokenize, "Tokenize flag should be enabled")
 
